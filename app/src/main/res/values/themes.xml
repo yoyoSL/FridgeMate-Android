@@ -1,5 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.FridgeMate" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">@color/teal_primary</item>
+        <item name="android:windowBackground">@color/light_teal</item>
+        <item name="android:statusBarColor">@color/light_teal</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
 
-    <style name="Theme.FridgeMate" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="AppTheme" parent="Theme.FridgeMate" />
 </resources>
