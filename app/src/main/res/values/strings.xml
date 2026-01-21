@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">FridgeMate</string>
+
+    <!-- Login Screen -->
+    <string name="welcome_back">Welcome Back</string>
+    <string name="email_or_username">Email or Username</string>
+    <string name="hint_email">Enter your email</string>
+    <string name="password">Password</string>
+    <string name="hint_password">Enter your password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="log_in">Log In</string>
+    <string name="dont_have_account">Don\'t have an account? </string>
+    <string name="sign_up">Sign up</string>
+
+    <!-- Register Screen -->
+    <string name="create_account">Create Account</string>
+    <string name="full_name">Full Name</string>
+    <string name="hint_full_name">Enter your full name</string>
+    <string name="email">Email</string>
+    <string name="hint_create_password">Create a password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="hint_confirm_password">Confirm your password</string>
+    <string name="already_have_account">Already have an account? </string>
+
+    <!-- Messages -->
+    <string name="error_fill_all_fields">Please fill all fields</string>
+    <string name="error_passwords_dont_match">Passwords do not match</string>
+    <string name="registration_successful">Registration successful!</string>
 </resources>

@@ -32,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="FridgeMate"
+        android:text="@string/app_name"
         android:textColor="@color/dark_teal"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -61,7 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Welcome Back"
+                android:text="@string/welcome_back"
                 android:textColor="@color/black"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -70,7 +70,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Email or Username"
+                android:text="@string/email_or_username"
                 android:textColor="@color/black"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -95,7 +95,7 @@
                     android:id="@+id/et_email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Enter your email"
+                    android:hint="@string/hint_email"
                     android:inputType="textEmailAddress"
                     android:padding="16dp"
                     android:textColorHint="@color/gray_text" />
@@ -105,7 +105,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Password"
+                android:text="@string/password"
                 android:textColor="@color/black"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -132,7 +132,7 @@
                     android:id="@+id/et_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Enter your password"
+                    android:hint="@string/hint_password"
                     android:inputType="textPassword"
                     android:padding="16dp"
                     android:textColorHint="@color/gray_text" />
@@ -144,7 +144,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginTop="8dp"
-                android:text="Forgot password?"
+                android:text="@string/forgot_password"
                 android:textColor="@color/teal_primary"
                 android:textSize="12sp" />
 
@@ -153,7 +153,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="24dp"
-                android:text="Log In"
+                android:text="@string/log_in"
                 android:textAllCaps="false"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -170,7 +170,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Don't have an account? "
+                    android:text="@string/dont_have_account"
                     android:textColor="@color/gray_text"
                     android:textSize="14sp" />
 
@@ -178,7 +178,7 @@
                     android:id="@+id/tv_sign_up"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sign up"
+                    android:text="@string/sign_up"
                     android:textColor="@color/teal_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
