@@ -1,16 +1,13 @@
 package com.project.fridgemate.ui.register
 
-import android.graphics.LinearGradient
-import android.graphics.Shader
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentRegisterBinding
+import com.project.fridgemate.ui.auth.AuthFragment
 
 class RegisterFragment : Fragment() {
 
@@ -28,26 +25,7 @@ class RegisterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        setupUI()
         setupListeners()
-    }
-
-    private fun setupUI() {
-        // Apply gradient to app title
-        binding.appName.post {
-            val paint = binding.appName.paint
-            val width = paint.measureText(binding.appName.text.toString())
-            val textShader: Shader = LinearGradient(
-                0f, 0f, width, binding.appName.textSize,
-                intArrayOf(
-                    android.graphics.Color.parseColor("#00BC7D"),
-                    android.graphics.Color.parseColor("#00B8DB")
-                ), null, Shader.TileMode.CLAMP
-            )
-            binding.appName.paint.shader = textShader
-            binding.appName.invalidate()
-        }
     }
 
     private fun setupListeners() {
@@ -57,23 +35,42 @@ class RegisterFragment : Fragment() {
             val password = binding.etPassword.text.toString()
             val confirmPassword = binding.etConfirmPassword.text.toString()
 
-            if (fullName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(context, getString(R.string.error_fill_all_fields), Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+            var hasError = false
+            binding.tilFullName.error = null
+            binding.tilEmail.error = null
+            binding.tilPassword.error = null
+            binding.tilConfirmPassword.error = null
+
+            if (fullName.isEmpty()) {
+                binding.tilFullName.error = getString(R.string.error_fill_all_fields)
+                hasError = true
+            }
+            if (email.isEmpty()) {
+                binding.tilEmail.error = getString(R.string.error_fill_all_fields)
+                hasError = true
+            }
+            if (password.isEmpty()) {
+                binding.tilPassword.error = getString(R.string.error_fill_all_fields)
+                hasError = true
+            }
+            if (confirmPassword.isEmpty()) {
+                binding.tilConfirmPassword.error = getString(R.string.error_fill_all_fields)
+                hasError = true
             }
 
-            if (password != confirmPassword) {
-                Toast.makeText(context, getString(R.string.error_passwords_dont_match), Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+            if (!hasError && password != confirmPassword) {
+                binding.tilConfirmPassword.error = getString(R.string.error_passwords_dont_match)
+                hasError = true
             }
+
+            if (hasError) return@setOnClickListener
 
             // TODO: Implement registration logic
-            Toast.makeText(context, getString(R.string.registration_successful), Toast.LENGTH_SHORT).show()
-            findNavController().popBackStack()
+            (parentFragment as? AuthFragment)?.showLogin()
         }
 
         binding.tvLogin.setOnClickListener {
-            findNavController().popBackStack()
+            (parentFragment as? AuthFragment)?.showLogin()
         }
     }
 
