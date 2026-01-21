@@ -3,7 +3,6 @@ package com.project.fridgemate
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.project.fridgemate.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
