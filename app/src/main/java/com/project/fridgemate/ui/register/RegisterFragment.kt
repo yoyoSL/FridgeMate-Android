@@ -1,5 +1,7 @@
 package com.project.fridgemate.ui.register
 
+import android.graphics.LinearGradient
+import android.graphics.Shader
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,7 +29,25 @@ class RegisterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupUI()
         setupListeners()
+    }
+
+    private fun setupUI() {
+        // Apply gradient to app title
+        binding.appName.post {
+            val paint = binding.appName.paint
+            val width = paint.measureText(binding.appName.text.toString())
+            val textShader: Shader = LinearGradient(
+                0f, 0f, width, binding.appName.textSize,
+                intArrayOf(
+                    android.graphics.Color.parseColor("#00BC7D"),
+                    android.graphics.Color.parseColor("#00B8DB")
+                ), null, Shader.TileMode.CLAMP
+            )
+            binding.appName.paint.shader = textShader
+            binding.appName.invalidate()
+        }
     }
 
     private fun setupListeners() {

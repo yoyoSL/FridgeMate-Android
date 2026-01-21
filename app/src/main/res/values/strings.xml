@@ -11,6 +11,7 @@
     <string name="log_in">Log In</string>
     <string name="dont_have_account">Don\'t have an account? </string>
     <string name="sign_up">Sign up</string>
+    <string name="error_enter_credentials">Please enter email and password</string>
 
     <!-- Register Screen -->
     <string name="create_account">Create Account</string>
@@ -26,4 +27,18 @@
     <string name="error_fill_all_fields">Please fill all fields</string>
     <string name="error_passwords_dont_match">Passwords do not match</string>
     <string name="registration_successful">Registration successful!</string>
+
+    <!-- Dashboard Screen -->
+    <string name="greeting_format">Hello, %1$s! 👋</string>
+    <string name="tab_feed">Feed</string>
+    <string name="tab_fridge">My Fridge</string>
+    <string name="tab_recipes">Recipes</string>
+    <string name="tab_journal">Journal</string>
+
+    <!-- Fridge Screen -->
+    <string name="running_low_title">Running low on ingredients</string>
+    <string name="low_stock_restock_format">You need to restock: %1$s</string>
+    <string name="category_protein">Protein</string>
+    <string name="category_dairy">Dairy</string>
+    <string name="category_vegetables">Vegetables</string>
 </resources>

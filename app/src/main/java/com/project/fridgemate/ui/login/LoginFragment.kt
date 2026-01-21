@@ -1,10 +1,13 @@
 package com.project.fridgemate.ui.login
 
+import android.graphics.LinearGradient
+import android.graphics.Shader
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -30,8 +33,26 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupUI()
         setupObservers()
         setupListeners()
+    }
+
+    private fun setupUI() {
+        // Apply gradient to app title
+        binding.appName.post {
+            val paint = binding.appName.paint
+            val width = paint.measureText(binding.appName.text.toString())
+            val textShader: Shader = LinearGradient(
+                0f, 0f, width, binding.appName.textSize,
+                intArrayOf(
+                    android.graphics.Color.parseColor("#00BC7D"),
+                    android.graphics.Color.parseColor("#00B8DB")
+                ), null, Shader.TileMode.CLAMP
+            )
+            binding.appName.paint.shader = textShader
+            binding.appName.invalidate()
+        }
     }
 
     private fun setupObservers() {
@@ -52,7 +73,14 @@ class LoginFragment : Fragment() {
         binding.btnLogin.setOnClickListener {
             val email = binding.etEmail.text.toString()
             val password = binding.etPassword.text.toString()
-            viewModel.login(email, password)
+            
+            if (email.isBlank() || password.isBlank()) {
+                Toast.makeText(context, "Please enter email and password", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            
+            // Navigate to Dashboard
+            findNavController().navigate(R.id.action_loginFragment_to_dashboardFragment)
         }
 
         binding.tvForgotPassword.setOnClickListener {
