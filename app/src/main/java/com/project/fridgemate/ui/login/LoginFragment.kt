@@ -35,8 +35,6 @@ class LoginFragment : Fragment() {
 
     private fun setupObservers() {
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            // Parent AuthFragment should handle global progress if needed, 
-            // but we can also disable our button
             binding.btnLogin.isEnabled = !isLoading
         }
 
@@ -68,12 +66,11 @@ class LoginFragment : Fragment() {
 
             if (hasError) return@setOnClickListener
             
-            // Navigate to Dashboard
             findNavController().navigate(R.id.action_authFragment_to_dashboardFragment)
         }
 
         binding.tvForgotPassword.setOnClickListener {
-            // TODO: Navigate to Forgot Password
+            (parentFragment as? AuthFragment)?.showForgotPassword()
         }
 
         binding.tvSignUp.setOnClickListener {
