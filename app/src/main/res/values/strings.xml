@@ -23,6 +23,14 @@
     <string name="hint_confirm_password">Confirm your password</string>
     <string name="already_have_account">Already have an account? </string>
 
+    <!-- Forgot Password Screen -->
+    <string name="forgot_password_title">Forgot Password</string>
+    <string name="forgot_password_desc">Enter your email address and we will send you instructions to reset your password.</string>
+    <string name="send_reset_link">Send Reset Link</string>
+    <string name="back_to_login">Back to Login</string>
+    <string name="error_invalid_email">Please enter a valid email</string>
+    <string name="reset_link_sent">Reset link sent to your email!</string>
+
     <!-- Messages -->
     <string name="error_fill_all_fields">Please fill all fields</string>
     <string name="error_passwords_dont_match">Passwords do not match</string>

@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentAuthBinding
 import com.project.fridgemate.ui.login.LoginFragment
+import com.project.fridgemate.ui.register.RegisterFragment
 
 class AuthFragment : Fragment() {
 
@@ -56,20 +57,36 @@ class AuthFragment : Fragment() {
     }
 
     fun showRegister() {
-        childFragmentManager.beginTransaction()
+        replaceFragment(RegisterFragment())
+    }
+
+    fun showLogin() {
+        // Pop backstack to go back to login or replace if needed
+        if (childFragmentManager.backStackEntryCount > 0) {
+            childFragmentManager.popBackStack()
+        } else {
+            replaceFragment(LoginFragment(), false)
+        }
+    }
+
+    fun showForgotPassword() {
+        replaceFragment(ForgotPasswordFragment())
+    }
+
+    private fun replaceFragment(fragment: Fragment, addToBackStack: Boolean = true) {
+        val transaction = childFragmentManager.beginTransaction()
             .setCustomAnimations(
                 R.anim.slide_in_right,
                 R.anim.slide_out_left,
                 R.anim.slide_in_left,
                 R.anim.slide_out_right
             )
-            .replace(R.id.auth_container, com.project.fridgemate.ui.register.RegisterFragment())
-            .addToBackStack(null)
-            .commit()
-    }
-
-    fun showLogin() {
-        childFragmentManager.popBackStack()
+            .replace(R.id.auth_container, fragment)
+        
+        if (addToBackStack) {
+            transaction.addToBackStack(null)
+        }
+        transaction.commit()
     }
 
     override fun onDestroyView() {
