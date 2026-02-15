@@ -36,6 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:layout_marginStart="7dp"
                 android:background="@drawable/bg_option_card"
                 android:text="None" />
             <RadioButton
@@ -43,6 +44,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:layout_marginStart="7dp"
                 android:background="@drawable/bg_option_card"
                 android:text="Vegetarian 🥗" />
             <RadioButton
@@ -50,6 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:layout_marginStart="7dp"
                 android:background="@drawable/bg_option_card"
                 android:text="Vegan 🌱" />
             <!-- Pescatarian -->
@@ -58,6 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
+                android:layout_marginStart="7dp"
                 android:background="@drawable/bg_option_card"
                 android:text="Pescatarian 🐟" />
         </RadioGroup>
