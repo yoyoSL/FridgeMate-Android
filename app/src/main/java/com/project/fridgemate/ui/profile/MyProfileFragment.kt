@@ -12,7 +12,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.project.fridgemate.R
+import androidx.fragment.app.activityViewModels
+import com.google.android.material.textfield.TextInputEditText
+import android.widget.Toast
+
 class MyProfileFragment : Fragment() {
+    private lateinit var allergyAdapter: AllergyAdapter
+    private val dietaryViewModel: DietaryPrefViewModel by activityViewModels()
+
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
@@ -40,10 +47,13 @@ class MyProfileFragment : Fragment() {
         view.findViewById<View>(R.id.btnBack).setOnClickListener {
             findNavController().navigateUp()
         }
-        setupAllergies(view)
         view.findViewById<View>(R.id.btnChangePhoto).setOnClickListener {
             requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
         }
+        view.findViewById<View>(R.id.btn_save_changes).setOnClickListener {
+            saveChanges(view)
+        }
+        setupAllergies(view)
     }
     private fun setupAllergies(view: View) {
         val allergies = listOf(
@@ -57,12 +67,23 @@ class MyProfileFragment : Fragment() {
             AllergyItem("Shellfish"),
             AllergyItem("Sesame")
         )
-        val adapter = AllergyAdapter(allergies)
+        allergyAdapter = AllergyAdapter(allergies)
         view.findViewById<RecyclerView>(R.id.rvAllergies).apply {
-            this.adapter = adapter
+            this.adapter = allergyAdapter
             layoutManager = LinearLayoutManager(requireContext())
         }
         // val selected = adapter.getSelectedAllergies()
         // TODO: PUT /users/me { "allergies": selected }
+    }
+    private fun saveChanges(view: View) {
+        val fullName  = view.findViewById<TextInputEditText>(R.id.etFullName)
+            .text.toString().trim()
+        val location  = view.findViewById<TextInputEditText>(R.id.etLocation)
+            .text.toString().trim()
+        val diet = dietaryViewModel.selectedPreference.value ?: "NONE"
+        val allergies = allergyAdapter.getSelectedAllergies()
+
+        // TODO: PUT /users/me
+        Toast.makeText(context, "Diet: $diet | Allergies: $allergies", Toast.LENGTH_SHORT).show()
     }
 }
