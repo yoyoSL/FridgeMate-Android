@@ -60,6 +60,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
     implementation(libs.picasso)
+    implementation(libs.androidx.legacy.support.v4)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.fragment)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
