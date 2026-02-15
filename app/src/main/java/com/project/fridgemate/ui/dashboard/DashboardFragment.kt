@@ -67,6 +67,7 @@ class DashboardFragment : Fragment() {
 
         popupBinding.menuProfile.setOnClickListener {
             popupWindow.dismiss()
+            findNavController().navigate(R.id.action_dashboardFragment_to_myProfileFragment)
         }
 
         popupBinding.menuSettings.setOnClickListener {

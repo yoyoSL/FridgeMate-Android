@@ -52,4 +52,8 @@
     <string name="category_protein">Protein</string>
     <string name="category_dairy">Dairy</string>
     <string name="category_vegetables">Vegetables</string>
+
+    <!-- My Profile Screen-->
+    <string name="my_profile_title">My Profile</string>
+
 </resources>
