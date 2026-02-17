@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/light_teal"
+    android:paddingBottom="32dp">
+    <!-- Header Section -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/my_profile_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:padding="10dp"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Back"
+            android:padding="1dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_arrow_back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/settings_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Settings"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:layout_marginStart="12dp"
+            app:layout_constraintStart_toEndOf="@id/btnBack"
+            app:layout_constraintTop_toTopOf="@id/btnBack"
+            app:layout_constraintBottom_toBottomOf="@id/btnBack" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
