@@ -34,12 +34,18 @@ class RecipesViewModel : ViewModel() {
     val favorites: LiveData<List<Recipe>> = _favorites
 
     fun toggleFavorite(recipe: Recipe) {
-        val current = _favorites.value?.toMutableList() ?: mutableListOf()
-        if (current.contains(recipe)) {
-            current.remove(recipe)
+
+        val currentFavorites = _favorites.value?.toMutableList() ?: mutableListOf()
+        if (currentFavorites.any { it.id == recipe.id }) {
+            currentFavorites.removeAll { it.id == recipe.id }
         } else {
-            current.add(recipe)
+            currentFavorites.add(recipe.copy(isFavorite = true))
         }
-        _favorites.value = current
+        _favorites.value = currentFavorites
+
+        val updatedRecommended = _recommended.value?.map {
+            if (it.id == recipe.id) it.copy(isFavorite = !it.isFavorite) else it
+        }
+        _recommended.value = updatedRecommended
     }
 }
