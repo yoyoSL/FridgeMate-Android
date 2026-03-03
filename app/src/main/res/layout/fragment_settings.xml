@@ -47,7 +47,7 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardSharedFridge"
             android:layout_width="0dp"
-            android:layout_height="160dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="24dp"
@@ -57,10 +57,156 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/settings_header">
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_group"
+                        app:tint="@color/dark_teal" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Shared Fridge"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+                <!-- Inner Card: Current Fridge -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:cardBackgroundColor="@color/light_teal"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+                        <!-- Current Fridge + members -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Current Fridge"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/dark_teal" />
+                                <TextView
+                                    android:id="@+id/tvFridgeName"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Family Kitchen"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvMembersCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="__ members"
+                                android:textSize="12sp"
+                                android:textColor="@color/dark_teal"
+                                android:gravity="end" />
+
+                        </LinearLayout>
+
+                        <!-- Invite Code -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginTop="12dp"
+                            android:background="@drawable/bg_invite_code"
+                            android:padding="10dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Invite Code"
+                                android:textSize="11sp"
+                                android:textColor="@color/dark_teal" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <TextView
+                                    android:id="@+id/tvInviteCode"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="FRIDGE-2024-XY7K"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/dark_teal" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnCopyCode"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="36dp"
+                                    android:text="Copy"
+                                    android:textSize="13sp"
+                                    app:cornerRadius="8dp"
+                                    app:icon="@drawable/ic_copy"
+                                    app:iconSize="16dp"
+                                    app:iconGravity="textStart" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+                        <!-- Members List -->
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvMembers"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:nestedScrollingEnabled="false" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Leave Fridge Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLeaveFridge"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="12dp"
+                    android:text="Leave Fridge"
+                    android:textColor="@color/error_red"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/error_red"
+                    app:strokeWidth="1dp"
+                    app:backgroundTint="@android:color/transparent"
+                    app:icon="@drawable/ic_logout"
+                    app:iconTint="@color/error_red"
+                    app:iconSize="20dp"
+                    app:iconGravity="textStart" />
+
+            </LinearLayout>
+
         </com.google.android.material.card.MaterialCardView>
         <!-- Fridge scanner Card -->
         <com.google.android.material.card.MaterialCardView
