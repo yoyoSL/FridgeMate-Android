@@ -113,17 +113,16 @@
                                     android:id="@+id/tvFridgeName"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Family Kitchen"
+                                    android:text=""
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
-
                             </LinearLayout>
 
                             <TextView
                                 android:id="@+id/tvMembersCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="__ members"
+                                android:text=""
                                 android:textSize="12sp"
                                 android:textColor="@color/dark_teal"
                                 android:gravity="end" />
@@ -138,30 +137,26 @@
                             android:layout_marginTop="12dp"
                             android:background="@drawable/bg_invite_code"
                             android:padding="10dp">
-
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Invite Code"
                                 android:textSize="11sp"
                                 android:textColor="@color/dark_teal" />
-
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical">
-
                                 <TextView
                                     android:id="@+id/tvInviteCode"
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:text="FRIDGE-2024-XY7K"
+                                    android:text=""
                                     android:textSize="14sp"
                                     android:textStyle="bold"
                                     android:textColor="@color/dark_teal" />
-
                                 <com.google.android.material.button.MaterialButton
                                     android:id="@+id/btnCopyCode"
                                     android:layout_width="wrap_content"
@@ -176,6 +171,7 @@
                             </LinearLayout>
 
                         </LinearLayout>
+
                         <!-- Members List -->
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rvMembers"
