@@ -56,4 +56,8 @@
     <!-- My Profile Screen-->
     <string name="my_profile_title">My Profile</string>
 
+    <!-- Settings Screen-->
+    <string name="fridge_scanner_title">Fridge Scanner</string>
+    <string name="fridge_scanner_info">Upload photos of your fridge contents and we`ll automatically detect items and add them to your inventory.</string>
+
 </resources>

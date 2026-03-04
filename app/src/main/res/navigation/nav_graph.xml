@@ -30,11 +30,20 @@
         <action
             android:id="@+id/action_dashboardFragment_to_myProfileFragment"
             app:destination="@id/myProfileFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/myProfileFragment"
         android:name="com.project.fridgemate.ui.profile.MyProfileFragment"
         android:label="MyProfileFragment"
         tools:layout="@layout/fragment_my_profile">
+    </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.project.fridgemate.ui.settings.SettingsFragment"
+        android:label="SettingsFragment"
+        tools:layout="@layout/fragment_settings">
     </fragment>
 </navigation>
