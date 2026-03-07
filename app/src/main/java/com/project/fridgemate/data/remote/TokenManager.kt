@@ -1,0 +1,51 @@
+package com.project.fridgemate.data.remote
+
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
+
+class TokenManager(context: Context) {
+
+    private val prefs: SharedPreferences by lazy {
+        val masterKey = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+        EncryptedSharedPreferences.create(
+            PREFS_NAME,
+            masterKey,
+            context.applicationContext,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
+
+    var accessToken: String?
+        get() = prefs.getString(KEY_ACCESS_TOKEN, null)
+        set(value) = prefs.edit().putString(KEY_ACCESS_TOKEN, value).apply()
+
+    var refreshToken: String?
+        get() = prefs.getString(KEY_REFRESH_TOKEN, null)
+        set(value) = prefs.edit().putString(KEY_REFRESH_TOKEN, value).apply()
+
+    val isLoggedIn: Boolean
+        get() = !accessToken.isNullOrBlank()
+
+    fun saveTokens(accessToken: String, refreshToken: String) {
+        prefs.edit()
+            .putString(KEY_ACCESS_TOKEN, accessToken)
+            .putString(KEY_REFRESH_TOKEN, refreshToken)
+            .apply()
+    }
+
+    fun clearTokens() {
+        prefs.edit()
+            .remove(KEY_ACCESS_TOKEN)
+            .remove(KEY_REFRESH_TOKEN)
+            .apply()
+    }
+
+    companion object {
+        private const val PREFS_NAME = "fridgemate_auth"
+        private const val KEY_ACCESS_TOKEN = "access_token"
+        private const val KEY_REFRESH_TOKEN = "refresh_token"
+    }
+}
