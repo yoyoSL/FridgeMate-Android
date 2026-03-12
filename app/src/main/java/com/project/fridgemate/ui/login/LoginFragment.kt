@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentLoginBinding
 import com.project.fridgemate.ui.auth.AuthFragment
+import com.project.fridgemate.utils.AuthResult
 
 class LoginFragment : Fragment() {
 
@@ -34,39 +36,41 @@ class LoginFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.btnLogin.isEnabled = !isLoading
+        viewModel.validationResult.observe(viewLifecycleOwner) { result ->
+            binding.tilEmail.error = result.emailError
+            binding.tilPassword.error = result.passwordError
         }
 
-        viewModel.loginStatus.observe(viewLifecycleOwner) { status ->
-            status?.let {
-                binding.tilEmail.error = it
-                viewModel.clearStatus()
+        viewModel.loginResult.observe(viewLifecycleOwner) { result ->
+            when (result) {
+                is AuthResult.Loading -> setLoadingState(true)
+                is AuthResult.Success -> {
+                    setLoadingState(false)
+                    findNavController().navigate(R.id.action_authFragment_to_dashboardFragment)
+                }
+                is AuthResult.Error -> {
+                    setLoadingState(false)
+                    Toast.makeText(requireContext(), result.message, Toast.LENGTH_LONG).show()
+                    viewModel.resetLoginResult()
+                }
+                is AuthResult.Idle -> setLoadingState(false)
             }
         }
     }
 
+    private fun setLoadingState(isLoading: Boolean) {
+        binding.btnLogin.isEnabled = !isLoading
+        binding.btnLogin.text = if (isLoading) getString(R.string.logging_in) else getString(R.string.log_in)
+    }
+
     private fun setupListeners() {
         binding.btnLogin.setOnClickListener {
-            val email = binding.etEmail.text.toString()
-            val password = binding.etPassword.text.toString()
-            
-            var hasError = false
             binding.tilEmail.error = null
             binding.tilPassword.error = null
 
-            if (email.isBlank()) {
-                binding.tilEmail.error = "Please enter email"
-                hasError = true
-            }
-            if (password.isBlank()) {
-                binding.tilPassword.error = "Please enter password"
-                hasError = true
-            }
-
-            if (hasError) return@setOnClickListener
-            
-            findNavController().navigate(R.id.action_authFragment_to_dashboardFragment)
+            val email = binding.etEmail.text.toString()
+            val password = binding.etPassword.text.toString()
+            viewModel.login(email, password)
         }
 
         binding.tvForgotPassword.setOnClickListener {

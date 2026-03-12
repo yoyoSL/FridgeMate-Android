@@ -1,4 +1,4 @@
-package com.project.fridgemate.ui.login
+package com.project.fridgemate.ui.register
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,30 +9,30 @@ import com.project.fridgemate.utils.AuthResult
 import com.project.fridgemate.utils.AuthValidator
 import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+class RegisterViewModel : ViewModel() {
 
     private val repository = AuthRepository()
 
-    private val _loginResult = MutableLiveData<AuthResult>(AuthResult.Idle)
-    val loginResult: LiveData<AuthResult> = _loginResult
+    private val _registerResult = MutableLiveData<AuthResult>(AuthResult.Idle)
+    val registerResult: LiveData<AuthResult> = _registerResult
 
     private val _validationResult = MutableLiveData<AuthValidator.ValidationResult>()
     val validationResult: LiveData<AuthValidator.ValidationResult> = _validationResult
 
-    fun login(email: String, password: String) {
-        val validation = AuthValidator.validateLogin(email, password)
+    fun register(name: String, email: String, password: String, confirmPassword: String) {
+        val validation = AuthValidator.validateRegistration(name, email, password, confirmPassword)
         _validationResult.value = validation
 
         if (!validation.isValid) return
 
-        _loginResult.value = AuthResult.Loading
+        _registerResult.value = AuthResult.Loading
 
         viewModelScope.launch {
-            _loginResult.value = repository.login(email, password)
+            _registerResult.value = repository.register(name, email, password)
         }
     }
 
-    fun resetLoginResult() {
-        _loginResult.value = AuthResult.Idle
+    fun resetRegisterResult() {
+        _registerResult.value = AuthResult.Idle
     }
 }
