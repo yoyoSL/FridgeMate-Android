@@ -7,8 +7,11 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.launch
 import com.project.fridgemate.R
+import com.project.fridgemate.data.repository.AuthRepository
 import com.project.fridgemate.databinding.FragmentDashboardBinding
 import com.project.fridgemate.databinding.PopupProfileMenuBinding
 import com.project.fridgemate.ui.fridge.FridgeFragment
@@ -18,6 +21,8 @@ class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
+
+    private val authRepository = AuthRepository()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -80,6 +85,7 @@ class DashboardFragment : Fragment() {
 
         popupBinding.menuLogout.setOnClickListener {
             popupWindow.dismiss()
+            lifecycleScope.launch { authRepository.logout() }
             findNavController().navigate(R.id.action_dashboardFragment_to_authFragment)
         }
 

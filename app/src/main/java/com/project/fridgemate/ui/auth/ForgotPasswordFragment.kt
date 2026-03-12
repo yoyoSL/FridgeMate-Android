@@ -1,19 +1,22 @@
 package com.project.fridgemate.ui.auth
 
 import android.os.Bundle
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentForgotPasswordBinding
+import com.project.fridgemate.utils.AuthResult
 
 class ForgotPasswordFragment : Fragment() {
 
     private var _binding: FragmentForgotPasswordBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: ForgotPasswordViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,27 +29,86 @@ class ForgotPasswordFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupObservers()
         setupListeners()
+    }
+
+    private fun setupObservers() {
+        viewModel.isCodeSent.observe(viewLifecycleOwner) { codeSent ->
+            if (codeSent) {
+                binding.stepEmail.visibility = View.GONE
+                binding.stepReset.visibility = View.VISIBLE
+                binding.tvDescription.text = getString(R.string.reset_code_desc)
+            }
+        }
+
+        viewModel.validationResult.observe(viewLifecycleOwner) { result ->
+            binding.tilEmail.error = result.emailError
+            binding.tilCode.error = result.nameError
+            binding.tilNewPassword.error = result.passwordError
+            binding.tilConfirmPassword.error = result.confirmPasswordError
+        }
+
+        viewModel.sendCodeResult.observe(viewLifecycleOwner) { result ->
+            when (result) {
+                is AuthResult.Loading -> setSendCodeLoading(true)
+                is AuthResult.Success -> {
+                    setSendCodeLoading(false)
+                    Toast.makeText(requireContext(), getString(R.string.reset_code_sent), Toast.LENGTH_LONG).show()
+                }
+                is AuthResult.Error -> {
+                    setSendCodeLoading(false)
+                    Toast.makeText(requireContext(), result.message, Toast.LENGTH_LONG).show()
+                    viewModel.resetSendCodeResult()
+                }
+                is AuthResult.Idle -> setSendCodeLoading(false)
+            }
+        }
+
+        viewModel.resetResult.observe(viewLifecycleOwner) { result ->
+            when (result) {
+                is AuthResult.Loading -> setResetLoading(true)
+                is AuthResult.Success -> {
+                    setResetLoading(false)
+                    Toast.makeText(requireContext(), getString(R.string.password_reset_success), Toast.LENGTH_LONG).show()
+                    (parentFragment as? AuthFragment)?.showLogin()
+                }
+                is AuthResult.Error -> {
+                    setResetLoading(false)
+                    Toast.makeText(requireContext(), result.message, Toast.LENGTH_LONG).show()
+                    viewModel.resetResetResult()
+                }
+                is AuthResult.Idle -> setResetLoading(false)
+            }
+        }
+    }
+
+    private fun setSendCodeLoading(isLoading: Boolean) {
+        binding.btnSendReset.isEnabled = !isLoading
+        binding.btnSendReset.text = if (isLoading) getString(R.string.sending) else getString(R.string.send_reset_code)
+    }
+
+    private fun setResetLoading(isLoading: Boolean) {
+        binding.btnResetPassword.isEnabled = !isLoading
+        binding.btnResetPassword.text = if (isLoading) getString(R.string.resetting) else getString(R.string.reset_password)
     }
 
     private fun setupListeners() {
         binding.btnSendReset.setOnClickListener {
-            val email = binding.etEmail.text.toString().trim()
-
-            if (email.isEmpty()) {
-                binding.tilEmail.error = getString(R.string.error_fill_all_fields)
-                return@setOnClickListener
-            }
-
-            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                binding.tilEmail.error = getString(R.string.error_invalid_email)
-                return@setOnClickListener
-            }
-
             binding.tilEmail.error = null
-            
-            Toast.makeText(context, getString(R.string.reset_link_sent), Toast.LENGTH_LONG).show()
-            (parentFragment as? AuthFragment)?.showLogin()
+            val email = binding.etEmail.text.toString()
+            viewModel.sendResetCode(email)
+        }
+
+        binding.btnResetPassword.setOnClickListener {
+            binding.tilCode.error = null
+            binding.tilNewPassword.error = null
+            binding.tilConfirmPassword.error = null
+
+            val code = binding.etCode.text.toString()
+            val newPassword = binding.etNewPassword.text.toString()
+            val confirmPassword = binding.etConfirmPassword.text.toString()
+            viewModel.resetPassword(code, newPassword, confirmPassword)
         }
 
         binding.tvBackToLogin.setOnClickListener {

@@ -8,7 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.project.fridgemate.R
+import com.project.fridgemate.data.remote.ApiClient
 import com.project.fridgemate.databinding.FragmentAuthBinding
 import com.project.fridgemate.ui.login.LoginFragment
 import com.project.fridgemate.ui.register.RegisterFragment
@@ -30,8 +32,13 @@ class AuthFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if (ApiClient.getTokenManager().isLoggedIn) {
+            findNavController().navigate(R.id.action_authFragment_to_dashboardFragment)
+            return
+        }
+
         setupUI()
-        
+
         if (savedInstanceState == null) {
             childFragmentManager.beginTransaction()
                 .replace(R.id.auth_container, LoginFragment())
@@ -40,13 +47,12 @@ class AuthFragment : Fragment() {
     }
 
     private fun setupUI() {
-        // Apply gradient to app title
         binding.appName.post {
             val paint = binding.appName.paint
             val width = paint.measureText(binding.appName.text.toString())
             val startColor = ContextCompat.getColor(requireContext(), R.color.title_gradient_start)
             val endColor = ContextCompat.getColor(requireContext(), R.color.title_gradient_end)
-            
+
             val textShader: Shader = LinearGradient(
                 0f, 0f, width, binding.appName.textSize,
                 intArrayOf(startColor, endColor), null, Shader.TileMode.CLAMP
@@ -61,7 +67,6 @@ class AuthFragment : Fragment() {
     }
 
     fun showLogin() {
-        // Pop backstack to go back to login or replace if needed
         if (childFragmentManager.backStackEntryCount > 0) {
             childFragmentManager.popBackStack()
         } else {
@@ -82,7 +87,7 @@ class AuthFragment : Fragment() {
                 R.anim.slide_out_right
             )
             .replace(R.id.auth_container, fragment)
-        
+
         if (addToBackStack) {
             transaction.addToBackStack(null)
         }
