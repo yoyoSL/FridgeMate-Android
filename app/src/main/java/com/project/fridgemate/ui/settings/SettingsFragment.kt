@@ -53,36 +53,83 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnBack.setOnClickListener {
-            findNavController().navigateUp()
-        }
-        binding.btnUploadFridgePhoto.setOnClickListener {
-            showImageSourceDialog()
-        }
-        binding.btnCopyCode.setOnClickListener {
-            copyInviteCode(viewModel.inviteCode.value ?: "")
-        }
-        binding.btnLeaveFridge.setOnClickListener {
-            showLeaveFridgeDialog()
-        }
+        setupListeners()
+        setupObservers()
 
-        setupMembers()
+        viewModel.loadFridge()
+    }
+
+    private fun setupObservers() {
+        viewModel.hasFridge.observe(viewLifecycleOwner) { hasFridge ->
+            when (hasFridge) {
+                true -> {
+                    binding.cardSharedFridge.visibility = View.VISIBLE
+                    binding.cardNoFridge.visibility = View.GONE
+                    binding.cardFridgeScanner.visibility = View.VISIBLE
+                }
+                false -> {
+                    binding.cardSharedFridge.visibility = View.GONE
+                    binding.cardNoFridge.visibility = View.VISIBLE
+                    binding.cardFridgeScanner.visibility = View.GONE
+                }
+                null -> {}
+            }
+        }
 
         viewModel.fridgeName.observe(viewLifecycleOwner) { name ->
             binding.tvFridgeName.text = name
         }
+
         viewModel.inviteCode.observe(viewLifecycleOwner) { code ->
             binding.tvInviteCode.text = code
         }
+
         viewModel.members.observe(viewLifecycleOwner) { members ->
             binding.tvMembersCount.text = "${members.size} members"
+            binding.rvMembers.layoutManager = LinearLayoutManager(requireContext())
+            binding.rvMembers.adapter = MemberAdapter(members)
+        }
+
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                viewModel.clearError()
+            }
+        }
+
+        viewModel.actionSuccess.observe(viewLifecycleOwner) { message ->
+            message?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel.clearActionSuccess()
+            }
         }
     }
 
-    private fun setupMembers() {
-        binding.rvMembers.layoutManager = LinearLayoutManager(requireContext())
-        viewModel.members.observe(viewLifecycleOwner) { members ->
-            binding.rvMembers.adapter = MemberAdapter(members)
+    private fun setupListeners() {
+        binding.btnBack.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
+        binding.btnUploadFridgePhoto.setOnClickListener {
+            showImageSourceDialog()
+        }
+
+        binding.btnCopyCode.setOnClickListener {
+            copyInviteCode(viewModel.inviteCode.value ?: "")
+        }
+
+        binding.btnLeaveFridge.setOnClickListener {
+            showLeaveFridgeDialog()
+        }
+
+        binding.btnCreateFridge.setOnClickListener {
+            val name = binding.etFridgeName.text.toString()
+            viewModel.createFridge(name)
+        }
+
+        binding.btnJoinFridge.setOnClickListener {
+            val code = binding.etInviteCode.text.toString()
+            viewModel.joinFridge(code)
         }
     }
 
@@ -94,18 +141,17 @@ class SettingsFragment : Fragment() {
     }
 
     private fun showLeaveFridgeDialog() {
+        val fridgeName = viewModel.fridgeName.value ?: "this fridge"
         AlertDialog.Builder(requireContext())
             .setTitle("Leave Fridge?")
-            .setMessage("Are you sure you want to leave Family Kitchen?")
-            .setPositiveButton("Leave") { _, _ ->
-                Toast.makeText(context, "Left fridge", Toast.LENGTH_SHORT).show()
-            }
+            .setMessage("Are you sure you want to leave $fridgeName?")
+            .setPositiveButton("Leave") { _, _ -> viewModel.leaveFridge() }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
     private fun showImageSourceDialog() {
-        val options = arrayOf("📷 Camera", "🖼️ Gallery")
+        val options = arrayOf("Camera", "Gallery")
         AlertDialog.Builder(requireContext())
             .setTitle("Choose image source")
             .setItems(options) { _, which ->

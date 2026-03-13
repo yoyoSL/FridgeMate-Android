@@ -4,15 +4,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.project.fridgemate.R
+import com.project.fridgemate.data.remote.dto.FridgeMemberDetailDto
 import com.project.fridgemate.databinding.ItemMemberBinding
 
-data class Member(
-    val name: String,
-    val isCurrentUser: Boolean = false
-)
-
 class MemberAdapter(
-    private val members: List<Member>
+    private val members: List<FridgeMemberDetailDto>,
+    private val currentUserId: String? = null
 ) : RecyclerView.Adapter<MemberAdapter.MemberViewHolder>() {
 
     inner class MemberViewHolder(val binding: ItemMemberBinding) :
@@ -27,9 +24,10 @@ class MemberAdapter(
 
     override fun onBindViewHolder(holder: MemberViewHolder, position: Int) {
         val member = members[position]
+        val isCurrentUser = member.userId == currentUserId
         with(holder.binding) {
-            tvMemberName.text = if (member.isCurrentUser) "${member.name} (You)"
-            else member.name
+            tvMemberName.text = if (isCurrentUser) "${member.displayName} (You)"
+            else member.displayName
             ivMemberPhoto.setImageResource(R.drawable.ic_person)
         }
     }

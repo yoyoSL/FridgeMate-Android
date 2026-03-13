@@ -3,25 +3,129 @@ package com.project.fridgemate.ui.settings
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.project.fridgemate.data.remote.dto.FridgeMemberDetailDto
+import com.project.fridgemate.data.repository.FridgeRepository
+import com.project.fridgemate.data.repository.FridgeResult
+import kotlinx.coroutines.launch
 
 class SharedFridgeViewModel : ViewModel() {
 
-    private val _fridgeName = MutableLiveData<String>("Family Kitchen")
+    private val repository = FridgeRepository()
+
+    private val _hasFridge = MutableLiveData<Boolean?>(null)
+    val hasFridge: LiveData<Boolean?> = _hasFridge
+
+    private val _fridgeName = MutableLiveData<String>()
     val fridgeName: LiveData<String> = _fridgeName
 
-    // invite code
-    private val _inviteCode = MutableLiveData<String>("FRIDGE-2024-XY7K")
+    private val _inviteCode = MutableLiveData<String>()
     val inviteCode: LiveData<String> = _inviteCode
-    // names of members
-    private val _members = MutableLiveData<List<Member>>(
-        listOf(
-            Member("Alex Johnson", isCurrentUser = true),
-            Member("Sarah Johnson"),
-            Member("Mike Johnson")
-        )
-    )
-    val members: LiveData<List<Member>> = _members
 
-    // num of members
-    val membersCount: LiveData<Int> = MutableLiveData(3)
+    private val _members = MutableLiveData<List<FridgeMemberDetailDto>>(emptyList())
+    val members: LiveData<List<FridgeMemberDetailDto>> = _members
+
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> = _error
+
+    private val _actionSuccess = MutableLiveData<String?>()
+    val actionSuccess: LiveData<String?> = _actionSuccess
+
+    fun loadFridge() {
+        _isLoading.value = true
+        viewModelScope.launch {
+            when (val result = repository.getMyFridge()) {
+                is FridgeResult.Success -> {
+                    _hasFridge.value = true
+                    _fridgeName.value = result.data.name
+                    _inviteCode.value = result.data.inviteCode
+                    loadMembers()
+                }
+                is FridgeResult.NoFridge -> {
+                    _hasFridge.value = false
+                    _isLoading.value = false
+                }
+                is FridgeResult.Error -> {
+                    _error.value = result.message
+                    _isLoading.value = false
+                }
+            }
+        }
+    }
+
+    private suspend fun loadMembers() {
+        when (val result = repository.getMembers()) {
+            is FridgeResult.Success -> _members.value = result.data
+            is FridgeResult.Error -> _error.value = result.message
+            is FridgeResult.NoFridge -> {}
+        }
+        _isLoading.value = false
+    }
+
+    fun createFridge(name: String) {
+        if (name.isBlank()) {
+            _error.value = "Please enter a fridge name"
+            return
+        }
+        _isLoading.value = true
+        viewModelScope.launch {
+            when (val result = repository.createFridge(name)) {
+                is FridgeResult.Success -> {
+                    _actionSuccess.value = "Fridge created!"
+                    loadFridge()
+                }
+                is FridgeResult.Error -> {
+                    _error.value = result.message
+                    _isLoading.value = false
+                }
+                is FridgeResult.NoFridge -> {}
+            }
+        }
+    }
+
+    fun joinFridge(inviteCode: String) {
+        if (inviteCode.isBlank()) {
+            _error.value = "Please enter an invite code"
+            return
+        }
+        _isLoading.value = true
+        viewModelScope.launch {
+            when (val result = repository.joinFridge(inviteCode)) {
+                is FridgeResult.Success -> {
+                    _actionSuccess.value = "Joined fridge!"
+                    loadFridge()
+                }
+                is FridgeResult.Error -> {
+                    _error.value = result.message
+                    _isLoading.value = false
+                }
+                is FridgeResult.NoFridge -> {}
+            }
+        }
+    }
+
+    fun leaveFridge() {
+        _isLoading.value = true
+        viewModelScope.launch {
+            when (val result = repository.leaveFridge()) {
+                is FridgeResult.Success -> {
+                    _actionSuccess.value = "Left fridge"
+                    _hasFridge.value = false
+                    _members.value = emptyList()
+                    _isLoading.value = false
+                }
+                is FridgeResult.Error -> {
+                    _error.value = result.message
+                    _isLoading.value = false
+                }
+                is FridgeResult.NoFridge -> {}
+            }
+        }
+    }
+
+    fun clearError() { _error.value = null }
+    fun clearActionSuccess() { _actionSuccess.value = null }
 }
