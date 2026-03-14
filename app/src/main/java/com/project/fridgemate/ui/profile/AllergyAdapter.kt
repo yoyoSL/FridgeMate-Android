@@ -7,10 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.project.fridgemate.R
 data class AllergyItem(
     val name: String,
-    var isChecked: Boolean = false
+    val isChecked: Boolean = false
 )
 class AllergyAdapter(
-    private val items: List<AllergyItem>
+    private val items: List<AllergyItem>,
+    private val onToggle: (name: String, isChecked: Boolean) -> Unit = { _, _ -> }
 ) : RecyclerView.Adapter<AllergyAdapter.AllergyViewHolder>() {
 
     inner class AllergyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -28,7 +29,7 @@ class AllergyAdapter(
         holder.checkBox.isChecked = item.isChecked
 
         holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
-            item.isChecked = isChecked
+            onToggle(item.name, isChecked)
         }
     }
     override fun getItemCount() = items.size

@@ -7,28 +7,36 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.project.fridgemate.R
-import android.widget.RadioGroup
+import com.project.fridgemate.databinding.FragmentDietaryPrefBinding
 class DietaryPrefFragment : Fragment() {
 
     companion object {
         fun newInstance() = DietaryPrefFragment()
     }
-    private val viewModel: DietaryPrefViewModel by activityViewModels()
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    private var _binding: FragmentDietaryPrefBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel: ProfileViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.fragment_dietary_pref, container, false)
+        _binding = FragmentDietaryPrefBinding.inflate(inflater, container, false)
+        return binding.root
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val radioGroup = view.findViewById<RadioGroup>(R.id.radioGroupDietary)
-        radioGroup.setOnCheckedChangeListener { _, checkedId ->
+        val current = viewModel.selectedPreference.value
+        val idToCheck = when (current) {
+            "VEGETARIAN"  -> R.id.rbVegetarian
+            "VEGAN"       -> R.id.rbVegan
+            "PESCATARIAN" -> R.id.rbPescatarian
+            else          -> R.id.rbNone
+        }
+        binding.radioGroupDietary.check(idToCheck)
+
+        binding.radioGroupDietary.setOnCheckedChangeListener { _, checkedId ->
             val preference = when (checkedId) {
                 R.id.rbNone        -> "NONE"
                 R.id.rbVegetarian  -> "VEGETARIAN"
@@ -40,4 +48,8 @@ class DietaryPrefFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
