@@ -16,6 +16,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:3001/\"")
     }
 
     buildTypes {
@@ -37,6 +39,7 @@ android {
     buildFeatures {
         viewBinding = true
         dataBinding = true
+        buildConfig = true
     }
 }
 
@@ -56,10 +59,14 @@ dependencies {
     implementation(libs.room.ktx)
     // kapt(libs.room.compiler)
 
-    // Retrofit & Picasso (Pre-added for future requirements)
+    // Networking
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
+    implementation(libs.okhttp.logging)
     implementation(libs.picasso)
+
+    // Encrypted storage
+    implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.fragment)

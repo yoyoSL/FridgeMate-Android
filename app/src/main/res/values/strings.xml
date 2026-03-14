@@ -9,8 +9,10 @@
     <string name="hint_password">Enter your password</string>
     <string name="forgot_password">Forgot password?</string>
     <string name="log_in">Log In</string>
+    <string name="logging_in">Logging in…</string>
     <string name="dont_have_account">Don\'t have an account? </string>
     <string name="sign_up">Sign up</string>
+    <string name="signing_up">Signing up…</string>
     <string name="error_enter_credentials">Please enter email and password</string>
 
     <!-- Register Screen -->
@@ -26,15 +28,24 @@
     <!-- Forgot Password Screen -->
     <string name="forgot_password_title">Forgot Password</string>
     <string name="forgot_password_desc">Enter your email address and we will send you instructions to reset your password.</string>
-    <string name="send_reset_link">Send Reset Link</string>
+    <string name="send_reset_code">Send Reset Code</string>
     <string name="back_to_login">Back to Login</string>
     <string name="error_invalid_email">Please enter a valid email</string>
-    <string name="reset_link_sent">Reset link sent to your email!</string>
+    <string name="reset_code_sent">Reset code sent to your email!</string>
+    <string name="reset_code">Reset Code</string>
+    <string name="hint_reset_code">Enter 6-digit code</string>
+    <string name="new_password">New Password</string>
+    <string name="hint_new_password">Enter new password</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="reset_code_desc">Enter the 6-digit code we sent to your email and choose a new password.</string>
+    <string name="password_reset_success">Password reset successfully! Please log in.</string>
+    <string name="sending">Sending…</string>
+    <string name="resetting">Resetting…</string>
 
     <!-- Messages -->
     <string name="error_fill_all_fields">Please fill all fields</string>
     <string name="error_passwords_dont_match">Passwords do not match</string>
-    <string name="registration_successful">Registration successful!</string>
+    <string name="registration_successful">Registration successful! Please log in.</string>
 
     <!-- Dashboard Screen -->
     <string name="greeting_format">Hello, %1$s! 👋</string>
@@ -55,5 +66,9 @@
 
     <!-- My Profile Screen-->
     <string name="my_profile_title">My Profile</string>
+
+    <!-- Settings Screen-->
+    <string name="fridge_scanner_title">Fridge Scanner</string>
+    <string name="fridge_scanner_info">Upload photos of your fridge contents and we`ll automatically detect items and add them to your inventory.</string>
 
 </resources>
