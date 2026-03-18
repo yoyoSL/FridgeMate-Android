@@ -1,18 +1,31 @@
 package com.project.fridgemate.ui.profile
+
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.project.fridgemate.data.remote.ApiClient
+import com.project.fridgemate.data.remote.dto.AddressDto
+import com.project.fridgemate.data.remote.dto.UpdateProfileRequest
+import com.project.fridgemate.data.remote.dto.UserDto
+import com.project.fridgemate.data.repository.UserRepository
+import kotlinx.coroutines.launch
 
 class ProfileViewModel : ViewModel() {
 
-    private val _fullName = MutableLiveData<String>("Alex Johnson")
-    val fullName: LiveData<String> = _fullName
+    private val userRepository = UserRepository()
 
-    private val _location = MutableLiveData<String>("San Francisco, CA")
-    val location: LiveData<String> = _location
+    private val _user = MutableLiveData<UserDto?>()
+    val user: LiveData<UserDto?> = _user
 
-    private val _selectedPreference = MutableLiveData<String>("NONE")
-    val selectedPreference: LiveData<String> = _selectedPreference
+    private val _loading = MutableLiveData<Boolean>(false)
+    val loading: LiveData<Boolean> = _loading
+
+    private val _saveSuccess = MutableLiveData<Boolean>(false)
+    val saveSuccess: LiveData<Boolean> = _saveSuccess
+
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> = _error
 
     private val _allergies = MutableLiveData<List<AllergyItem>>(
         listOf(
@@ -29,15 +42,47 @@ class ProfileViewModel : ViewModel() {
     )
     val allergies: LiveData<List<AllergyItem>> = _allergies
 
-    fun saveProfile(name: String, location: String) {
-        _fullName.value = name
-        _location.value = location
-        // TODO: save in database
+    private val _selectedPreference = MutableLiveData<String>("NONE")
+    val selectedPreference: LiveData<String> = _selectedPreference
+
+    fun loadProfile() {
+        val userId = ApiClient.getTokenManager().userId ?: return
+        viewModelScope.launch {
+            _loading.value = true
+            try {
+                val result = userRepository.getUserById(userId)
+                _user.value = result
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+
+    fun saveProfile(name: String, location: String, allergies: List<String>) {
+        val userId = ApiClient.getTokenManager().userId ?: return
+        viewModelScope.launch {
+            _loading.value = true
+            try {
+                val request = UpdateProfileRequest(
+                    displayName = name,
+                    address = AddressDto(fullAddress = location),
+                    allergies = allergies
+                )
+                val result = userRepository.updateProfile(userId, request)
+                _user.value = result
+                _saveSuccess.value = true
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _loading.value = false
+            }
+        }
     }
 
     fun onPreferenceSelected(preference: String) {
         _selectedPreference.value = preference
-        // TODO:save in database
     }
 
     fun toggleAllergy(name: String, isChecked: Boolean) {
@@ -45,6 +90,13 @@ class ProfileViewModel : ViewModel() {
             if (it.name == name) it.copy(isChecked = isChecked) else it
         } ?: return
         _allergies.value = updated
-        // TODO: save in database
+    }
+
+    fun clearSaveSuccess() {
+        _saveSuccess.value = false
+    }
+
+    fun clearError() {
+        _error.value = null
     }
 }

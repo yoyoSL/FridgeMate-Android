@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.project.fridgemate.R
 data class AllergyItem(
     val name: String,
-    val isChecked: Boolean = false
+    var isChecked: Boolean = false
 )
 class AllergyAdapter(
     private val items: List<AllergyItem>,
