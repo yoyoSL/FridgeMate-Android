@@ -36,4 +36,9 @@ class AllergyAdapter(
     fun getSelectedAllergies(): List<String> {
         return items.filter { it.isChecked }.map { it.name }
     }
+
+    fun setSelectedAllergies(selected: List<String>) {
+        items.forEach { it.isChecked = selected.contains(it.name) }
+        notifyDataSetChanged()
+    }
 }
