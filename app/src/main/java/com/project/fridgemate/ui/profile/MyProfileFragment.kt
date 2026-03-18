@@ -13,14 +13,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.fridgemate.databinding.FragmentMyProfileBinding
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.imageview.ShapeableImageView
-import com.project.fridgemate.R
-import androidx.fragment.app.activityViewModels
-import com.google.android.material.textfield.TextInputEditText
-import android.widget.Toast
-import android.graphics.Bitmap
-import androidx.appcompat.app.AlertDialog
 
 class MyProfileFragment : Fragment() {
 
@@ -34,7 +26,6 @@ class MyProfileFragment : Fragment() {
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let { binding.profilePic.setImageURI(it) }
         }
-
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted)
@@ -43,18 +34,6 @@ class MyProfileFragment : Fragment() {
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
             bitmap?.let { binding.profilePic.setImageBitmap(it) }
-        }
-    private val requestCameraPermission =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) takePictureLauncher.launch(null)
-            else Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
-        }
-    private val takePictureLauncher =
-        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-            bitmap?.let {
-                view?.findViewById<ShapeableImageView>(R.id.profile_pic)
-                    ?.setImageBitmap(it)
-            }
         }
     private val requestCameraPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -131,17 +110,5 @@ class MyProfileFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-    private fun showImageSourceDialog() {
-        val options = arrayOf("📷 Camera", "🖼️ Gallery")
-        AlertDialog.Builder(requireContext())
-            .setTitle("Choose image source")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> requestCameraPermission.launch(Manifest.permission.CAMERA)
-                    1 -> requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                }
-            }
-            .show()
     }
 }
