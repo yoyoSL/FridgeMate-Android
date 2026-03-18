@@ -16,6 +16,7 @@ import com.project.fridgemate.databinding.FragmentDashboardBinding
 import com.project.fridgemate.databinding.PopupProfileMenuBinding
 import com.project.fridgemate.ui.fridge.FridgeFragment
 import com.project.fridgemate.ui.recipes.RecipesFragment
+import com.project.fridgemate.ui.feed.FeedFragment
 
 class DashboardFragment : Fragment() {
 
@@ -49,8 +50,9 @@ class DashboardFragment : Fragment() {
             selectTab(it)
             showFragment(FridgeFragment())
         }
-
-        binding.tabFeed.setOnClickListener { /* TODO: Implement Feed */ }
+        binding.tabRecipes.setOnClickListener { selectTab(it)
+            showFragment(RecipesFragment())
+        }
         binding.tabRecipes.setOnClickListener { selectTab(it)
             showFragment(RecipesFragment())
         }
@@ -121,6 +123,10 @@ class DashboardFragment : Fragment() {
             R.id.tab_recipes -> {
                 binding.ivTabRecipes.setColorFilter(accentColor)
                 binding.tvTabRecipes.setTextColor(accentColor)
+            }
+            R.id.tab_feed -> {
+                binding.ivTabFeed.setColorFilter(accentColor)
+                binding.tvTabFeed.setTextColor(accentColor)
             }
         }
     }
