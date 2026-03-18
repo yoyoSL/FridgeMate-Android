@@ -143,6 +143,34 @@
                 android:visibility="gone"
                 android:layout_marginTop="8dp"
                 android:nestedScrollingEnabled="false" />
+            <!-- add comment -->
+            <LinearLayout
+                android:id="@+id/layoutAddComment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etComment"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Add a comment..."
+                    android:inputType="text" />
+
+                <ImageButton
+                    android:id="@+id/btnSendComment"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_send"
+                    android:layout_marginStart="8dp"
+                    app:tint="@color/teal_primary" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

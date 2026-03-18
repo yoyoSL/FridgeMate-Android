@@ -5,12 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.project.fridgemate.databinding.FragmentFeedBinding
-import androidx.navigation.fragment.findNavController
-import com.project.fridgemate.R
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.project.fridgemate.R
+import com.project.fridgemate.databinding.FragmentFeedBinding
+
 class FeedFragment : Fragment() {
 
     private var _binding: FragmentFeedBinding? = null
@@ -31,7 +31,7 @@ class FeedFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnMapView.setOnClickListener {
-            //TODO: open map view
+            // TODO: open map view
         }
 
         binding.fabAddPost.setOnClickListener {
@@ -50,10 +50,14 @@ class FeedFragment : Fragment() {
                 posts = posts,
                 onLikeClick = { post ->
                     viewModel.toggleLike(post)
+                },
+                onAddComment = { postId, text ->
+                    viewModel.addComment(postId, "Me", text)
                 }
             )
         }
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

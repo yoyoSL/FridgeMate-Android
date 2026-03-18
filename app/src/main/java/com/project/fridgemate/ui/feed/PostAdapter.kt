@@ -11,6 +11,7 @@ import com.project.fridgemate.databinding.ItemPostBinding
 class PostAdapter(
     private val posts: List<Post>,
     private val onLikeClick: (Post) -> Unit,
+    private val onAddComment: (postId: Int, text: String) -> Unit
 ) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
 
     inner class PostViewHolder(val binding: ItemPostBinding) :
@@ -54,8 +55,17 @@ class PostAdapter(
                     rvComments.visibility = View.VISIBLE
                     rvComments.layoutManager = LinearLayoutManager(holder.itemView.context)
                     rvComments.adapter = CommentAdapter(post.comments)
+                    layoutAddComment.visibility = View.VISIBLE
                 } else {
                     rvComments.visibility = View.GONE
+                    layoutAddComment.visibility = View.GONE
+                }
+            }
+            btnSendComment.setOnClickListener {
+                val text = etComment.text.toString().trim()
+                if (text.isNotEmpty()) {
+                    onAddComment(post.id, text)
+                    etComment.text?.clear()
                 }
             }
         }

@@ -88,5 +88,23 @@ class FeedViewModel : ViewModel() {
         _posts.value = current
         // TODO: Send API
     }
+    fun addComment(postId: Int, userName: String, text: String) {
+        val updated = _posts.value?.map { post ->
+            if (post.id == postId) {
+                val newComments = post.comments.toMutableList()
+                newComments.add(Comment(
+                    id = post.comments.size + 1,
+                    userName = userName,
+                    text = text
+                ))
+                post.copy(
+                    comments = newComments,
+                    commentsCount = post.commentsCount + 1
+                )
+            } else post
+        } ?: return
+        _posts.value = updated
+        // TODO: API call
+    }
 
 }
