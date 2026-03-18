@@ -49,9 +49,6 @@ class PostAdapter(
             // comments
             tvCommentsCount.text = post.commentsCount.toString()
 
-            // favorites
-            updateFavoriteButton(this, post.isFavorite)
-
             // click listeners
             btnLike.setOnClickListener { onLikeClick(post) }
             btnFavorite.setOnClickListener { onFavoriteClick(post) }
@@ -64,32 +61,17 @@ class PostAdapter(
             binding.btnLike.setImageResource(R.drawable.ic_heart_filled)
             binding.btnLike.imageTintList =
                 android.content.res.ColorStateList.valueOf(
-                    android.graphics.Color.parseColor("#E53935")  // אדום
+                    android.graphics.Color.parseColor("#E53935")
                 )
         } else {
             binding.btnLike.setImageResource(R.drawable.ic_heart_outline)
             binding.btnLike.imageTintList =
                 android.content.res.ColorStateList.valueOf(
-                    android.graphics.Color.parseColor("#9E9E9E")  // אפור
+                    android.graphics.Color.parseColor("#9E9E9E")
                 )
         }
     }
 
-    private fun updateFavoriteButton(binding: ItemPostBinding, isFavorite: Boolean) {
-        if (isFavorite) {
-            binding.btnFavorite.setImageResource(R.drawable.ic_star_filled)
-            binding.btnFavorite.imageTintList =
-                android.content.res.ColorStateList.valueOf(
-                    android.graphics.Color.parseColor("#FFD700")  // צהוב
-                )
-        } else {
-            binding.btnFavorite.setImageResource(R.drawable.ic_star_outline)
-            binding.btnFavorite.imageTintList =
-                android.content.res.ColorStateList.valueOf(
-                    android.graphics.Color.parseColor("#9E9E9E")  // אפור
-                )
-        }
-    }
 
     override fun getItemCount() = posts.size
 }
