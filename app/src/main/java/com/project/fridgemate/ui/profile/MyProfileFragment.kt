@@ -1,4 +1,5 @@
 package com.project.fridgemate.ui.profile
+
 import android.Manifest
 import android.net.Uri
 import android.os.Bundle
@@ -28,8 +29,7 @@ class MyProfileFragment : Fragment() {
         }
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted)
-                pickImageLauncher.launch("image/*")
+            if (isGranted) pickImageLauncher.launch("image/*")
         }
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
@@ -52,24 +52,11 @@ class MyProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnBack.setOnClickListener {
-            findNavController().navigateUp()
-        }
-        binding.btnChangePhoto.setOnClickListener {
-            showImageSourceDialog()
-        }
-        binding.btnSaveChanges.setOnClickListener {
-            saveChanges()
-        }
-
-        profileViewModel.fullName.observe(viewLifecycleOwner) { name ->
-            binding.etFullName.setText(name)
-        }
-        profileViewModel.location.observe(viewLifecycleOwner) { location ->
-            binding.etLocation.setText(location)
-        }
-
         setupAllergies()
+        setupClickListeners()
+        observeViewModel()
+
+        profileViewModel.loadProfile()
     }
 
     private fun setupAllergies() {
@@ -84,19 +71,46 @@ class MyProfileFragment : Fragment() {
         }
     }
 
-    private fun saveChanges() {
-        val fullName = binding.etFullName.text.toString().trim()
-        val location = binding.etLocation.text.toString().trim()
-        val diet = profileViewModel.selectedPreference.value ?: "NONE"
-        val allergies = profileViewModel.allergies.value
-            ?.filter { it.isChecked }
-            ?.map { it.name } ?: emptyList()
-
-        profileViewModel.saveProfile(fullName, location)
-        Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show()
+    private fun setupClickListeners() {
+        binding.btnBack.setOnClickListener { findNavController().navigateUp() }
+        binding.btnChangePhoto.setOnClickListener { showImageSourceDialog() }
+        binding.btnSaveChanges.setOnClickListener {
+            val fullName = binding.etFullName.text.toString().trim()
+            val location = binding.etLocation.text.toString().trim()
+            val allergies = allergyAdapter.getSelectedAllergies()
+            profileViewModel.saveProfile(fullName, location, allergies)
+        }
     }
+
+    private fun observeViewModel() {
+        profileViewModel.user.observe(viewLifecycleOwner) { user ->
+            user ?: return@observe
+            binding.etFullName.setText(user.displayName)
+            binding.etLocation.setText(user.address?.fullAddress ?: "")
+            allergyAdapter.setSelectedAllergies(user.allergies)
+        }
+
+        profileViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            binding.btnSaveChanges.isEnabled = !isLoading
+        }
+
+        profileViewModel.saveSuccess.observe(viewLifecycleOwner) { success ->
+            if (success) {
+                Toast.makeText(context, "Profile saved!", Toast.LENGTH_SHORT).show()
+                profileViewModel.clearSaveSuccess()
+            }
+        }
+
+        profileViewModel.error.observe(viewLifecycleOwner) { error ->
+            if (error != null) {
+                Toast.makeText(context, "Error: $error", Toast.LENGTH_LONG).show()
+                profileViewModel.clearError()
+            }
+        }
+    }
+
     private fun showImageSourceDialog() {
-        val options = arrayOf("📷 Camera", "🖼️ Gallery")
+        val options = arrayOf("Camera", "Gallery")
         AlertDialog.Builder(requireContext())
             .setTitle("Choose image source")
             .setItems(options) { _, which ->
@@ -107,6 +121,7 @@ class MyProfileFragment : Fragment() {
             }
             .show()
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

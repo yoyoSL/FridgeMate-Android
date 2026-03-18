@@ -2,8 +2,10 @@ package com.project.fridgemate.data.remote
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Base64
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import org.json.JSONObject
 
 class TokenManager(context: Context) {
 
@@ -28,6 +30,19 @@ class TokenManager(context: Context) {
 
     val isLoggedIn: Boolean
         get() = !accessToken.isNullOrBlank()
+
+    val userId: String?
+        get() = accessToken?.let { decodeUserIdFromJwt(it) }
+
+    private fun decodeUserIdFromJwt(token: String): String? {
+        return try {
+            val payload = token.split(".").getOrNull(1) ?: return null
+            val decoded = Base64.decode(payload, Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
+            JSONObject(String(decoded)).optString("userId", null)
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     fun saveTokens(accessToken: String, refreshToken: String) {
         prefs.edit()

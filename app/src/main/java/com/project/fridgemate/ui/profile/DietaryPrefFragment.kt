@@ -8,13 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentDietaryPrefBinding
+
 class DietaryPrefFragment : Fragment() {
 
     companion object {
         fun newInstance() = DietaryPrefFragment()
     }
+
     private var _binding: FragmentDietaryPrefBinding? = null
     private val binding get() = _binding!!
+
     private val viewModel: ProfileViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -24,17 +27,22 @@ class DietaryPrefFragment : Fragment() {
         _binding = FragmentDietaryPrefBinding.inflate(inflater, container, false)
         return binding.root
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val current = viewModel.selectedPreference.value
-        val idToCheck = when (current) {
-            "VEGETARIAN"  -> R.id.rbVegetarian
-            "VEGAN"       -> R.id.rbVegan
-            "PESCATARIAN" -> R.id.rbPescatarian
-            else          -> R.id.rbNone
+        // Observe so radio button updates when profile is loaded from backend
+        viewModel.selectedPreference.observe(viewLifecycleOwner) { pref ->
+            val targetId = when (pref) {
+                "VEGETARIAN"  -> R.id.rbVegetarian
+                "VEGAN"       -> R.id.rbVegan
+                "PESCATARIAN" -> R.id.rbPescatarian
+                else          -> R.id.rbNone
+            }
+            if (binding.radioGroupDietary.checkedRadioButtonId != targetId) {
+                binding.radioGroupDietary.check(targetId)
+            }
         }
-        binding.radioGroupDietary.check(idToCheck)
 
         binding.radioGroupDietary.setOnCheckedChangeListener { _, checkedId ->
             val preference = when (checkedId) {
