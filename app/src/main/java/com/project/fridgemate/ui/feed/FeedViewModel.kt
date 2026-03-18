@@ -63,11 +63,5 @@ class FeedViewModel : ViewModel() {
         _posts.value = updated
         // TODO: API call
     }
-    fun toggleFavorite(post: Post) {
-        val updated = _posts.value?.map {
-            if (it.id == post.id) it.copy(isFavorite = !it.isFavorite) else it
-        } ?: return
-        _posts.value = updated
-        // TODO: API call
-    }
+
 }

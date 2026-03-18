@@ -9,7 +9,6 @@ import com.project.fridgemate.databinding.ItemPostBinding
 class PostAdapter(
     private val posts: List<Post>,
     private val onLikeClick: (Post) -> Unit,
-    private val onFavoriteClick: (Post) -> Unit,
     private val onCommentClick: (Post) -> Unit
 ) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
 
@@ -51,7 +50,6 @@ class PostAdapter(
 
             // click listeners
             btnLike.setOnClickListener { onLikeClick(post) }
-            btnFavorite.setOnClickListener { onFavoriteClick(post) }
             btnComment.setOnClickListener { onCommentClick(post) }
         }
     }

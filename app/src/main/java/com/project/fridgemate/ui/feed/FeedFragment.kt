@@ -48,9 +48,6 @@ class FeedFragment : Fragment() {
                 onLikeClick = { post ->
                     viewModel.toggleLike(post)
                 },
-                onFavoriteClick = { post ->
-                    viewModel.toggleFavorite(post)
-                },
                 onCommentClick = { post ->
                     // TODO: comments
                 }
