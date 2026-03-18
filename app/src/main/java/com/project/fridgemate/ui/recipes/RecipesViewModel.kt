@@ -34,6 +34,14 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch { repository.fetchFavorites() }
     }
 
+    fun loadRecommendedIfNeeded() {
+        viewModelScope.launch {
+            if (repository.isCacheExpired()) {
+                loadRecommended()
+            }
+        }
+    }
+
     fun loadRecommended(
         ingredients: List<String> = lastIngredients,
         allergies: List<String>? = null,

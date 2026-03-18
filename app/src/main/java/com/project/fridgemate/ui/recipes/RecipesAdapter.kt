@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
 import com.project.fridgemate.data.local.entity.RecipeEntity
 import com.project.fridgemate.databinding.ItemRecipeBinding
@@ -44,8 +45,13 @@ class RecipeAdapter(
             tvProtein.text = recipe.protein.ifEmpty { "-" }
 
             if (recipe.imageUrl.isNotBlank()) {
+                val fullUrl = if (recipe.imageUrl.startsWith("/")) {
+                    BuildConfig.BASE_URL.trimEnd('/') + recipe.imageUrl
+                } else {
+                    recipe.imageUrl
+                }
                 Picasso.get()
-                    .load(recipe.imageUrl)
+                    .load(fullUrl)
                     .fit()
                     .centerCrop()
                     .placeholder(R.color.light_teal)

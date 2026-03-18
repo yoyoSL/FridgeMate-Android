@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.retrofit.gson)
     implementation(libs.okhttp.logging)
     implementation(libs.picasso)
+    implementation(libs.lottie)
 
     // Encrypted storage
     implementation(libs.androidx.security.crypto)

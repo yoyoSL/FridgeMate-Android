@@ -17,8 +17,17 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
     private val recipeApi: RecipeApi = ApiClient.createApi(RecipeApi::class.java)
     private val gson = Gson()
 
+    companion object {
+        private const val CACHE_TTL_MS = 30 * 60 * 1000L // 30 minutes
+    }
+
     fun getRecommended(): LiveData<List<RecipeEntity>> {
         return recipeDao.getByType(RecipeEntity.TYPE_RECOMMENDED)
+    }
+
+    suspend fun isCacheExpired(): Boolean {
+        val lastCache = recipeDao.getLatestCacheTime(RecipeEntity.TYPE_RECOMMENDED) ?: return true
+        return System.currentTimeMillis() - lastCache > CACHE_TTL_MS
     }
 
     fun getFavorites(): LiveData<List<RecipeEntity>> {

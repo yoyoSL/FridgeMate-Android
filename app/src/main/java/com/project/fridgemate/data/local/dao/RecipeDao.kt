@@ -30,4 +30,7 @@ interface RecipeDao {
 
     @Query("DELETE FROM recipes WHERE title = :title AND type = :type")
     suspend fun deleteByTitleAndType(title: String, type: String)
+
+    @Query("SELECT MAX(cachedAt) FROM recipes WHERE type = :type")
+    suspend fun getLatestCacheTime(type: String): Long?
 }
