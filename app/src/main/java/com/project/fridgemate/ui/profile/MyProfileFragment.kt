@@ -40,6 +40,7 @@ class MyProfileFragment : Fragment() {
             if (isGranted) takePictureLauncher.launch(null)
             else Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
         }
+        
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
