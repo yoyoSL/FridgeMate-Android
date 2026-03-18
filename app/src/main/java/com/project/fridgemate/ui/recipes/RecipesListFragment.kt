@@ -28,6 +28,7 @@ class RecipeListFragment : Fragment() {
     private var _binding: FragmentRecipeListBinding? = null
     private val binding get() = _binding!!
     private val viewModel: RecipesViewModel by activityViewModels()
+    private lateinit var adapter: RecipeAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,22 +43,44 @@ class RecipeListFragment : Fragment() {
 
         val type = arguments?.getString(ARG_TYPE) ?: TYPE_RECOMMENDED
 
-        binding.rvRecipes.layoutManager = LinearLayoutManager(requireContext())
-
-        when (type) {
-            TYPE_RECOMMENDED -> {
-                viewModel.recommended.observe(viewLifecycleOwner) { recipes ->
-                    binding.rvRecipes.adapter = RecipeAdapter(recipes) { recipe ->
-                        viewModel.toggleFavorite(recipe)
-                    }
-                }
+        val onFavoriteClick = when (type) {
+            TYPE_RECOMMENDED -> { recipe: com.project.fridgemate.data.local.entity.RecipeEntity ->
+                viewModel.toggleFavoriteFromRecommended(recipe)
             }
-            TYPE_FAVORITES -> {
-                viewModel.favorites.observe(viewLifecycleOwner) { recipes ->
-                    binding.rvRecipes.adapter = RecipeAdapter(recipes) { recipe ->
-                        viewModel.toggleFavorite(recipe)
-                    }
-                }
+            else -> { recipe: com.project.fridgemate.data.local.entity.RecipeEntity ->
+                viewModel.removeFromFavorites(recipe)
+            }
+        }
+
+        adapter = RecipeAdapter(onFavoriteClick)
+        binding.rvRecipes.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvRecipes.adapter = adapter
+
+        val source = when (type) {
+            TYPE_RECOMMENDED -> viewModel.recommended
+            else -> viewModel.favorites
+        }
+
+        source.observe(viewLifecycleOwner) { recipes ->
+            adapter.submitList(recipes)
+            val isEmpty = recipes.isEmpty() && viewModel.isLoading.value != true
+            binding.tvEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        }
+
+        if (type == TYPE_RECOMMENDED) {
+            binding.btnGenerate.visibility = View.VISIBLE
+
+            viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
+                binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
+                binding.btnGenerate.isEnabled = !loading
+            }
+
+            binding.btnGenerate.setOnClickListener {
+                viewModel.loadRecommended()
+            }
+
+            if (viewModel.recommended.value.isNullOrEmpty()) {
+                viewModel.loadRecommended()
             }
         }
     }
