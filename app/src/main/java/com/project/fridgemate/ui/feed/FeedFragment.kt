@@ -14,7 +14,7 @@ class FeedFragment : Fragment() {
     private var _binding: FragmentFeedBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: FeedViewModel by viewModels()
+     private val viewModel: FeedViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,14 +47,10 @@ class FeedFragment : Fragment() {
                 posts = posts,
                 onLikeClick = { post ->
                     viewModel.toggleLike(post)
-                },
-                onCommentClick = { post ->
-                    // TODO: comments
                 }
             )
         }
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
