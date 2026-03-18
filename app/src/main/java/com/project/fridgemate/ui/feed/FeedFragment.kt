@@ -8,13 +8,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.fridgemate.databinding.FragmentFeedBinding
-
+import androidx.navigation.fragment.findNavController
+import com.project.fridgemate.R
+import androidx.fragment.app.activityViewModels
 class FeedFragment : Fragment() {
 
     private var _binding: FragmentFeedBinding? = null
     private val binding get() = _binding!!
 
-     private val viewModel: FeedViewModel by viewModels()
+    private val viewModel: FeedViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,7 +35,8 @@ class FeedFragment : Fragment() {
         }
 
         binding.fabAddPost.setOnClickListener {
-            //TODO: add post functionality
+            requireParentFragment().findNavController()
+                .navigate(R.id.action_dashboardFragment_to_addPostFragment)
         }
 
         setupPosts()

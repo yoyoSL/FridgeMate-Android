@@ -73,5 +73,20 @@ class FeedViewModel : ViewModel() {
         _posts.value = updated
         // TODO: API call
     }
+    fun addPost(title: String, description: String) {
+        val current = _posts.value?.toMutableList() ?: mutableListOf()
+        val newPost = Post(
+            id = current.size + 1,
+            userName = "Me",
+            userLocation = "My Location",
+            postTitle = title,
+            description = description,
+            likesCount = 0,
+            commentsCount = 0
+        )
+        current.add(0, newPost)
+        _posts.value = current
+        // TODO: Send API
+    }
 
 }

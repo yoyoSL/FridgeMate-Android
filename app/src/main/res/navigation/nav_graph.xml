@@ -33,6 +33,9 @@
         <action
             android:id="@+id/action_dashboardFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_addPostFragment"
+            app:destination="@id/addPostFragment" />
     </fragment>
     <fragment
         android:id="@+id/myProfileFragment"
@@ -46,4 +49,9 @@
         android:label="SettingsFragment"
         tools:layout="@layout/fragment_settings">
     </fragment>
+    <fragment
+        android:id="@+id/addPostFragment"
+        android:name="com.project.fridgemate.ui.feed.AddPostFragment"
+        android:label="AddPostFragment"
+        tools:layout="@layout/fragment_add_post" />
 </navigation>
