@@ -66,5 +66,4 @@
         android:name="com.project.fridgemate.ui.feed.AddPostFragment"
         android:label="AddPostFragment"
         tools:layout="@layout/fragment_add_post" />
-    </fragment>
 </navigation>
