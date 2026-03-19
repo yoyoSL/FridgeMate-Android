@@ -54,6 +54,7 @@ class ForgotPasswordFragment : Fragment() {
                 is AuthResult.Loading -> setSendCodeLoading(true)
                 is AuthResult.Success -> {
                     setSendCodeLoading(false)
+                    Snackbar.make(requireView(), getString(R.string.reset_code_sent), Snackbar.LENGTH_LONG).show()
                 }
                 is AuthResult.Error -> {
                     setSendCodeLoading(false)
