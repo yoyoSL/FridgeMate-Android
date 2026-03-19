@@ -1,55 +1,78 @@
 package com.project.fridgemate.ui.recipes
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageButton
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.project.fridgemate.databinding.ItemRecipeBinding
+import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
+import com.project.fridgemate.data.local.entity.RecipeEntity
+import com.project.fridgemate.databinding.ItemRecipeBinding
+import com.squareup.picasso.Picasso
+
 class RecipeAdapter(
-    private val recipes: List<Recipe>,
-    private val onFavoriteClick: (Recipe) -> Unit
-) : RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>() {
+    private val onFavoriteClick: (RecipeEntity) -> Unit
+) : ListAdapter<RecipeEntity, RecipeAdapter.RecipeViewHolder>(DIFF) {
+
+    companion object {
+        private val DIFF = object : DiffUtil.ItemCallback<RecipeEntity>() {
+            override fun areItemsTheSame(a: RecipeEntity, b: RecipeEntity) = a.id == b.id
+            override fun areContentsTheSame(a: RecipeEntity, b: RecipeEntity) = a == b
+        }
+    }
 
     inner class RecipeViewHolder(val binding: ItemRecipeBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
-        val binding = ItemRecipeBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false
-        )
+        val binding = ItemRecipeBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return RecipeViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: RecipeViewHolder, position: Int) {
-        val recipe = recipes[position]
+        val recipe = getItem(position)
         with(holder.binding) {
-            tvRecipeName.text = recipe.name
-            tvRecipeTime.text = "${recipe.timeMinutes} min"
+            tvRecipeName.text = recipe.title
+            tvRecipeTime.text = recipe.cookingTime
             tvRecipeDifficulty.text = recipe.difficulty
-            tvCalories.text = recipe.calories.toString()
-            tvFat.text = "${recipe.fat}g"
-            tvCarbs.text = "${recipe.carbs}g"
-            tvProtein.text = "${recipe.protein}g"
-            updateFavoriteIcon(btnFavorite, recipe.isFavorite)
-            btnFavorite.setOnClickListener {
-                onFavoriteClick(recipe)
+            tvCalories.text = recipe.calories.replace(Regex("[^\\d]"), "").ifEmpty { "-" }
+            tvFat.text = recipe.fat.ifEmpty { "-" }
+            tvCarbs.text = recipe.carbs.ifEmpty { "-" }
+            tvProtein.text = recipe.protein.ifEmpty { "-" }
+
+            if (recipe.imageUrl.isNotBlank()) {
+                val fullUrl = if (recipe.imageUrl.startsWith("/")) {
+                    BuildConfig.BASE_URL.trimEnd('/') + recipe.imageUrl
+                } else {
+                    recipe.imageUrl
+                }
+                Picasso.get()
+                    .load(fullUrl)
+                    .fit()
+                    .centerCrop()
+                    .placeholder(R.color.light_teal)
+                    .error(R.color.light_teal)
+                    .into(ivRecipeImage)
+            } else {
+                ivRecipeImage.setImageResource(R.color.light_teal)
             }
+
+            updateFavoriteIcon(btnFavorite, recipe.isFavorite)
+            btnFavorite.setOnClickListener { onFavoriteClick(recipe) }
         }
     }
 
-    override fun getItemCount() = recipes.size
     private fun updateFavoriteIcon(btn: ImageButton, isFavorite: Boolean) {
         if (isFavorite) {
             btn.setImageResource(R.drawable.ic_star_filled)
-            btn.imageTintList = android.content.res.ColorStateList.valueOf(
-                android.graphics.Color.parseColor("#FFD700")
-            )
+            btn.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFD700"))
         } else {
             btn.setImageResource(R.drawable.ic_star_outline)
-            btn.imageTintList = android.content.res.ColorStateList.valueOf(
-                android.graphics.Color.parseColor("#2D6A4F")
-            )
+            btn.imageTintList = ColorStateList.valueOf(Color.parseColor("#2D6A4F"))
         }
     }
 }

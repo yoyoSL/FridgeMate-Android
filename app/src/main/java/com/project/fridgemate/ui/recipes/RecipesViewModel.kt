@@ -1,51 +1,77 @@
 package com.project.fridgemate.ui.recipes
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.project.fridgemate.data.local.AppDatabase
+import com.project.fridgemate.data.local.entity.RecipeEntity
+import com.project.fridgemate.data.repository.RecipeRepository
+import kotlinx.coroutines.launch
 
-data class Recipe(
-    val id: Int,
-    val name: String,
-    val timeMinutes: Int,
-    val difficulty: String,
-    val calories: Int,
-    val fat: Int,
-    val carbs: Int,
-    val protein: Int,
-    val imageUrl: String = "",
-    val isFavorite: Boolean = false
-)
+class RecipesViewModel(application: Application) : AndroidViewModel(application) {
 
-class RecipesViewModel : ViewModel() {
+    private val repository: RecipeRepository
 
-    // TODO list of recommended recipes, need to connect to database
-    private val _recommended = MutableLiveData<List<Recipe>>(
-        listOf(
-            Recipe(1, "Chicken & Spinach Omelette", 15, "Easy", 320, 18, 8, 32),
-            Recipe(2, "Tomato Pasta Primavera", 25, "Medium", 410, 12, 58, 14),
-            Recipe(3, "Avocado Toast", 10, "Easy", 280, 15, 30, 8)
-        )
-    )
-    val recommended: LiveData<List<Recipe>> = _recommended
+    val recommended: LiveData<List<RecipeEntity>>
+    val favorites: LiveData<List<RecipeEntity>>
 
-    //TODO list of favorite recipes, need to connect to database
-    private val _favorites = MutableLiveData<List<Recipe>>(emptyList())
-    val favorites: LiveData<List<Recipe>> = _favorites
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean> = _isLoading
 
-    fun toggleFavorite(recipe: Recipe) {
+    private val _error = MutableLiveData<String?>(null)
+    val error: LiveData<String?> = _error
 
-        val currentFavorites = _favorites.value?.toMutableList() ?: mutableListOf()
-        if (currentFavorites.any { it.id == recipe.id }) {
-            currentFavorites.removeAll { it.id == recipe.id }
-        } else {
-            currentFavorites.add(recipe.copy(isFavorite = true))
+    private var lastIngredients = listOf("chicken", "rice", "tomato", "eggs", "cheese")
+
+    init {
+        val dao = AppDatabase.getInstance(application).recipeDao()
+        repository = RecipeRepository(dao)
+        recommended = repository.getRecommended()
+        favorites = repository.getFavorites()
+
+        viewModelScope.launch { repository.fetchFavorites() }
+    }
+
+    fun loadRecommendedIfNeeded() {
+        viewModelScope.launch {
+            if (repository.isCacheExpired()) {
+                loadRecommended()
+            }
         }
-        _favorites.value = currentFavorites
+    }
 
-        val updatedRecommended = _recommended.value?.map {
-            if (it.id == recipe.id) it.copy(isFavorite = !it.isFavorite) else it
+    fun loadRecommended(
+        ingredients: List<String> = lastIngredients,
+        allergies: List<String>? = null,
+        dietPreference: String? = null
+    ) {
+        lastIngredients = ingredients
+        _isLoading.value = true
+        _error.value = null
+        viewModelScope.launch {
+            val result = repository.fetchRecommended(ingredients, allergies, dietPreference)
+            _isLoading.value = false
+            if (result.isFailure) {
+                _error.value = result.exceptionOrNull()?.message ?: "Failed to load recipes"
+            }
         }
-        _recommended.value = updatedRecommended
+    }
+
+    fun toggleFavoriteFromRecommended(recipe: RecipeEntity) {
+        viewModelScope.launch {
+            if (recipe.isFavorite) {
+                repository.unfavoriteFromRecommended(recipe)
+            } else {
+                repository.saveToFavorites(recipe)
+            }
+        }
+    }
+
+    fun removeFromFavorites(recipe: RecipeEntity) {
+        viewModelScope.launch {
+            repository.removeFromFavorites(recipe)
+        }
     }
 }
