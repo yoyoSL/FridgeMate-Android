@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.launch
@@ -15,6 +16,7 @@ import com.project.fridgemate.data.repository.AuthRepository
 import com.project.fridgemate.databinding.FragmentDashboardBinding
 import com.project.fridgemate.databinding.PopupProfileMenuBinding
 import com.project.fridgemate.ui.fridge.FridgeFragment
+import com.project.fridgemate.ui.profile.ProfileViewModel
 import com.project.fridgemate.ui.recipes.RecipesFragment
 import com.project.fridgemate.ui.feed.FeedFragment
 
@@ -24,6 +26,7 @@ class DashboardFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val authRepository = AuthRepository()
+    private val profileViewModel: ProfileViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,6 +46,16 @@ class DashboardFragment : Fragment() {
 
         setupTabListeners()
         setupProfileMenu()
+        loadGreeting()
+    }
+
+    private fun loadGreeting() {
+        profileViewModel.loadProfile()
+        profileViewModel.user.observe(viewLifecycleOwner) { user ->
+            user?.let {
+                binding.tvGreeting.text = getString(R.string.greeting_format, it.displayName)
+            }
+        }
     }
 
     private fun setupTabListeners() {
