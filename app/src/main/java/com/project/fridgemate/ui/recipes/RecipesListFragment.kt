@@ -8,9 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentRecipeListBinding
 
 class RecipeListFragment : Fragment() {
@@ -87,7 +90,14 @@ class RecipeListFragment : Fragment() {
             }
         }
 
-        adapter = RecipeAdapter(onFavoriteClick)
+        val onItemClick = { recipe: com.project.fridgemate.data.local.entity.RecipeEntity ->
+            val bundle = bundleOf("recipeId" to recipe.id)
+            requireParentFragment().requireParentFragment()
+                .findNavController()
+                .navigate(R.id.action_dashboardFragment_to_recipeDetailFragment, bundle)
+        }
+
+        adapter = RecipeAdapter(onFavoriteClick, onItemClick)
         binding.rvRecipes.layoutManager = LinearLayoutManager(requireContext())
         binding.rvRecipes.adapter = adapter
 

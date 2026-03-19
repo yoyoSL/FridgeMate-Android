@@ -33,4 +33,7 @@ interface RecipeDao {
 
     @Query("SELECT MAX(cachedAt) FROM recipes WHERE type = :type")
     suspend fun getLatestCacheTime(type: String): Long?
+
+    @Query("SELECT * FROM recipes WHERE id = :id LIMIT 1")
+    fun getById(id: Long): LiveData<RecipeEntity?>
 }

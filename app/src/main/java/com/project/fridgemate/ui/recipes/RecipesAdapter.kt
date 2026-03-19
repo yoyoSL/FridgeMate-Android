@@ -15,7 +15,8 @@ import com.project.fridgemate.databinding.ItemRecipeBinding
 import com.squareup.picasso.Picasso
 
 class RecipeAdapter(
-    private val onFavoriteClick: (RecipeEntity) -> Unit
+    private val onFavoriteClick: (RecipeEntity) -> Unit,
+    private val onItemClick: (RecipeEntity) -> Unit = {}
 ) : ListAdapter<RecipeEntity, RecipeAdapter.RecipeViewHolder>(DIFF) {
 
     companion object {
@@ -63,6 +64,7 @@ class RecipeAdapter(
 
             updateFavoriteIcon(btnFavorite, recipe.isFavorite)
             btnFavorite.setOnClickListener { onFavoriteClick(recipe) }
+            root.setOnClickListener { onItemClick(recipe) }
         }
     }
 
