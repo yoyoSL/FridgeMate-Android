@@ -14,7 +14,9 @@ data class Post(
     val commentsCount: Int,
     val imageUrl: String = "",
     val isLiked: Boolean = false,
-    val comments: List<Comment> = emptyList()
+    val comments: List<Comment> = emptyList(),
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0
 )
 data class Comment(
     val id: Int,
@@ -32,14 +34,17 @@ class FeedViewModel : ViewModel() {
                 userName = "Sarah Johnson",
                 userLocation = "New York, NY",
                 postTitle = "Creamy Tuscan Chicken",
-                description = "Just made this amazing dish!",
+                description = "Just made this amazing dish! The sun-dried tomatoes really make it special.",
                 likesCount = 42,
                 commentsCount = 8,
+                imageUrl = "https://www.thecomfortofcooking.com/wp-content/uploads/2019/02/CreamyTuscanChicken-5.jpg",
                 comments = listOf(
                     Comment(1, "Alex Martinez", "This looks absolutely delicious! Can you share the full recipe?"),
                     Comment(2, "Lisa Brown", "Made this last night and my family loved it! 🔥"),
                     Comment(3, "James Wilson", "What herbs did you use? Looks amazing!")
-                )
+                ),
+                latitude = 40.7128,
+                longitude = -74.0060
             ),
             Post(
                 id = 2,
@@ -48,7 +53,9 @@ class FeedViewModel : ViewModel() {
                 postTitle = "Avocado Pasta",
                 description = "Quick and healthy dinner ready in 20 minutes!",
                 likesCount = 28,
-                commentsCount = 5
+                commentsCount = 5,
+                latitude = 37.7749,
+                longitude = -122.4194
             ),
             Post(
                 id = 3,
@@ -57,7 +64,9 @@ class FeedViewModel : ViewModel() {
                 postTitle = "Mushroom Risotto",
                 description = "Comfort food at its finest. Perfect for a rainy day.",
                 likesCount = 65,
-                commentsCount = 12
+                commentsCount = 12,
+                latitude = 41.8781,
+                longitude = -87.6298
             )
         )
     )
