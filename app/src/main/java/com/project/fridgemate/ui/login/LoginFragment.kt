@@ -19,6 +19,18 @@ class LoginFragment : Fragment() {
 
     private val viewModel: LoginViewModel by viewModels()
 
+    companion object {
+        private const val ARG_EMAIL = "email"
+
+        fun newInstance(email: String? = null): LoginFragment {
+            return LoginFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_EMAIL, email)
+                }
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -30,6 +42,9 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        arguments?.getString(ARG_EMAIL)?.takeIf { it.isNotBlank() }?.let { email ->
+            binding.etEmail.setText(email)
+        }
         setupObservers()
         setupListeners()
     }

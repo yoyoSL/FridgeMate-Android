@@ -70,8 +70,11 @@ class ForgotPasswordFragment : Fragment() {
                 is AuthResult.Loading -> setResetLoading(true)
                 is AuthResult.Success -> {
                     setResetLoading(false)
+                    val resetEmail = viewModel.email
+                    clearFormFields()
+                    viewModel.clearState()
                     Snackbar.make(requireView(), getString(R.string.password_reset_success), Snackbar.LENGTH_LONG).show()
-                    (parentFragment as? AuthFragment)?.showLogin()
+                    (parentFragment as? AuthFragment)?.showLogin(resetEmail)
                 }
                 is AuthResult.Error -> {
                     setResetLoading(false)
@@ -91,6 +94,13 @@ class ForgotPasswordFragment : Fragment() {
     private fun setResetLoading(isLoading: Boolean) {
         binding.btnResetPassword.isEnabled = !isLoading
         binding.btnResetPassword.text = if (isLoading) getString(R.string.resetting) else getString(R.string.reset_password)
+    }
+
+    private fun clearFormFields() {
+        binding.etEmail.text?.clear()
+        binding.etCode.text?.clear()
+        binding.etNewPassword.text?.clear()
+        binding.etConfirmPassword.text?.clear()
     }
 
     private fun setupListeners() {

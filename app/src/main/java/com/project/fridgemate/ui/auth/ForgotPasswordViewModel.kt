@@ -66,4 +66,11 @@ class ForgotPasswordViewModel : ViewModel() {
     fun resetResetResult() {
         _resetResult.value = AuthResult.Idle
     }
+
+    fun clearState() {
+        _email = ""
+        _isCodeSent.value = false
+        _sendCodeResult.value = AuthResult.Idle
+        _resetResult.value = AuthResult.Idle
+    }
 }

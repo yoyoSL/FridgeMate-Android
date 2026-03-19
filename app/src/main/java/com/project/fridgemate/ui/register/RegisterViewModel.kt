@@ -35,4 +35,8 @@ class RegisterViewModel : ViewModel() {
     fun resetRegisterResult() {
         _registerResult.value = AuthResult.Idle
     }
+
+    fun clearState() {
+        _registerResult.value = AuthResult.Idle
+    }
 }

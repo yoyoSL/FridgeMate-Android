@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.navigation.fragment.findNavController
 import com.project.fridgemate.R
 import com.project.fridgemate.data.remote.ApiClient
@@ -66,12 +67,9 @@ class AuthFragment : Fragment() {
         replaceFragment(RegisterFragment())
     }
 
-    fun showLogin() {
-        if (childFragmentManager.backStackEntryCount > 0) {
-            childFragmentManager.popBackStack()
-        } else {
-            replaceFragment(LoginFragment(), false)
-        }
+    fun showLogin(email: String? = null) {
+        childFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        replaceFragment(LoginFragment.newInstance(email), addToBackStack = false)
     }
 
     fun showForgotPassword() {
