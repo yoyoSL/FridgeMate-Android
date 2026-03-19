@@ -14,7 +14,12 @@ data class Post(
     val commentsCount: Int,
     val imageUrl: String = "",
     val isLiked: Boolean = false,
-    val isFavorite: Boolean = false
+    val comments: List<Comment> = emptyList()
+)
+data class Comment(
+    val id: Int,
+    val userName: String,
+    val text: String
 )
 
 class FeedViewModel : ViewModel() {
@@ -27,9 +32,14 @@ class FeedViewModel : ViewModel() {
                 userName = "Sarah Johnson",
                 userLocation = "New York, NY",
                 postTitle = "Creamy Tuscan Chicken",
-                description = "Just made this amazing dish with the ingredients I had! The sun-dried tomatoes really make it special.",
+                description = "Just made this amazing dish!",
                 likesCount = 42,
-                commentsCount = 8
+                commentsCount = 8,
+                comments = listOf(
+                    Comment(1, "Alex Martinez", "This looks absolutely delicious! Can you share the full recipe?"),
+                    Comment(2, "Lisa Brown", "Made this last night and my family loved it! 🔥"),
+                    Comment(3, "James Wilson", "What herbs did you use? Looks amazing!")
+                )
             ),
             Post(
                 id = 2,
@@ -63,11 +73,38 @@ class FeedViewModel : ViewModel() {
         _posts.value = updated
         // TODO: API call
     }
-    fun toggleFavorite(post: Post) {
-        val updated = _posts.value?.map {
-            if (it.id == post.id) it.copy(isFavorite = !it.isFavorite) else it
+    fun addPost(title: String, description: String) {
+        val current = _posts.value?.toMutableList() ?: mutableListOf()
+        val newPost = Post(
+            id = current.size + 1,
+            userName = "Me",
+            userLocation = "My Location",
+            postTitle = title,
+            description = description,
+            likesCount = 0,
+            commentsCount = 0
+        )
+        current.add(0, newPost)
+        _posts.value = current
+        // TODO: Send API
+    }
+    fun addComment(postId: Int, userName: String, text: String) {
+        val updated = _posts.value?.map { post ->
+            if (post.id == postId) {
+                val newComments = post.comments.toMutableList()
+                newComments.add(Comment(
+                    id = post.comments.size + 1,
+                    userName = userName,
+                    text = text
+                ))
+                post.copy(
+                    comments = newComments,
+                    commentsCount = post.commentsCount + 1
+                )
+            } else post
         } ?: return
         _posts.value = updated
         // TODO: API call
     }
+
 }

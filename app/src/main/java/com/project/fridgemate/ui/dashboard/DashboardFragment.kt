@@ -50,8 +50,8 @@ class DashboardFragment : Fragment() {
             selectTab(it)
             showFragment(FridgeFragment())
         }
-        binding.tabRecipes.setOnClickListener { selectTab(it)
-            showFragment(RecipesFragment())
+        binding.tabFeed.setOnClickListener { selectTab(it)
+            showFragment(FeedFragment())
         }
         binding.tabRecipes.setOnClickListener { selectTab(it)
             showFragment(RecipesFragment())

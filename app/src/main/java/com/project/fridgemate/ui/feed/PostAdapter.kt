@@ -1,7 +1,9 @@
 package com.project.fridgemate.ui.feed
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.ItemPostBinding
@@ -9,8 +11,7 @@ import com.project.fridgemate.databinding.ItemPostBinding
 class PostAdapter(
     private val posts: List<Post>,
     private val onLikeClick: (Post) -> Unit,
-    private val onFavoriteClick: (Post) -> Unit,
-    private val onCommentClick: (Post) -> Unit
+    private val onAddComment: (postId: Int, text: String) -> Unit
 ) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
 
     inner class PostViewHolder(val binding: ItemPostBinding) :
@@ -31,28 +32,42 @@ class PostAdapter(
             tvUserName.text = post.userName
             tvUserLocation.text = post.userLocation
             ivUserPhoto.setImageResource(R.drawable.ic_person)
-
-            // post pic
+            //post pic
             ivPostImage.setImageResource(android.R.color.transparent)
             ivPostImage.setBackgroundColor(
                 holder.itemView.context.getColor(R.color.light_teal)
             )
-
-            // description
+            // text
             tvRecipeTitle.text = post.postTitle
             tvDescription.text = post.description
-
             // likes
             tvLikesCount.text = post.likesCount.toString()
             updateLikeButton(this, post.isLiked)
-
-            // comments
+            //comments
             tvCommentsCount.text = post.commentsCount.toString()
 
-            // click listeners
+            //clicks
             btnLike.setOnClickListener { onLikeClick(post) }
-            btnFavorite.setOnClickListener { onFavoriteClick(post) }
-            btnComment.setOnClickListener { onCommentClick(post) }
+
+
+            btnComment.setOnClickListener {
+                if (rvComments.visibility == View.GONE) {
+                    rvComments.visibility = View.VISIBLE
+                    rvComments.layoutManager = LinearLayoutManager(holder.itemView.context)
+                    rvComments.adapter = CommentAdapter(post.comments)
+                    layoutAddComment.visibility = View.VISIBLE
+                } else {
+                    rvComments.visibility = View.GONE
+                    layoutAddComment.visibility = View.GONE
+                }
+            }
+            btnSendComment.setOnClickListener {
+                val text = etComment.text.toString().trim()
+                if (text.isNotEmpty()) {
+                    onAddComment(post.id, text)
+                    etComment.text?.clear()
+                }
+            }
         }
     }
 
