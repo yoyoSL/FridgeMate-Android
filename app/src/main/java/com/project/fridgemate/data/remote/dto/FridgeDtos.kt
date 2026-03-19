@@ -40,3 +40,13 @@ data class PaginatedResponse<T>(
     val page: Int,
     val limit: Int
 )
+
+data class InventoryItemDto(
+    @SerializedName("_id") val id: String,
+    val fridgeId: String,
+    val ownerId: String,
+    val name: String,
+    val quantity: String,
+    val ownership: String,
+    val isRunningLow: Boolean
+)
