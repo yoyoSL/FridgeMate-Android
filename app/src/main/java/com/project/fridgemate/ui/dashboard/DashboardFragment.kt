@@ -87,8 +87,10 @@ class DashboardFragment : Fragment() {
 
         popupBinding.menuLogout.setOnClickListener {
             popupWindow.dismiss()
-            lifecycleScope.launch { authRepository.logout() }
-            findNavController().navigate(R.id.action_dashboardFragment_to_authFragment)
+            lifecycleScope.launch {
+                authRepository.logout()
+                findNavController().navigate(R.id.action_dashboardFragment_to_authFragment)
+            }
         }
 
         popupWindow.elevation = 8f
