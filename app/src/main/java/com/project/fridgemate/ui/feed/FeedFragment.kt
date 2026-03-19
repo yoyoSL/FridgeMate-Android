@@ -31,7 +31,8 @@ class FeedFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnMapView.setOnClickListener {
-            // TODO: open map view
+            requireParentFragment().findNavController()
+                .navigate(R.id.action_dashboardFragment_to_mapViewFragment)
         }
 
         binding.fabAddPost.setOnClickListener {

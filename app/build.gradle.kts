@@ -67,6 +67,9 @@ dependencies {
     implementation(libs.picasso)
     implementation(libs.lottie)
 
+    // Maps
+    implementation(libs.osmdroid)
+
     // Encrypted storage
     implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.legacy.support.v4)
