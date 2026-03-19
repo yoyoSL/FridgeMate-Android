@@ -47,8 +47,11 @@ class RegisterFragment : Fragment() {
                 is AuthResult.Loading -> setLoadingState(true)
                 is AuthResult.Success -> {
                     setLoadingState(false)
+                    val registeredEmail = binding.etEmail.text.toString()
+                    clearFormFields()
+                    viewModel.clearState()
                     Snackbar.make(requireView(), getString(R.string.registration_successful), Snackbar.LENGTH_LONG).show()
-                    (parentFragment as? AuthFragment)?.showLogin()
+                    (parentFragment as? AuthFragment)?.showLogin(registeredEmail)
                 }
                 is AuthResult.Error -> {
                     setLoadingState(false)
@@ -63,6 +66,13 @@ class RegisterFragment : Fragment() {
     private fun setLoadingState(isLoading: Boolean) {
         binding.btnSignUp.isEnabled = !isLoading
         binding.btnSignUp.text = if (isLoading) getString(R.string.signing_up) else getString(R.string.sign_up)
+    }
+
+    private fun clearFormFields() {
+        binding.etFullName.text?.clear()
+        binding.etEmail.text?.clear()
+        binding.etPassword.text?.clear()
+        binding.etConfirmPassword.text?.clear()
     }
 
     private fun setupListeners() {
