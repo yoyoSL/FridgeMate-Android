@@ -55,12 +55,8 @@ class FeedFragment : Fragment() {
                 binding.emptyStateFeed.visibility = View.GONE
                 binding.rvPosts.adapter = PostAdapter(
                     posts = posts,
-                    onLikeClick = { post ->
-                        viewModel.toggleLike(post)
-                    },
-                    onDeleteClick = { post ->
-                        viewModel.deletePost(post.id)
-                    },
+                    onLikeClick = { post -> viewModel.toggleLike(post) },
+                    onDeleteClick = { post -> viewModel.deletePost(post.id) },
                     onEditClick = { post ->
                         val bundle = Bundle().apply {
                             putInt("postId", post.id)
@@ -69,6 +65,12 @@ class FeedFragment : Fragment() {
                         }
                         requireParentFragment().findNavController()
                             .navigate(R.id.action_dashboardFragment_to_editPostFragment, bundle)
+                    },
+                    onDeleteComment = { postId, commentId ->
+                        viewModel.deleteComment(postId, commentId)
+                    },
+                    onEditComment = { postId, commentId, newText ->
+                        viewModel.editComment(postId, commentId, newText)
                     },
                     onAddComment = { postId, text ->
                         viewModel.addComment(postId, "Me", text)

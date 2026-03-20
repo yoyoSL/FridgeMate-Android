@@ -13,7 +13,9 @@ class PostAdapter(
     private val onLikeClick: (Post) -> Unit,
     private val onAddComment: (postId: Int, text: String) -> Unit,
     private val onDeleteClick: (Post) -> Unit,
-    private val onEditClick: (Post) -> Unit
+    private val onEditClick: (Post) -> Unit,
+    private val onDeleteComment: (postId: Int, commentId: Int) -> Unit,
+    private val onEditComment: (postId: Int, commentId: Int, newText: String) -> Unit
 ) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
 
     inner class PostViewHolder(val binding: ItemPostBinding) :
@@ -30,34 +32,37 @@ class PostAdapter(
         val post = posts[position]
         with(holder.binding) {
 
-            // user details
             tvUserName.text = post.userName
             tvUserLocation.text = post.userLocation
             ivUserPhoto.setImageResource(R.drawable.ic_person)
-            //post pic
+
             ivPostImage.setImageResource(android.R.color.transparent)
             ivPostImage.setBackgroundColor(
                 holder.itemView.context.getColor(R.color.light_teal)
             )
-            // text
             tvRecipeTitle.text = post.postTitle
             tvDescription.text = post.description
-            // likes
+
             tvLikesCount.text = post.likesCount.toString()
             updateLikeButton(this, post.isLiked)
-            //comments
+
             tvCommentsCount.text = post.commentsCount.toString()
 
-            //clicks
             btnLike.setOnClickListener { onLikeClick(post) }
-
-
             btnComment.setOnClickListener {
                 if (rvComments.visibility == View.GONE) {
                     rvComments.visibility = View.VISIBLE
-                    rvComments.layoutManager = LinearLayoutManager(holder.itemView.context)
-                    rvComments.adapter = CommentAdapter(post.comments)
                     layoutAddComment.visibility = View.VISIBLE
+                    rvComments.layoutManager = LinearLayoutManager(holder.itemView.context)
+                    rvComments.adapter = CommentAdapter(
+                        comments = posts[holder.adapterPosition].comments,
+                        onDeleteComment = { comment ->
+                            onDeleteComment(post.id, comment.id)
+                        },
+                        onEditComment = { comment, newText ->
+                            onEditComment(post.id, comment.id, newText)
+                        }
+                    )
                 } else {
                     rvComments.visibility = View.GONE
                     layoutAddComment.visibility = View.GONE
@@ -68,6 +73,8 @@ class PostAdapter(
                 if (text.isNotEmpty()) {
                     onAddComment(post.id, text)
                     etComment.text?.clear()
+                    rvComments.visibility = View.GONE
+                    layoutAddComment.visibility = View.GONE
                 }
             }
             if (post.isOwner) {

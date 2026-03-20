@@ -22,7 +22,8 @@ data class Post(
 data class Comment(
     val id: Int,
     val userName: String,
-    val text: String
+    val text: String,
+    val isOwner: Boolean = false
 )
 
 class FeedViewModel : ViewModel() {
@@ -106,7 +107,8 @@ class FeedViewModel : ViewModel() {
                 newComments.add(Comment(
                     id = post.comments.size + 1,
                     userName = userName,
-                    text = text
+                    text = text,
+                    isOwner = true
                 ))
                 post.copy(
                     comments = newComments,
@@ -129,6 +131,33 @@ class FeedViewModel : ViewModel() {
                 postTitle = newTitle,
                 description = newDescription
             ) else it
+        } ?: return
+        _posts.value = updated
+        // TODO: API call
+    }
+    fun deleteComment(postId: Int, commentId: Int) {
+        val updated = _posts.value?.map { post ->
+            if (post.id == postId) {
+                post.copy(
+                    comments = post.comments.filter { it.id != commentId },
+                    commentsCount = post.commentsCount - 1
+                )
+            } else post
+        } ?: return
+        _posts.value = updated
+        // TODO: API call
+    }
+
+    fun editComment(postId: Int, commentId: Int, newText: String) {
+        val updated = _posts.value?.map { post ->
+            if (post.id == postId) {
+                post.copy(
+                    comments = post.comments.map { comment ->
+                        if (comment.id == commentId) comment.copy(text = newText)
+                        else comment
+                    }
+                )
+            } else post
         } ?: return
         _posts.value = updated
         // TODO: API call
