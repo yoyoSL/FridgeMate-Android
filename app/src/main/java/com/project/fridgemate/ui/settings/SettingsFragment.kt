@@ -18,6 +18,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.fridgemate.databinding.FragmentSettingsBinding
+import java.io.ByteArrayOutputStream
 
 class SettingsFragment : Fragment() {
 
@@ -103,6 +104,22 @@ class SettingsFragment : Fragment() {
                 viewModel.clearActionSuccess()
             }
         }
+
+        viewModel.isScanning.observe(viewLifecycleOwner) { scanning ->
+            binding.scanProgressLayout.visibility = if (scanning) View.VISIBLE else View.GONE
+            binding.btnUploadFridgePhoto.isEnabled = !scanning
+        }
+
+        viewModel.scanResult.observe(viewLifecycleOwner) { items ->
+            if (items != null && items.isNotEmpty()) {
+                binding.scanResultsLayout.visibility = View.VISIBLE
+                binding.tvScanResultTitle.text = "Detected Items (${items.size})"
+                binding.rvScanResults.layoutManager = LinearLayoutManager(requireContext())
+                binding.rvScanResults.adapter = DetectedItemAdapter(items)
+            } else {
+                binding.scanResultsLayout.visibility = View.GONE
+            }
+        }
     }
 
     private fun setupListeners() {
@@ -164,11 +181,16 @@ class SettingsFragment : Fragment() {
     }
 
     private fun handleBitmap(bitmap: Bitmap) {
-        Toast.makeText(context, "Got image from camera!", Toast.LENGTH_SHORT).show()
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, stream)
+        viewModel.uploadFridgeScan(stream.toByteArray(), "image/jpeg")
     }
 
     private fun handleUri(uri: Uri) {
-        Toast.makeText(context, "Got image from gallery!", Toast.LENGTH_SHORT).show()
+        val contentResolver = requireContext().contentResolver
+        val mimeType = contentResolver.getType(uri) ?: "image/jpeg"
+        val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
+        viewModel.uploadFridgeScan(bytes, mimeType)
     }
 
     override fun onDestroyView() {
