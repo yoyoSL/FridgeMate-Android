@@ -9,7 +9,7 @@ import com.project.fridgemate.R
 import com.project.fridgemate.databinding.ItemPostBinding
 
 class PostAdapter(
-    private val posts: List<Post>,
+    posts: List<Post>,
     private val onLikeClick: (Post) -> Unit,
     private val onAddComment: (postId: Int, text: String) -> Unit,
     private val onDeleteClick: (Post) -> Unit,
@@ -18,6 +18,27 @@ class PostAdapter(
     private val onEditComment: (postId: Int, commentId: Int, newText: String) -> Unit
 ) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
 
+    private val posts: MutableList<Post> = posts.toMutableList()
+
+    private val expandedPosts = mutableSetOf<Int>()
+
+    fun updatePosts(newPosts: List<Post>) {
+        newPosts.forEachIndexed { index, newPost ->
+            if (index < posts.size) {
+
+                if (!expandedPosts.contains(newPost.id)) {
+                    posts[index] = newPost
+                    notifyItemChanged(index)
+                } else {
+
+                    posts[index] = newPost
+                }
+            } else {
+                posts.add(newPost)
+                notifyItemInserted(index)
+            }
+        }
+    }
     inner class PostViewHolder(val binding: ItemPostBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -51,19 +72,17 @@ class PostAdapter(
             btnLike.setOnClickListener { onLikeClick(post) }
             btnComment.setOnClickListener {
                 if (rvComments.visibility == View.GONE) {
+                    expandedPosts.add(post.id)
                     rvComments.visibility = View.VISIBLE
                     layoutAddComment.visibility = View.VISIBLE
                     rvComments.layoutManager = LinearLayoutManager(holder.itemView.context)
                     rvComments.adapter = CommentAdapter(
                         comments = posts[holder.adapterPosition].comments,
-                        onDeleteComment = { comment ->
-                            onDeleteComment(post.id, comment.id)
-                        },
-                        onEditComment = { comment, newText ->
-                            onEditComment(post.id, comment.id, newText)
-                        }
+                        onDeleteComment = { comment -> onDeleteComment(post.id, comment.id) },
+                        onEditComment = { comment, newText -> onEditComment(post.id, comment.id, newText) }
                     )
                 } else {
+                    expandedPosts.remove(post.id)
                     rvComments.visibility = View.GONE
                     layoutAddComment.visibility = View.GONE
                 }
@@ -73,8 +92,11 @@ class PostAdapter(
                 if (text.isNotEmpty()) {
                     onAddComment(post.id, text)
                     etComment.text?.clear()
-                    rvComments.visibility = View.GONE
-                    layoutAddComment.visibility = View.GONE
+                    rvComments.adapter = CommentAdapter(
+                        comments = posts[holder.adapterPosition].comments,
+                        onDeleteComment = { comment -> onDeleteComment(post.id, comment.id) },
+                        onEditComment = { comment, newText -> onEditComment(post.id, comment.id, newText) }
+                    )
                 }
             }
             if (post.isOwner) {
