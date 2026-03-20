@@ -16,7 +16,8 @@ data class Post(
     val isLiked: Boolean = false,
     val comments: List<Comment> = emptyList(),
     val latitude: Double = 0.0,
-    val longitude: Double = 0.0
+    val longitude: Double = 0.0,
+    val isOwner: Boolean = false
 )
 data class Comment(
     val id: Int,
@@ -91,7 +92,8 @@ class FeedViewModel : ViewModel() {
             postTitle = title,
             description = description,
             likesCount = 0,
-            commentsCount = 0
+            commentsCount = 0 ,
+            isOwner = true
         )
         current.add(0, newPost)
         _posts.value = current
@@ -111,6 +113,22 @@ class FeedViewModel : ViewModel() {
                     commentsCount = post.commentsCount + 1
                 )
             } else post
+        } ?: return
+        _posts.value = updated
+        // TODO: API call
+    }
+    fun deletePost(postId: Int) {
+        val updated = _posts.value?.filter { it.id != postId } ?: return
+        _posts.value = updated
+        // TODO: API call
+    }
+
+    fun editPost(postId: Int, newTitle: String, newDescription: String) {
+        val updated = _posts.value?.map {
+            if (it.id == postId) it.copy(
+                postTitle = newTitle,
+                description = newDescription
+            ) else it
         } ?: return
         _posts.value = updated
         // TODO: API call

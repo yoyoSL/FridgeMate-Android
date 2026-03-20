@@ -55,7 +55,14 @@
                     android:textColor="@color/gray_text" />
 
             </LinearLayout>
-
+            <ImageButton
+                android:id="@+id/btnMoreOptions"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_more_vert"
+                android:visibility="gone"
+                app:tint="@color/gray_text" />
         </LinearLayout>
 
         <!-- Post pic -->

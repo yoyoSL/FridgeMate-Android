@@ -11,7 +11,9 @@ import com.project.fridgemate.databinding.ItemPostBinding
 class PostAdapter(
     private val posts: List<Post>,
     private val onLikeClick: (Post) -> Unit,
-    private val onAddComment: (postId: Int, text: String) -> Unit
+    private val onAddComment: (postId: Int, text: String) -> Unit,
+    private val onDeleteClick: (Post) -> Unit,
+    private val onEditClick: (Post) -> Unit
 ) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
 
     inner class PostViewHolder(val binding: ItemPostBinding) :
@@ -68,9 +70,43 @@ class PostAdapter(
                     etComment.text?.clear()
                 }
             }
+            if (post.isOwner) {
+                btnMoreOptions.visibility = View.VISIBLE
+                btnMoreOptions.setOnClickListener {
+                    showOptionsMenu(it, post)
+                }
+            } else {
+                btnMoreOptions.visibility = View.GONE
+            }
         }
     }
+    private fun showOptionsMenu(anchor: View, post: Post) {
+        val popup = androidx.appcompat.widget.PopupMenu(anchor.context, anchor)
+        popup.menu.add(0, 1, 0, "✏️ Edit")
+        popup.menu.add(0, 2, 1, "🗑️ Delete")
 
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                1 -> {
+                    onEditClick(post)
+                    true
+                }
+                2 -> {
+                    androidx.appcompat.app.AlertDialog.Builder(anchor.context)
+                        .setTitle("Delete Post?")
+                        .setMessage("Are you sure you want to delete this post?")
+                        .setPositiveButton("Delete") { _, _ ->
+                            onDeleteClick(post)
+                        }
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
+    }
     private fun updateLikeButton(binding: ItemPostBinding, isLiked: Boolean) {
         if (isLiked) {
             binding.btnLike.setImageResource(R.drawable.ic_heart_filled)

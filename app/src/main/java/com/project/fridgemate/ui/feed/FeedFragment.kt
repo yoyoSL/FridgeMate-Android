@@ -58,6 +58,18 @@ class FeedFragment : Fragment() {
                     onLikeClick = { post ->
                         viewModel.toggleLike(post)
                     },
+                    onDeleteClick = { post ->
+                        viewModel.deletePost(post.id)
+                    },
+                    onEditClick = { post ->
+                        val bundle = Bundle().apply {
+                            putInt("postId", post.id)
+                            putString("postTitle", post.postTitle)
+                            putString("postDescription", post.description)
+                        }
+                        requireParentFragment().findNavController()
+                            .navigate(R.id.action_dashboardFragment_to_editPostFragment, bundle)
+                    },
                     onAddComment = { postId, text ->
                         viewModel.addComment(postId, "Me", text)
                     }
