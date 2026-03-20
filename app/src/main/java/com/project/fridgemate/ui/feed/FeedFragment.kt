@@ -47,15 +47,22 @@ class FeedFragment : Fragment() {
         binding.rvPosts.layoutManager = LinearLayoutManager(requireContext())
 
         viewModel.posts.observe(viewLifecycleOwner) { posts ->
-            binding.rvPosts.adapter = PostAdapter(
-                posts = posts,
-                onLikeClick = { post ->
-                    viewModel.toggleLike(post)
-                },
-                onAddComment = { postId, text ->
-                    viewModel.addComment(postId, "Me", text)
-                }
-            )
+            if (posts.isEmpty()) {
+                binding.rvPosts.visibility = View.GONE
+                binding.emptyStateFeed.visibility = View.VISIBLE
+            } else {
+                binding.rvPosts.visibility = View.VISIBLE
+                binding.emptyStateFeed.visibility = View.GONE
+                binding.rvPosts.adapter = PostAdapter(
+                    posts = posts,
+                    onLikeClick = { post ->
+                        viewModel.toggleLike(post)
+                    },
+                    onAddComment = { postId, text ->
+                        viewModel.addComment(postId, "Me", text)
+                    }
+                )
+            }
         }
     }
 
