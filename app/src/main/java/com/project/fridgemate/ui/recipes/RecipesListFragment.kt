@@ -108,8 +108,15 @@ class RecipeListFragment : Fragment() {
 
         source.observe(viewLifecycleOwner) { recipes ->
             adapter.submitList(recipes)
-            val isEmpty = recipes.isEmpty() && viewModel.isLoading.value != true
-            binding.tvEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
+            if (type == TYPE_FAVORITES) {
+                val isEmpty = recipes.isEmpty()
+                binding.tvEmpty.text = getString(R.string.no_recipes_yet)
+                binding.tvEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
+            } else {
+                if (recipes.isNotEmpty()) {
+                    binding.tvEmpty.visibility = View.GONE
+                }
+            }
         }
 
         if (type == TYPE_RECOMMENDED) {
@@ -123,6 +130,8 @@ class RecipeListFragment : Fragment() {
             viewModel.error.observe(viewLifecycleOwner) { error ->
                 if (error != null) {
                     Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
+                    binding.tvEmpty.text = error
+                    binding.tvEmpty.visibility = View.VISIBLE
                 }
             }
 
@@ -138,6 +147,7 @@ class RecipeListFragment : Fragment() {
         binding.loadingOverlay.visibility = View.VISIBLE
         binding.rvRecipes.visibility = View.GONE
         binding.btnGenerate.visibility = View.GONE
+        binding.tvEmpty.visibility = View.GONE
         tipIndex = (0 until COOKING_TIPS.size).random()
         binding.tvLoadingTip.text = COOKING_TIPS[tipIndex]
         tipHandler.postDelayed(tipRunnable, 4000)

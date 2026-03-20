@@ -79,4 +79,7 @@
     <string name="hint_invite_code">Enter invite code</string>
     <string name="join_fridge">Join Fridge</string>
 
+    <!-- Recipes Screen -->
+    <string name="no_recipes_yet">No recipes yet</string>
+
 </resources>
