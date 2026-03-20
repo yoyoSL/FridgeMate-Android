@@ -25,6 +25,10 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         return recipeDao.getByType(RecipeEntity.TYPE_RECOMMENDED)
     }
 
+    suspend fun clearRecommendedCache() {
+        recipeDao.deleteByType(RecipeEntity.TYPE_RECOMMENDED)
+    }
+
     suspend fun isCacheExpired(): Boolean {
         val lastCache = recipeDao.getLatestCacheTime(RecipeEntity.TYPE_RECOMMENDED) ?: return true
         return System.currentTimeMillis() - lastCache > CACHE_TTL_MS
