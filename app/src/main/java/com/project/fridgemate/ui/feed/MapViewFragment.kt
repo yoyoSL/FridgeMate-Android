@@ -57,7 +57,7 @@ class MapViewFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        binding.btnClose.setOnClickListener {
+        binding.btnBack.setOnClickListener {
             findNavController().navigateUp()
         }
 
