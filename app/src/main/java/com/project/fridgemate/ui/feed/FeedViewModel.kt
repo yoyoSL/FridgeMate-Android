@@ -15,6 +15,14 @@ import com.project.fridgemate.data.repository.FridgeResult
 import com.project.fridgemate.data.repository.PostRepository
 import kotlinx.coroutines.launch
 
+data class LinkedRecipe(
+    val id: String,
+    val title: String,
+    val cookingTime: String,
+    val difficulty: String,
+    val imageUrl: String
+)
+
 data class Post(
     val id: String,
     val userName: String,
@@ -28,7 +36,8 @@ data class Post(
     val comments: List<Comment> = emptyList(),
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
-    val isOwner: Boolean = false
+    val isOwner: Boolean = false,
+    val linkedRecipe: LinkedRecipe? = null
 )
 
 data class Comment(
@@ -111,6 +120,7 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
         title: String,
         description: String,
         imageUrl: String? = null,
+        recipeId: String? = null,
         latitude: Double? = null,
         longitude: Double? = null
     ) {
@@ -123,6 +133,7 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
                 title = title,
                 text = description,
                 mediaUrls = if (imageUrl != null) listOf(imageUrl) else emptyList(),
+                recipeId = recipeId,
                 location = location
             )
             when (val result = repository.createPost(request)) {
@@ -284,11 +295,21 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
         val placeName = loc?.placeName
         val city = authorUserId.address?.city
 
+        val recipe = recipeId?.let {
+            LinkedRecipe(
+                id = it.id,
+                title = it.title ?: "",
+                cookingTime = it.cookingTime ?: "",
+                difficulty = it.difficulty ?: "",
+                imageUrl = it.imageUrl ?: ""
+            )
+        }
+
         return Post(
             id = id,
             userName = authorUserId.displayName,
             userLocation = placeName ?: city ?: "",
-            postTitle = title,
+            postTitle = title ?: "",
             description = text,
             likesCount = likesCount,
             commentsCount = commentsCount,
@@ -296,7 +317,8 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
             isLiked = isLiked,
             isOwner = isOwner,
             latitude = lat,
-            longitude = lng
+            longitude = lng,
+            linkedRecipe = recipe
         )
     }
 
