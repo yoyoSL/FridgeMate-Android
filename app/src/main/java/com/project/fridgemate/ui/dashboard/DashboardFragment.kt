@@ -1,5 +1,6 @@
 package com.project.fridgemate.ui.dashboard
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,8 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.project.fridgemate.MainActivity
 import com.project.fridgemate.R
+import com.project.fridgemate.data.local.AppDatabase
 import com.project.fridgemate.data.repository.AuthRepository
 import com.project.fridgemate.databinding.FragmentDashboardBinding
 import com.project.fridgemate.databinding.PopupProfileMenuBinding
@@ -133,7 +138,12 @@ class DashboardFragment : Fragment() {
             popupWindow.dismiss()
             lifecycleScope.launch {
                 authRepository.logout()
-                findNavController().navigate(R.id.action_dashboardFragment_to_authFragment)
+                withContext(Dispatchers.IO) {
+                    AppDatabase.getInstance(requireContext()).clearAllTables()
+                }
+                val intent = Intent(requireContext(), MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
             }
         }
 
