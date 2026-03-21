@@ -81,13 +81,8 @@ class RecipeListFragment : Fragment() {
 
         val type = arguments?.getString(ARG_TYPE) ?: TYPE_RECOMMENDED
 
-        val onFavoriteClick = when (type) {
-            TYPE_RECOMMENDED -> { recipe: com.project.fridgemate.data.local.entity.RecipeEntity ->
-                viewModel.toggleFavoriteFromRecommended(recipe)
-            }
-            else -> { recipe: com.project.fridgemate.data.local.entity.RecipeEntity ->
-                viewModel.removeFromFavorites(recipe)
-            }
+        val onFavoriteClick = { recipe: com.project.fridgemate.data.local.entity.RecipeEntity ->
+            viewModel.toggleFavorite(recipe)
         }
 
         val onItemClick = { recipe: com.project.fridgemate.data.local.entity.RecipeEntity ->
