@@ -11,37 +11,16 @@ data class GenerateRecipesRequest(
     val count: Int = 3
 )
 
-data class SaveRecipeRequest(
-    val title: String,
-    val description: String? = null,
-    val cookingTime: String? = null,
-    val difficulty: String? = null,
-    val ingredients: List<RecipeIngredientDto>? = null,
-    val steps: List<String>? = null,
-    val nutrition: RecipeNutritionDto? = null,
-    val imageUrl: String? = null
-)
-
 // ── Responses ───────────────────────────────────────────────────────────────
 
 data class GenerateRecipesResponse(
     val message: String,
-    val recipes: List<RecipeDto>,
+    val recipes: List<ServerRecipeDto>,
     val count: Int
 )
 
-data class SaveRecipeResponse(
-    val message: String,
-    val recipe: SavedRecipeDto
-)
-
-data class SavedRecipeDto(
+data class ServerRecipeDto(
     @SerializedName("_id") val id: String,
-    val title: String,
-    val imageUrl: String?
-)
-
-data class RecipeDto(
     val title: String,
     val description: String?,
     val cookingTime: String?,
@@ -49,7 +28,8 @@ data class RecipeDto(
     val ingredients: List<RecipeIngredientDto>?,
     val steps: List<String>?,
     val nutrition: RecipeNutritionDto?,
-    val imageUrl: String?
+    val imageUrl: String?,
+    val isFavorited: Boolean? = null
 )
 
 data class RecipeIngredientDto(

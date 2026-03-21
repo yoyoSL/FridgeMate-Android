@@ -3,9 +3,7 @@ package com.project.fridgemate.data.remote.api
 import com.project.fridgemate.data.remote.dto.GenerateRecipesRequest
 import com.project.fridgemate.data.remote.dto.GenerateRecipesResponse
 import com.project.fridgemate.data.remote.dto.PaginatedResponse
-import com.project.fridgemate.data.remote.dto.RecipeDto
-import com.project.fridgemate.data.remote.dto.SaveRecipeRequest
-import com.project.fridgemate.data.remote.dto.SaveRecipeResponse
+import com.project.fridgemate.data.remote.dto.ServerRecipeDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -19,15 +17,18 @@ interface RecipeApi {
     @POST("ai/recipes/generate")
     suspend fun generateRecipes(@Body request: GenerateRecipesRequest): Response<GenerateRecipesResponse>
 
-    @POST("recipes/save")
-    suspend fun saveToFavorites(@Body request: SaveRecipeRequest): Response<SaveRecipeResponse>
+    @POST("recipes/{id}/favorite")
+    suspend fun favoriteRecipe(@Path("id") id: String): Response<Any>
+
+    @DELETE("recipes/{id}/favorite")
+    suspend fun unfavoriteRecipe(@Path("id") id: String): Response<Any>
 
     @GET("user/me/recipes")
-    suspend fun getUserRecipes(
+    suspend fun getUserFavorites(
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 20
-    ): Response<PaginatedResponse<RecipeDto>>
+    ): Response<PaginatedResponse<ServerRecipeDto>>
 
-    @DELETE("user/me/recipes/{id}")
-    suspend fun deleteFromFavorites(@Path("id") id: String): Response<Unit>
+    @GET("recipes/{id}")
+    suspend fun getRecipeById(@Path("id") id: String): Response<ServerRecipeDto>
 }
