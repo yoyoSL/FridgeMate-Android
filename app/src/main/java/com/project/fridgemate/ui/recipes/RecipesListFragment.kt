@@ -130,8 +130,11 @@ class RecipeListFragment : Fragment() {
             viewModel.error.observe(viewLifecycleOwner) { error ->
                 if (error != null) {
                     Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
-                    binding.tvEmpty.text = error
-                    binding.tvEmpty.visibility = View.VISIBLE
+                    val hasRecipes = adapter.itemCount > 0
+                    if (!hasRecipes) {
+                        binding.tvEmpty.text = error
+                        binding.tvEmpty.visibility = View.VISIBLE
+                    }
                 }
             }
 
