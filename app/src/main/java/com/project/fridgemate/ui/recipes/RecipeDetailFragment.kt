@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.project.fridgemate.BuildConfig
@@ -34,6 +35,7 @@ class RecipeDetailFragment : Fragment() {
     private val binding get() = _binding!!
     private val gson = Gson()
     private val viewModel: RecipesViewModel by activityViewModels()
+    private val args: RecipeDetailFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -49,6 +51,7 @@ class RecipeDetailFragment : Fragment() {
 
         val recipeId = arguments?.getLong("recipeId") ?: 0L
         val serverRecipeId = arguments?.getString("serverRecipeId") ?: ""
+        val recipeId = args.recipeId
 
         val dao = AppDatabase.getInstance(requireContext()).recipeDao()
 
