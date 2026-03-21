@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentRecipeListBinding
+import com.project.fridgemate.ui.dashboard.DashboardFragmentDirections
 
 class RecipeListFragment : Fragment() {
 
@@ -91,10 +92,10 @@ class RecipeListFragment : Fragment() {
         }
 
         val onItemClick = { recipe: com.project.fridgemate.data.local.entity.RecipeEntity ->
-            val bundle = bundleOf("recipeId" to recipe.id)
+            val action = DashboardFragmentDirections.actionDashboardFragmentToRecipeDetailFragment(recipe.id)
             requireParentFragment().requireParentFragment()
                 .findNavController()
-                .navigate(R.id.action_dashboardFragment_to_recipeDetailFragment, bundle)
+                .navigate(action)
         }
 
         adapter = RecipeAdapter(onFavoriteClick, onItemClick)

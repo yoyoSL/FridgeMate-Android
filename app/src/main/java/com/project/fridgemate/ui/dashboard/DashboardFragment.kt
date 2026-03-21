@@ -161,9 +161,9 @@ class DashboardFragment : Fragment() {
     }
 
     private fun selectTab(selectedTabView: View) {
-        resetTab(binding.tabFeed, binding.ivTabFeed, binding.tvTabFeed, null)
-        resetTab(binding.tabMyFridge, binding.ivTabFridge, binding.tvTabFridge, binding.vIndicatorFridge)
-        resetTab(binding.tabRecipes, binding.ivTabRecipes, binding.tvTabRecipes, null)
+        resetTab(binding.tabFeed, binding.ivTabFeed, binding.tvTabFeed)
+        resetTab(binding.tabMyFridge, binding.ivTabFridge, binding.tvTabFridge)
+        resetTab(binding.tabRecipes, binding.ivTabRecipes, binding.tvTabRecipes)
 
         // Highlight selected tab
         val accentColor = ContextCompat.getColor(requireContext(), R.color.teal_primary)
@@ -172,8 +172,6 @@ class DashboardFragment : Fragment() {
             R.id.tab_my_fridge -> {
                 binding.ivTabFridge.setColorFilter(accentColor)
                 binding.tvTabFridge.setTextColor(accentColor)
-                binding.vIndicatorFridge.setBackgroundColor(accentColor)
-                binding.vIndicatorFridge.visibility = View.VISIBLE
             }
             R.id.tab_recipes -> {
                 binding.ivTabRecipes.setColorFilter(accentColor)
@@ -186,11 +184,10 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    private fun resetTab(tab: View, icon: android.widget.ImageView, text: android.widget.TextView, indicator: View?) {
+    private fun resetTab(tab: View, icon: android.widget.ImageView, text: android.widget.TextView) {
         val gray = ContextCompat.getColor(requireContext(), R.color.gray_text)
         icon.setColorFilter(gray)
         text.setTextColor(gray)
-        indicator?.visibility = View.GONE
     }
 
     private fun showFragment(fragment: Fragment) {

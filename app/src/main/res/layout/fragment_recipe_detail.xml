@@ -24,7 +24,7 @@
             <ImageView
                 android:id="@+id/ivRecipeHero"
                 android:layout_width="match_parent"
-                android:layout_height="parent"
+                android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:src="@color/light_teal"
                 app:layout_collapseMode="parallax" />

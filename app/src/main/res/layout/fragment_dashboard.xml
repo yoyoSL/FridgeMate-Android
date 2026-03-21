@@ -99,12 +99,6 @@
                 android:textColor="@color/teal_primary"
                 android:textSize="12sp"
                 android:textStyle="bold" />
-            <View
-                android:id="@+id/v_indicator_fridge"
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_marginTop="4dp"
-                android:background="@color/teal_primary" />
         </LinearLayout>
 
         <LinearLayout
