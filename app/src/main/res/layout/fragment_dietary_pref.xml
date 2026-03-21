@@ -9,7 +9,7 @@
         android:id="@+id/tvDietaryTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Dietary Preferences"
+        android:text="@string/dietary_preferences"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginStart="30dp"
@@ -38,7 +38,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginStart="7dp"
                 android:background="@drawable/bg_option_card"
-                android:text="None" />
+                android:text="@string/diet_none" />
             <RadioButton
                 android:id="@+id/rbVegetarian"
                 android:layout_width="match_parent"
@@ -46,7 +46,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginStart="7dp"
                 android:background="@drawable/bg_option_card"
-                android:text="Vegetarian 🥗" />
+                android:text="@string/diet_vegetarian" />
             <RadioButton
                 android:id="@+id/rbVegan"
                 android:layout_width="match_parent"
@@ -54,7 +54,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginStart="7dp"
                 android:background="@drawable/bg_option_card"
-                android:text="Vegan 🌱" />
+                android:text="@string/diet_vegan" />
             <!-- Pescatarian -->
             <RadioButton
                 android:id="@+id/rbPescatarian"
@@ -63,7 +63,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginStart="7dp"
                 android:background="@drawable/bg_option_card"
-                android:text="Pescatarian 🐟" />
+                android:text="@string/diet_pescatarian" />
         </RadioGroup>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

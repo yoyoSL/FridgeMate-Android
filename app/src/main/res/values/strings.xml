@@ -67,8 +67,13 @@
 
     <!-- My Profile Screen-->
     <string name="my_profile_title">My Profile</string>
+    <string name="personal_information">Personal information</string>
+    <string name="location">Location</string>
+    <string name="allergies_restrictions">Allergies &amp; Restrictions</string>
+    <string name="save_changes">Save changes</string>
 
     <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
     <string name="fridge_scanner_title">Fridge Scanner</string>
     <string name="fridge_scanner_info">Upload photos of your fridge contents and we\'ll automatically detect items and add them to your inventory.</string>
     <string name="no_fridge_title">No Fridge Yet</string>
@@ -78,10 +83,53 @@
     <string name="or_join_existing">Or join an existing fridge</string>
     <string name="hint_invite_code">Enter invite code</string>
     <string name="join_fridge">Join Fridge</string>
+    <string name="shared_fridge">Shared Fridge</string>
+    <string name="current_fridge">Current Fridge</string>
+    <string name="invite_code">Invite Code</string>
+    <string name="copy">Copy</string>
+    <string name="leave_fridge">Leave Fridge</string>
+    <string name="upload_fridge_photo">Upload Fridge Photo</string>
+    <string name="scanning_fridge">Scanning your fridge…</string>
+    <string name="detected_items">Detected Items</string>
 
     <!-- Recipes Screen -->
     <string name="recipes_empty_title">Ready to cook?</string>
     <string name="recipes_empty_desc">Add some ingredients to your fridge first, and we\'ll show you what you can make!</string>
     <string name="no_recipes_yet">No recipes yet</string>
+    <string name="recommended">Recommended</string>
+    <string name="favorites">Favorites</string>
+    <string name="generate_new_recipes">Generate New Recipes</string>
+    <string name="chef_cooking">Our chef is cooking up recipes...</string>
+    <string name="try_adding_ingredients">Try adding ingredients to your fridge or generating new ideas!</string>
+    <string name="recipe_name_placeholder">Recipe Name</string>
+    <string name="calories">Calories</string>
+    <string name="fat">Fat</string>
+    <string name="carbs">Carbs</string>
+    <string name="protein">Protein</string>
+    <string name="ingredients">Ingredients</string>
+    <string name="steps">Steps</string>
+
+    <!-- Feed & Posts -->
+    <string name="feed_title">Feed</string>
+    <string name="no_posts_yet">No posts yet</string>
+    <string name="be_first_to_post">Be the first one to share a post</string>
+    <string name="my_posts">My Posts</string>
+    <string name="map_view">Map View</string>
+    <string name="share_something">Share something with the community!</string>
+    <string name="havent_posted_yet">You haven\'t posted yet.</string>
+    <string name="new_post">New Post</string>
+    <string name="edit_post">Edit Post</string>
+    <string name="post">Post</string>
+    <string name="save">Save</string>
+    <string name="add_photo">Add Photo</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="no_posts_map">No posts found in this area</string>
+
+    <!-- Dietary Preferences -->
+    <string name="dietary_preferences">Dietary Preferences</string>
+    <string name="diet_none">None</string>
+    <string name="diet_vegetarian">Vegetarian 🥗</string>
+    <string name="diet_vegan">Vegan 🌱</string>
+    <string name="diet_pescatarian">Pescatarian 🐟</string>
 
 </resources>
