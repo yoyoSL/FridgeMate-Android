@@ -24,6 +24,7 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="hint_confirm_password">Confirm your password</string>
     <string name="already_have_account">Already have an account? </string>
+    <string name="hint_location">Enter your city or address (optional)</string>
 
     <!-- Forgot Password Screen -->
     <string name="forgot_password_title">Forgot Password</string>

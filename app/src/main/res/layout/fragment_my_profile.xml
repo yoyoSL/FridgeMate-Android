@@ -168,30 +168,36 @@
                     android:layout_marginStart="14dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tilFullName" />
-                <!--Location -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilLocation"
+                <!-- Location (read-only, auto-detected) -->
+                <LinearLayout
+                    android:id="@+id/locationRow"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="8dp"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxStrokeColor="@color/light_teal"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="14dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/location_label"
                     app:layout_constraintBottom_toBottomOf="parent">
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etLocation"
-                        android:layout_width="match_parent"
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_map_pin"
+                        app:tint="@color/dark_teal"
+                        android:contentDescription="Location" />
+                    <TextView
+                        android:id="@+id/tvLocation"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="San Francisco, CA"
+                        android:layout_weight="1"
+                        android:layout_marginStart="10dp"
+                        android:text="Detecting location…"
+                        android:textColor="@color/black"
                         android:textSize="16sp" />
-                </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
         <!-- Dietary pref Card -->
