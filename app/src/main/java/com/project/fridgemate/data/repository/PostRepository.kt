@@ -1,0 +1,270 @@
+package com.project.fridgemate.data.repository
+
+import android.content.Context
+import com.project.fridgemate.data.local.AppDatabase
+import com.project.fridgemate.data.local.entity.PostEntity
+import com.project.fridgemate.data.remote.ApiClient
+import com.project.fridgemate.data.remote.api.PostApi
+import com.project.fridgemate.data.remote.dto.*
+import com.project.fridgemate.ui.feed.Post
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
+
+class PostRepository(context: Context) {
+
+    private val postApi: PostApi = ApiClient.createApi(PostApi::class.java)
+    private val postDao = AppDatabase.getInstance(context).postDao()
+
+    suspend fun getPosts(page: Int = 1, limit: Int = 20): FridgeResult<PostListResponse> {
+        return try {
+            val response = postApi.getPosts(page, limit)
+            if (response.isSuccessful) {
+                val data = response.body()!!
+                cachePosts(data.items)
+                FridgeResult.Success(data)
+            } else {
+                val cached = loadCachedPosts()
+                if (cached.isNotEmpty()) {
+                    FridgeResult.Success(PostListResponse(cached, cached.size, 1, cached.size))
+                } else {
+                    FridgeResult.Error(parseError(response.errorBody()?.string()))
+                }
+            }
+        } catch (e: Exception) {
+            val cached = loadCachedPosts()
+            if (cached.isNotEmpty()) {
+                FridgeResult.Success(PostListResponse(cached, cached.size, 1, cached.size))
+            } else {
+                FridgeResult.Error(networkErrorMessage(e))
+            }
+        }
+    }
+
+    suspend fun getMyPosts(): FridgeResult<PostListResponse> {
+        return try {
+            val response = postApi.getMyPosts()
+            if (response.isSuccessful) {
+                val data = response.body()!!
+                FridgeResult.Success(data)
+            } else {
+                val cached = postDao.getMyPosts()
+                if (cached.isNotEmpty()) {
+                    val dtos = cached.map { it.toDto() }
+                    FridgeResult.Success(PostListResponse(dtos, dtos.size, 1, dtos.size))
+                } else {
+                    FridgeResult.Error(parseError(response.errorBody()?.string()))
+                }
+            }
+        } catch (e: Exception) {
+            val cached = postDao.getMyPosts()
+            if (cached.isNotEmpty()) {
+                val dtos = cached.map { it.toDto() }
+                FridgeResult.Success(PostListResponse(dtos, dtos.size, 1, dtos.size))
+            } else {
+                FridgeResult.Error(networkErrorMessage(e))
+            }
+        }
+    }
+
+    suspend fun createPost(request: CreatePostRequest): FridgeResult<Unit> {
+        return try {
+            val response = postApi.createPost(request)
+            if (response.isSuccessful) {
+                FridgeResult.Success(Unit)
+            } else {
+                FridgeResult.Error(parseError(response.errorBody()?.string()))
+            }
+        } catch (e: Exception) {
+            FridgeResult.Error(networkErrorMessage(e))
+        }
+    }
+
+    suspend fun updatePost(postId: String, request: UpdatePostRequest): FridgeResult<Unit> {
+        return try {
+            val response = postApi.updatePost(postId, request)
+            if (response.isSuccessful) {
+                FridgeResult.Success(Unit)
+            } else {
+                FridgeResult.Error(parseError(response.errorBody()?.string()))
+            }
+        } catch (e: Exception) {
+            FridgeResult.Error(networkErrorMessage(e))
+        }
+    }
+
+    suspend fun deletePost(postId: String): FridgeResult<Unit> {
+        return try {
+            val response = postApi.deletePost(postId)
+            if (response.isSuccessful) {
+                postDao.deleteById(postId)
+                FridgeResult.Success(Unit)
+            } else {
+                FridgeResult.Error(parseError(response.errorBody()?.string()))
+            }
+        } catch (e: Exception) {
+            FridgeResult.Error(networkErrorMessage(e))
+        }
+    }
+
+    suspend fun toggleLike(postId: String): FridgeResult<ToggleLikeResponse> {
+        return try {
+            val response = postApi.toggleLike(postId)
+            if (response.isSuccessful) {
+                FridgeResult.Success(response.body()!!.data)
+            } else {
+                FridgeResult.Error(parseError(response.errorBody()?.string()))
+            }
+        } catch (e: Exception) {
+            FridgeResult.Error(networkErrorMessage(e))
+        }
+    }
+
+    suspend fun getComments(postId: String): FridgeResult<List<CommentDto>> {
+        return try {
+            val response = postApi.getComments(postId)
+            if (response.isSuccessful) {
+                FridgeResult.Success(response.body()!!.data.items)
+            } else {
+                FridgeResult.Error(parseError(response.errorBody()?.string()))
+            }
+        } catch (e: Exception) {
+            FridgeResult.Error(networkErrorMessage(e))
+        }
+    }
+
+    suspend fun createComment(postId: String, text: String): FridgeResult<CommentDto> {
+        return try {
+            val response = postApi.createComment(postId, CreateCommentRequest(text))
+            if (response.isSuccessful) {
+                FridgeResult.Success(response.body()!!.data)
+            } else {
+                FridgeResult.Error(parseError(response.errorBody()?.string()))
+            }
+        } catch (e: Exception) {
+            FridgeResult.Error(networkErrorMessage(e))
+        }
+    }
+
+    suspend fun updateComment(postId: String, commentId: String, text: String): FridgeResult<CommentDto> {
+        return try {
+            val response = postApi.updateComment(postId, commentId, UpdateCommentRequest(text))
+            if (response.isSuccessful) {
+                FridgeResult.Success(response.body()!!.data)
+            } else {
+                FridgeResult.Error(parseError(response.errorBody()?.string()))
+            }
+        } catch (e: Exception) {
+            FridgeResult.Error(networkErrorMessage(e))
+        }
+    }
+
+    suspend fun deleteComment(postId: String, commentId: String): FridgeResult<Unit> {
+        return try {
+            val response = postApi.deleteComment(postId, commentId)
+            if (response.isSuccessful) {
+                FridgeResult.Success(Unit)
+            } else {
+                FridgeResult.Error(parseError(response.errorBody()?.string()))
+            }
+        } catch (e: Exception) {
+            FridgeResult.Error(networkErrorMessage(e))
+        }
+    }
+
+    suspend fun uploadImage(imageBytes: ByteArray, mimeType: String): FridgeResult<String> {
+        return try {
+            val requestBody = imageBytes.toRequestBody(mimeType.toMediaType())
+            val extension = when (mimeType) {
+                "image/png" -> "png"
+                "image/webp" -> "webp"
+                else -> "jpg"
+            }
+            val part = MultipartBody.Part.createFormData("image", "post.$extension", requestBody)
+
+            val response = postApi.uploadImage(part)
+            if (response.isSuccessful) {
+                FridgeResult.Success(response.body()!!.data.imageUrl)
+            } else {
+                FridgeResult.Error(parseError(response.errorBody()?.string()))
+            }
+        } catch (e: Exception) {
+            FridgeResult.Error(networkErrorMessage(e))
+        }
+    }
+
+    private suspend fun cachePosts(posts: List<PostDto>) {
+        try {
+            val entities = posts.map { it.toEntity() }
+            postDao.clearAll()
+            postDao.insertAll(entities)
+        } catch (_: Exception) { }
+    }
+
+    private suspend fun loadCachedPosts(): List<PostDto> {
+        return try {
+            postDao.getAll().map { it.toDto() }
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    private fun PostDto.toEntity(): PostEntity {
+        val loc = location
+        return PostEntity(
+            id = id,
+            authorName = authorUserId.displayName,
+            authorLocation = loc?.placeName ?: authorUserId.address?.city ?: "",
+            authorProfileImage = authorUserId.profileImage ?: "",
+            title = title ?: "",
+            text = text,
+            imageUrl = mediaUrls.firstOrNull() ?: "",
+            likesCount = likesCount,
+            commentsCount = commentsCount,
+            isLiked = isLiked,
+            isOwner = isOwner,
+            latitude = loc?.coordinates?.getOrNull(1) ?: 0.0,
+            longitude = loc?.coordinates?.getOrNull(0) ?: 0.0,
+            createdAt = createdAt
+        )
+    }
+
+    private fun PostEntity.toDto(): PostDto {
+        return PostDto(
+            id = id,
+            authorUserId = PostAuthorDto(
+                id = "",
+                displayName = authorName,
+                profileImage = authorProfileImage.ifEmpty { null },
+                address = if (authorLocation.isNotEmpty()) AddressDto(city = authorLocation) else null
+            ),
+            title = title,
+            text = text,
+            mediaUrls = if (imageUrl.isNotEmpty()) listOf(imageUrl) else emptyList(),
+            location = if (latitude != 0.0 || longitude != 0.0) PostLocationDto(
+                type = "Point",
+                coordinates = listOf(longitude, latitude),
+                placeName = authorLocation
+            ) else null,
+            likes = emptyList(),
+            likesCount = likesCount,
+            commentsCount = commentsCount,
+            isLiked = isLiked,
+            isOwner = isOwner,
+            createdAt = createdAt,
+            updatedAt = createdAt
+        )
+    }
+
+    private fun parseError(errorBody: String?): String {
+        return errorBody?.takeIf { it.isNotBlank() } ?: "Something went wrong. Please try again."
+    }
+
+    private fun networkErrorMessage(e: Exception): String {
+        return if (e is java.net.ConnectException || e is java.net.UnknownHostException) {
+            "Unable to connect to server. Please check your connection."
+        } else {
+            e.localizedMessage ?: "An unexpected error occurred."
+        }
+    }
+}
