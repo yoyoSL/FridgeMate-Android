@@ -78,13 +78,23 @@ class FeedFragment : Fragment() {
                                     postId = post.id,
                                     postTitle = post.postTitle,
                                     postDescription = post.description,
-                                    postImageUrl = post.imageUrl
+                                    postImageUrl = post.imageUrl,
+                                    linkedRecipeName = post.linkedRecipe?.title ?: "",
+                                    linkedRecipeTime = post.linkedRecipe?.cookingTime ?: "",
+                                    linkedRecipeDifficulty = post.linkedRecipe?.difficulty ?: ""
                                 )
                             requireParentFragment().findNavController().navigate(action)
                         },
                         onDeleteComment = { postId, commentId -> viewModel.deleteComment(postId, commentId) },
                         onEditComment = { postId, commentId, newText -> viewModel.editComment(postId, commentId, newText) },
-                        onExpandComments = { postId -> viewModel.loadComments(postId) }
+                        onExpandComments = { postId -> viewModel.loadComments(postId) },
+                        onRecipeClick = { recipe ->
+                            val action = DashboardFragmentDirections
+                                .actionDashboardFragmentToRecipeDetailFragment(
+                                    serverRecipeId = recipe.id
+                                )
+                            requireParentFragment().findNavController().navigate(action)
+                        }
                     )
                     binding.rvPosts.adapter = postAdapter
                 } else {

@@ -90,6 +90,20 @@ class EditPostFragment : Fragment() {
             Picasso.get().load(currentImageUrl).into(binding.ivPostImage)
         }
 
+        val recipeName = args.linkedRecipeName
+        if (recipeName.isNotEmpty()) {
+            binding.cardRecipePreview.visibility = View.VISIBLE
+            binding.tvRecipePreviewTitle.text = recipeName
+            val info = buildString {
+                if (args.linkedRecipeTime.isNotEmpty()) append(args.linkedRecipeTime)
+                if (args.linkedRecipeDifficulty.isNotEmpty()) {
+                    if (isNotEmpty()) append(" · ")
+                    append(args.linkedRecipeDifficulty)
+                }
+            }
+            binding.tvRecipePreviewInfo.text = info
+        }
+
         binding.btnBack.setOnClickListener {
             findNavController().navigateUp()
         }
