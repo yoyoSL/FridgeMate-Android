@@ -16,12 +16,14 @@ data class Post(
     val isLiked: Boolean = false,
     val comments: List<Comment> = emptyList(),
     val latitude: Double = 0.0,
-    val longitude: Double = 0.0
+    val longitude: Double = 0.0,
+    val isOwner: Boolean = false
 )
 data class Comment(
     val id: Int,
     val userName: String,
-    val text: String
+    val text: String,
+    val isOwner: Boolean = false
 )
 
 class FeedViewModel : ViewModel() {
@@ -91,7 +93,8 @@ class FeedViewModel : ViewModel() {
             postTitle = title,
             description = description,
             likesCount = 0,
-            commentsCount = 0
+            commentsCount = 0 ,
+            isOwner = true
         )
         current.add(0, newPost)
         _posts.value = current
@@ -104,11 +107,55 @@ class FeedViewModel : ViewModel() {
                 newComments.add(Comment(
                     id = post.comments.size + 1,
                     userName = userName,
-                    text = text
+                    text = text,
+                    isOwner = true
                 ))
                 post.copy(
                     comments = newComments,
                     commentsCount = post.commentsCount + 1
+                )
+            } else post
+        } ?: return
+        _posts.value = updated
+        // TODO: API call
+    }
+    fun deletePost(postId: Int) {
+        val updated = _posts.value?.filter { it.id != postId } ?: return
+        _posts.value = updated
+        // TODO: API call
+    }
+
+    fun editPost(postId: Int, newTitle: String, newDescription: String) {
+        val updated = _posts.value?.map {
+            if (it.id == postId) it.copy(
+                postTitle = newTitle,
+                description = newDescription
+            ) else it
+        } ?: return
+        _posts.value = updated
+        // TODO: API call
+    }
+    fun deleteComment(postId: Int, commentId: Int) {
+        val updated = _posts.value?.map { post ->
+            if (post.id == postId) {
+                post.copy(
+                    comments = post.comments.filter { it.id != commentId },
+                    commentsCount = post.commentsCount - 1
+                )
+            } else post
+        } ?: return
+        _posts.value = updated
+        // TODO: API call
+    }
+
+    fun editComment(postId: Int, commentId: Int, newText: String) {
+        val updated = _posts.value?.map { post ->
+            if (post.id == postId) {
+                post.copy(
+                    comments = post.comments.map { comment ->
+                        if (comment.id == commentId) comment.copy(text = newText)
+                        else comment
+                    }
                 )
             } else post
         } ?: return

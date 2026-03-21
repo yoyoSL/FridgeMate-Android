@@ -43,19 +43,42 @@ class FeedFragment : Fragment() {
         setupPosts()
     }
 
+    private var postAdapter: PostAdapter? = null
+
     private fun setupPosts() {
         binding.rvPosts.layoutManager = LinearLayoutManager(requireContext())
 
         viewModel.posts.observe(viewLifecycleOwner) { posts ->
-            binding.rvPosts.adapter = PostAdapter(
-                posts = posts,
-                onLikeClick = { post ->
-                    viewModel.toggleLike(post)
-                },
-                onAddComment = { postId, text ->
-                    viewModel.addComment(postId, "Me", text)
+            if (posts.isEmpty()) {
+                binding.rvPosts.visibility = View.GONE
+                binding.emptyStateFeed.visibility = View.VISIBLE
+            } else {
+                binding.rvPosts.visibility = View.VISIBLE
+                binding.emptyStateFeed.visibility = View.GONE
+
+                if (postAdapter == null) {
+                    postAdapter = PostAdapter(
+                        posts = posts,
+                        onLikeClick = { post -> viewModel.toggleLike(post) },
+                        onAddComment = { postId, text -> viewModel.addComment(postId, "Me", text) },
+                        onDeleteClick = { post -> viewModel.deletePost(post.id) },
+                        onEditClick = { post ->
+                            val bundle = Bundle().apply {
+                                putInt("postId", post.id)
+                                putString("postTitle", post.postTitle)
+                                putString("postDescription", post.description)
+                            }
+                            requireParentFragment().findNavController()
+                                .navigate(R.id.action_dashboardFragment_to_editPostFragment, bundle)
+                        },
+                        onDeleteComment = { postId, commentId -> viewModel.deleteComment(postId, commentId) },
+                        onEditComment = { postId, commentId, newText -> viewModel.editComment(postId, commentId, newText) }
+                    )
+                    binding.rvPosts.adapter = postAdapter
+                } else {
+                    postAdapter?.updatePosts(posts)
                 }
-            )
+            }
         }
     }
 

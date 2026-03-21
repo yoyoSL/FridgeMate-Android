@@ -42,6 +42,9 @@
         <action
             android:id="@+id/action_dashboardFragment_to_mapViewFragment"
             app:destination="@id/mapViewFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_editPostFragment"
+            app:destination="@id/editPostFragment" />
     </fragment>
     <fragment
         android:id="@+id/myProfileFragment"
@@ -74,4 +77,19 @@
         android:name="com.project.fridgemate.ui.feed.MapViewFragment"
         android:label="MapViewFragment"
         tools:layout="@layout/fragment_map_view" />
+    <fragment
+        android:id="@+id/editPostFragment"
+        android:name="com.project.fridgemate.ui.feed.EditPostFragment"
+        android:label="EditPostFragment"
+        tools:layout="@layout/fragment_edit_post">
+        <argument
+            android:name="postId"
+            app:argType="integer" />
+        <argument
+            android:name="postTitle"
+            app:argType="string" />
+        <argument
+            android:name="postDescription"
+            app:argType="string" />
+    </fragment>
 </navigation>
