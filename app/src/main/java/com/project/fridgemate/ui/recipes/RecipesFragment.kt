@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import com.project.fridgemate.databinding.FragmentRecipesBinding
@@ -13,6 +14,7 @@ class RecipesFragment : Fragment() {
 
     private var _binding: FragmentRecipesBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: RecipesViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,6 +27,11 @@ class RecipesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupViewPager()
+        observeDataState()
+    }
+
+    private fun setupViewPager() {
         binding.viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItemCount() = 2
             override fun createFragment(position: Int): Fragment {
@@ -42,6 +49,36 @@ class RecipesFragment : Fragment() {
             }
         }.attach()
     }
+
+    private fun observeDataState() {
+        // We show the empty state only if BOTH recommended and favorites are empty
+        viewModel.recommended.observe(viewLifecycleOwner) { recs ->
+            updateEmptyStateVisibility(recs, viewModel.favorites.value)
+        }
+        viewModel.favorites.observe(viewLifecycleOwner) { favs ->
+            updateEmptyStateVisibility(viewModel.recommended.value, favs)
+        }
+        
+        viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
+            if (loading) {
+                binding.emptyState.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun updateEmptyStateVisibility(recommended: List<Any>?, favorites: List<Any>?) {
+        val allEmpty = (recommended?.isEmpty() ?: true) && (favorites?.isEmpty() ?: true)
+        if (allEmpty) {
+            binding.emptyState.visibility = View.VISIBLE
+            binding.tabLayout.visibility = View.GONE
+            binding.viewPager.visibility = View.GONE
+        } else {
+            binding.emptyState.visibility = View.GONE
+            binding.tabLayout.visibility = View.VISIBLE
+            binding.viewPager.visibility = View.VISIBLE
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

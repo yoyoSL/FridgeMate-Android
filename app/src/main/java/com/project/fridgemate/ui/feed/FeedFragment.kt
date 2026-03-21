@@ -63,13 +63,9 @@ class FeedFragment : Fragment() {
         binding.rvPosts.layoutManager = LinearLayoutManager(requireContext())
 
         viewModel.posts.observe(viewLifecycleOwner) { posts ->
-            if (posts.isEmpty() && viewModel.isLoading.value != true) {
-                binding.rvPosts.visibility = View.GONE
-                binding.emptyStateFeed.visibility = View.VISIBLE
-            } else {
-                binding.rvPosts.visibility = View.VISIBLE
-                binding.emptyStateFeed.visibility = View.GONE
-
+            updateEmptyState(posts)
+            
+            if (posts.isNotEmpty()) {
                 if (postAdapter == null) {
                     postAdapter = PostAdapter(
                         posts = posts,
@@ -98,6 +94,17 @@ class FeedFragment : Fragment() {
         }
     }
 
+    private fun updateEmptyState(posts: List<Post>) {
+        val isLoading = viewModel.isLoading.value == true
+        if (posts.isEmpty() && !isLoading) {
+            binding.rvPosts.visibility = View.GONE
+            binding.emptyStateFeed.visibility = View.VISIBLE
+        } else {
+            binding.rvPosts.visibility = View.VISIBLE
+            binding.emptyStateFeed.visibility = View.GONE
+        }
+    }
+
     private fun observeLoading() {
         viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
             binding.swipeRefresh.isRefreshing = false
@@ -106,6 +113,7 @@ class FeedFragment : Fragment() {
                 binding.emptyStateFeed.visibility = View.GONE
             } else {
                 binding.progressBar.visibility = View.GONE
+                updateEmptyState(viewModel.posts.value ?: emptyList())
             }
         }
     }
@@ -114,6 +122,7 @@ class FeedFragment : Fragment() {
         viewModel.error.observe(viewLifecycleOwner) { error ->
             error?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                updateEmptyState(viewModel.posts.value ?: emptyList())
             }
         }
     }
@@ -126,5 +135,6 @@ class FeedFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        postAdapter = null
     }
 }

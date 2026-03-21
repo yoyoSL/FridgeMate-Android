@@ -80,6 +80,8 @@
     <string name="join_fridge">Join Fridge</string>
 
     <!-- Recipes Screen -->
+    <string name="recipes_empty_title">Ready to cook?</string>
+    <string name="recipes_empty_desc">Add some ingredients to your fridge first, and we\'ll show you what you can make!</string>
     <string name="no_recipes_yet">No recipes yet</string>
 
 </resources>
