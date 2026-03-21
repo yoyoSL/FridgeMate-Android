@@ -85,19 +85,14 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun toggleFavoriteFromRecommended(recipe: RecipeEntity) {
+    fun toggleFavorite(recipe: RecipeEntity) {
+        val serverId = recipe.serverId ?: return
         viewModelScope.launch {
             if (recipe.isFavorite) {
-                repository.unfavoriteFromRecommended(recipe)
+                repository.unfavoriteRecipe(serverId)
             } else {
-                repository.saveToFavorites(recipe)
+                repository.favoriteRecipe(serverId)
             }
-        }
-    }
-
-    fun removeFromFavorites(recipe: RecipeEntity) {
-        viewModelScope.launch {
-            repository.removeFromFavorites(recipe)
         }
     }
 }
