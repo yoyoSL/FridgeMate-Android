@@ -52,21 +52,26 @@ class DashboardFragment : Fragment() {
         }
 
         // Restore tab selection UI
-        val selectedTabView = when (currentTabId) {
-            R.id.tab_feed -> binding.tabFeed
-            R.id.tab_recipes -> binding.tabRecipes
-            else -> binding.tabMyFridge
-        }
-        selectTab(selectedTabView)
+        updateTabUI(currentTabId)
 
-        // Only set default fragment if it's the first time
-        if (savedInstanceState == null) {
-            showFragment(FeedFragment())
+        // Restore or initialize fragment
+        val currentFragment = childFragmentManager.findFragmentById(R.id.dashboard_nav_host)
+        if (currentFragment == null || isWrongFragment(currentFragment, currentTabId)) {
+            showFragmentForTab(currentTabId)
         }
 
         setupTabListeners()
         setupProfileMenu()
         loadGreeting()
+    }
+
+    private fun isWrongFragment(fragment: Fragment, tabId: Int): Boolean {
+        return when (tabId) {
+            R.id.tab_feed -> fragment !is FeedFragment
+            R.id.tab_recipes -> fragment !is RecipesFragment
+            R.id.tab_my_fridge -> fragment !is FridgeFragment
+            else -> false
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -88,24 +93,68 @@ class DashboardFragment : Fragment() {
         binding.tabMyFridge.setOnClickListener {
             if (currentTabId != it.id) {
                 currentTabId = it.id
-                selectTab(it)
-                showFragment(FridgeFragment())
+                updateTabUI(currentTabId)
+                showFragmentForTab(currentTabId)
             }
         }
         binding.tabFeed.setOnClickListener { 
             if (currentTabId != it.id) {
                 currentTabId = it.id
-                selectTab(it)
-                showFragment(FeedFragment())
+                updateTabUI(currentTabId)
+                showFragmentForTab(currentTabId)
             }
         }
         binding.tabRecipes.setOnClickListener { 
             if (currentTabId != it.id) {
                 currentTabId = it.id
-                selectTab(it)
-                showFragment(RecipesFragment())
+                updateTabUI(currentTabId)
+                showFragmentForTab(currentTabId)
             }
         }
+    }
+
+    private fun updateTabUI(tabId: Int) {
+        resetTab(binding.tabFeed, binding.ivTabFeed, binding.tvTabFeed)
+        resetTab(binding.tabMyFridge, binding.ivTabFridge, binding.tvTabFridge)
+        resetTab(binding.tabRecipes, binding.ivTabRecipes, binding.tvTabRecipes)
+
+        val accentColor = ContextCompat.getColor(requireContext(), R.color.teal_primary)
+        when (tabId) {
+            R.id.tab_my_fridge -> {
+                binding.ivTabFridge.setColorFilter(accentColor)
+                binding.tvTabFridge.setTextColor(accentColor)
+                binding.tvTabFridge.setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+            R.id.tab_recipes -> {
+                binding.ivTabRecipes.setColorFilter(accentColor)
+                binding.tvTabRecipes.setTextColor(accentColor)
+                binding.tvTabRecipes.setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+            R.id.tab_feed -> {
+                binding.ivTabFeed.setColorFilter(accentColor)
+                binding.tvTabFeed.setTextColor(accentColor)
+                binding.tvTabFeed.setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+        }
+    }
+
+    private fun resetTab(tab: View, icon: android.widget.ImageView, text: android.widget.TextView) {
+        val gray = ContextCompat.getColor(requireContext(), R.color.gray_text)
+        icon.setColorFilter(gray)
+        text.setTextColor(gray)
+        text.setTypeface(null, android.graphics.Typeface.NORMAL)
+    }
+
+    private fun showFragmentForTab(tabId: Int) {
+        val fragment = when (tabId) {
+            R.id.tab_feed -> FeedFragment()
+            R.id.tab_recipes -> RecipesFragment()
+            R.id.tab_my_fridge -> FridgeFragment()
+            else -> FeedFragment()
+        }
+        childFragmentManager.beginTransaction()
+            .replace(R.id.dashboard_nav_host, fragment)
+            .commit()
     }
 
     private fun setupProfileMenu() {
@@ -158,42 +207,6 @@ class DashboardFragment : Fragment() {
         val yOffset = resources.getDimensionPixelSize(R.dimen.margin_small)
 
         popupWindow.showAsDropDown(anchor, xOffset, yOffset)
-    }
-
-    private fun selectTab(selectedTabView: View) {
-        resetTab(binding.tabFeed, binding.ivTabFeed, binding.tvTabFeed)
-        resetTab(binding.tabMyFridge, binding.ivTabFridge, binding.tvTabFridge)
-        resetTab(binding.tabRecipes, binding.ivTabRecipes, binding.tvTabRecipes)
-
-        // Highlight selected tab
-        val accentColor = ContextCompat.getColor(requireContext(), R.color.teal_primary)
-
-        when (selectedTabView.id) {
-            R.id.tab_my_fridge -> {
-                binding.ivTabFridge.setColorFilter(accentColor)
-                binding.tvTabFridge.setTextColor(accentColor)
-            }
-            R.id.tab_recipes -> {
-                binding.ivTabRecipes.setColorFilter(accentColor)
-                binding.tvTabRecipes.setTextColor(accentColor)
-            }
-            R.id.tab_feed -> {
-                binding.ivTabFeed.setColorFilter(accentColor)
-                binding.tvTabFeed.setTextColor(accentColor)
-            }
-        }
-    }
-
-    private fun resetTab(tab: View, icon: android.widget.ImageView, text: android.widget.TextView) {
-        val gray = ContextCompat.getColor(requireContext(), R.color.gray_text)
-        icon.setColorFilter(gray)
-        text.setTextColor(gray)
-    }
-
-    private fun showFragment(fragment: Fragment) {
-        childFragmentManager.beginTransaction()
-            .replace(R.id.dashboard_nav_host, fragment)
-            .commit()
     }
 
     override fun onDestroyView() {
