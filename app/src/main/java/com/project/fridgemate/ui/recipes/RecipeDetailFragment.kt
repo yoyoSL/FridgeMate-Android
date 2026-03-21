@@ -49,9 +49,8 @@ class RecipeDetailFragment : Fragment() {
 
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
 
-        val recipeId = arguments?.getLong("recipeId") ?: 0L
-        val serverRecipeId = arguments?.getString("serverRecipeId") ?: ""
         val recipeId = args.recipeId
+        val serverRecipeId = args.serverRecipeId
 
         val dao = AppDatabase.getInstance(requireContext()).recipeDao()
 
