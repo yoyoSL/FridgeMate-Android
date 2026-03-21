@@ -4,7 +4,6 @@ import android.Manifest
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,15 +14,24 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.project.fridgemate.databinding.FragmentAddPostBinding
+import androidx.navigation.fragment.navArgs
+import com.project.fridgemate.databinding.FragmentEditPostBinding
+import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 
-class AddPostFragment : Fragment() {
+class EditPostFragment : Fragment() {
 
-    private var _binding: FragmentAddPostBinding? = null
+    private var _binding: FragmentEditPostBinding? = null
     private val binding get() = _binding!!
+
     private val feedViewModel: FeedViewModel by activityViewModels()
+    private val args: EditPostFragmentArgs by navArgs()
+
+    private var postId: String = ""
+    private var currentTitle: String = ""
+    private var currentDescription: String = ""
+    private var currentImageUrl: String = ""
 
     private var selectedImageBytes: ByteArray? = null
     private var selectedMimeType: String = "image/jpeg"
@@ -63,23 +71,35 @@ class AddPostFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAddPostBinding.inflate(inflater, container, false)
+        _binding = FragmentEditPostBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        postId = args.postId
+        currentTitle = args.postTitle
+        currentDescription = args.postDescription
+        currentImageUrl = args.postImageUrl
+
+        binding.etRecipeTitle.setText(currentTitle)
+        binding.etDescription.setText(currentDescription)
+
+        if (currentImageUrl.isNotEmpty()) {
+            Picasso.get().load(currentImageUrl).into(binding.ivPostImage)
+        }
+
         binding.btnBack.setOnClickListener {
             findNavController().navigateUp()
         }
 
-        binding.btnAddImage.setOnClickListener {
+        binding.btnChangeImage.setOnClickListener {
             showImageSourceDialog()
         }
 
-        binding.btnPost.setOnClickListener {
-            submitPost()
+        binding.btnSave.setOnClickListener {
+            saveChanges()
         }
     }
 
@@ -96,20 +116,20 @@ class AddPostFragment : Fragment() {
             .show()
     }
 
-    private fun submitPost() {
-        val title = binding.etRecipeTitle.text.toString().trim()
-        val description = binding.etDescription.text.toString().trim()
+    private fun saveChanges() {
+        val newTitle = binding.etRecipeTitle.text.toString().trim()
+        val newDescription = binding.etDescription.text.toString().trim()
 
-        if (title.isEmpty()) {
+        if (newTitle.isEmpty()) {
             binding.etRecipeTitle.error = "Please add a title"
             return
         }
-        if (description.isEmpty()) {
+        if (newDescription.isEmpty()) {
             binding.etDescription.error = "Please add a description"
             return
         }
 
-        binding.btnPost.isEnabled = false
+        binding.btnSave.isEnabled = false
 
         viewLifecycleOwner.lifecycleScope.launch {
             var imageUrl: String? = null
@@ -118,8 +138,8 @@ class AddPostFragment : Fragment() {
                 imageUrl = feedViewModel.uploadImage(bytes, selectedMimeType)
             }
 
-            feedViewModel.addPost(title, description, imageUrl)
-            Toast.makeText(context, "Post added!", Toast.LENGTH_SHORT).show()
+            feedViewModel.editPost(postId, newTitle, newDescription, imageUrl)
+            Toast.makeText(context, "Post updated!", Toast.LENGTH_SHORT).show()
             findNavController().navigateUp()
         }
     }

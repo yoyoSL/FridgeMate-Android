@@ -42,6 +42,12 @@
         <action
             android:id="@+id/action_dashboardFragment_to_mapViewFragment"
             app:destination="@id/mapViewFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_editPostFragment"
+            app:destination="@id/editPostFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_myPostsFragment"
+            app:destination="@id/myPostsFragment" />
     </fragment>
     <fragment
         android:id="@+id/myProfileFragment"
@@ -74,4 +80,32 @@
         android:name="com.project.fridgemate.ui.feed.MapViewFragment"
         android:label="MapViewFragment"
         tools:layout="@layout/fragment_map_view" />
+    <fragment
+        android:id="@+id/myPostsFragment"
+        android:name="com.project.fridgemate.ui.feed.MyPostsFragment"
+        android:label="MyPostsFragment"
+        tools:layout="@layout/fragment_my_posts">
+        <action
+            android:id="@+id/action_myPostsFragment_to_editPostFragment"
+            app:destination="@id/editPostFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editPostFragment"
+        android:name="com.project.fridgemate.ui.feed.EditPostFragment"
+        android:label="EditPostFragment"
+        tools:layout="@layout/fragment_edit_post">
+        <argument
+            android:name="postId"
+            app:argType="string" />
+        <argument
+            android:name="postTitle"
+            app:argType="string" />
+        <argument
+            android:name="postDescription"
+            app:argType="string" />
+        <argument
+            android:name="postImageUrl"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
 </navigation>

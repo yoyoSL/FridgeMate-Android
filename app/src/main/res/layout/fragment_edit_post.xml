@@ -32,7 +32,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New Post"
+                android:text="Edit Post"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@id/btnBack"
@@ -41,10 +41,10 @@
                 android:layout_marginStart="12dp" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnPost"
+                android:id="@+id/btnSave"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:text="Post"
+                android:text="Save"
                 android:textSize="14sp"
                 app:cornerRadius="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -52,8 +52,7 @@
                 app:layout_constraintBottom_toBottomOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- pic-->
+        
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="200dp"
@@ -73,11 +72,11 @@
                     android:background="@color/light_teal" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAddImage"
+                    android:id="@+id/btnChangeImage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Add Photo"
+                    android:text="Change Photo"
                     app:icon="@drawable/ic_add"
                     app:iconGravity="textStart"
                     app:cornerRadius="12dp" />
@@ -86,7 +85,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Post details -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -101,7 +99,6 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- Header -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -116,7 +113,6 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!--Description -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
