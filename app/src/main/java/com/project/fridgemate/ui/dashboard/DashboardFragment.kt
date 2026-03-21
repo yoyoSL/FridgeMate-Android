@@ -28,6 +28,8 @@ class DashboardFragment : Fragment() {
     private val authRepository = AuthRepository()
     private val profileViewModel: ProfileViewModel by viewModels()
 
+    private var currentTabId: Int = R.id.tab_feed
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -40,36 +42,65 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set My Fridge as default
-        selectTab(binding.tabMyFridge)
-        showFragment(FridgeFragment())
+        if (savedInstanceState != null) {
+            currentTabId = savedInstanceState.getInt("selected_tab_id", R.id.tab_feed)
+        }
+
+        // Restore tab selection UI
+        val selectedTabView = when (currentTabId) {
+            R.id.tab_feed -> binding.tabFeed
+            R.id.tab_recipes -> binding.tabRecipes
+            else -> binding.tabMyFridge
+        }
+        selectTab(selectedTabView)
+
+        // Only set default fragment if it's the first time
+        if (savedInstanceState == null) {
+            showFragment(FeedFragment())
+        }
 
         setupTabListeners()
         setupProfileMenu()
         loadGreeting()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("selected_tab_id", currentTabId)
+    }
+
     private fun loadGreeting() {
         profileViewModel.loadProfile()
         profileViewModel.user.observe(viewLifecycleOwner) { user ->
             user?.let {
-                binding.tvGreeting.text = getString(R.string.greeting_format, it.displayName)
+                val firstName = it.displayName.split(" ").firstOrNull() ?: it.displayName
+                binding.tvGreeting.text = getString(R.string.greeting_format, firstName)
             }
         }
     }
 
     private fun setupTabListeners() {
         binding.tabMyFridge.setOnClickListener {
-            selectTab(it)
-            showFragment(FridgeFragment())
+            if (currentTabId != it.id) {
+                currentTabId = it.id
+                selectTab(it)
+                showFragment(FridgeFragment())
+            }
         }
-        binding.tabFeed.setOnClickListener { selectTab(it)
-            showFragment(FeedFragment())
+        binding.tabFeed.setOnClickListener { 
+            if (currentTabId != it.id) {
+                currentTabId = it.id
+                selectTab(it)
+                showFragment(FeedFragment())
+            }
         }
-        binding.tabRecipes.setOnClickListener { selectTab(it)
-            showFragment(RecipesFragment())
+        binding.tabRecipes.setOnClickListener { 
+            if (currentTabId != it.id) {
+                currentTabId = it.id
+                selectTab(it)
+                showFragment(RecipesFragment())
+            }
         }
-        binding.tabJournal.setOnClickListener { /* TODO: Implement Journal */ }
     }
 
     private fun setupProfileMenu() {
@@ -123,7 +154,6 @@ class DashboardFragment : Fragment() {
         resetTab(binding.tabFeed, binding.ivTabFeed, binding.tvTabFeed, null)
         resetTab(binding.tabMyFridge, binding.ivTabFridge, binding.tvTabFridge, binding.vIndicatorFridge)
         resetTab(binding.tabRecipes, binding.ivTabRecipes, binding.tvTabRecipes, null)
-        resetTab(binding.tabJournal, binding.ivTabJournal, binding.tvTabJournal, null)
 
         // Highlight selected tab
         val accentColor = ContextCompat.getColor(requireContext(), R.color.teal_primary)
