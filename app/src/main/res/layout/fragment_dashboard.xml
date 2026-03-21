@@ -70,7 +70,7 @@
                 android:id="@+id/tv_tab_feed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Feed"
+                android:text="@string/tab_feed"
                 android:textColor="@color/gray_text"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -95,7 +95,7 @@
                 android:id="@+id/tv_tab_fridge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="My Fridge"
+                android:text="@string/tab_fridge"
                 android:textColor="@color/teal_primary"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -127,7 +127,7 @@
                 android:id="@+id/tv_tab_recipes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Recipes"
+                android:text="@string/tab_recipes"
                 android:textColor="@color/gray_text"
                 android:textSize="12sp" />
         </LinearLayout>
