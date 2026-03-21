@@ -13,27 +13,36 @@ interface RecipeDao {
     @Query("SELECT * FROM recipes WHERE type = :type ORDER BY cachedAt DESC")
     fun getByType(type: String): LiveData<List<RecipeEntity>>
 
+    @Query("SELECT * FROM recipes WHERE type = :type ORDER BY cachedAt DESC")
+    suspend fun getByTypeSync(type: String): List<RecipeEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(recipes: List<RecipeEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(recipe: RecipeEntity): Long
 
     @Query("DELETE FROM recipes WHERE type = :type")
     suspend fun deleteByType(type: String)
 
-    @Query("DELETE FROM recipes WHERE id = :id")
-    suspend fun deleteById(id: Long)
+    @Query("DELETE FROM recipes WHERE serverId = :serverId AND type = :type")
+    suspend fun deleteByServerIdAndType(serverId: String, type: String)
 
     @Query("UPDATE recipes SET isFavorite = :isFavorite WHERE id = :id")
     suspend fun updateFavorite(id: Long, isFavorite: Boolean)
 
-    @Query("UPDATE recipes SET isFavorite = :isFavorite WHERE title = :title AND type = 'RECOMMENDED'")
-    suspend fun updateFavoriteByTitle(title: String, isFavorite: Boolean)
-
-    @Query("DELETE FROM recipes WHERE title = :title AND type = :type")
-    suspend fun deleteByTitleAndType(title: String, type: String)
+    @Query("UPDATE recipes SET isFavorite = :isFavorite WHERE serverId = :serverId")
+    suspend fun updateFavoriteByServerId(serverId: String, isFavorite: Boolean)
 
     @Query("SELECT MAX(cachedAt) FROM recipes WHERE type = :type")
     suspend fun getLatestCacheTime(type: String): Long?
 
     @Query("SELECT * FROM recipes WHERE id = :id LIMIT 1")
     fun getById(id: Long): LiveData<RecipeEntity?>
+
+    @Query("SELECT * FROM recipes WHERE serverId = :serverId LIMIT 1")
+    fun getByServerId(serverId: String): LiveData<RecipeEntity?>
+
+    @Query("SELECT * FROM recipes WHERE serverId = :serverId LIMIT 1")
+    suspend fun getByServerIdSync(serverId: String): RecipeEntity?
 }

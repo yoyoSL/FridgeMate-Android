@@ -225,11 +225,25 @@ class PostRepository(context: Context) {
             isOwner = isOwner,
             latitude = loc?.coordinates?.getOrNull(1) ?: 0.0,
             longitude = loc?.coordinates?.getOrNull(0) ?: 0.0,
-            createdAt = createdAt
+            createdAt = createdAt,
+            recipeId = recipeId?.id,
+            recipeTitle = recipeId?.title,
+            recipeCookingTime = recipeId?.cookingTime,
+            recipeDifficulty = recipeId?.difficulty,
+            recipeImageUrl = recipeId?.imageUrl
         )
     }
 
     private fun PostEntity.toDto(): PostDto {
+        val recipe = if (recipeId != null) PostRecipeDto(
+            id = recipeId,
+            title = recipeTitle,
+            description = null,
+            cookingTime = recipeCookingTime,
+            difficulty = recipeDifficulty,
+            imageUrl = recipeImageUrl
+        ) else null
+
         return PostDto(
             id = id,
             authorUserId = PostAuthorDto(
@@ -247,6 +261,7 @@ class PostRepository(context: Context) {
                 placeName = authorLocation
             ) else null,
             likes = emptyList(),
+            recipeId = recipe,
             likesCount = likesCount,
             commentsCount = commentsCount,
             isLiked = isLiked,

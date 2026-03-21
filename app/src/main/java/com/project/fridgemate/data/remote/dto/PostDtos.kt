@@ -16,11 +16,12 @@ data class PostAuthorDto(
 data class PostDto(
     @SerializedName("_id") val id: String,
     val authorUserId: PostAuthorDto,
-    val title: String,
+    val title: String?,
     val text: String,
     val mediaUrls: List<String>,
     val location: PostLocationDto?,
     val likes: List<String>,
+    val recipeId: PostRecipeDto?,
     val likesCount: Int,
     val commentsCount: Int,
     val isLiked: Boolean,
@@ -53,12 +54,24 @@ data class CommentDto(
     val updatedAt: String
 )
 
+// ── Linked Recipe (populated from recipeId) ────────────────────────────────
+
+data class PostRecipeDto(
+    @SerializedName("_id") val id: String,
+    val title: String?,
+    val description: String?,
+    val cookingTime: String?,
+    val difficulty: String?,
+    val imageUrl: String?
+)
+
 // ── Requests ────────────────────────────────────────────────────────────────
 
 data class CreatePostRequest(
     val title: String,
     val text: String,
     val mediaUrls: List<String> = emptyList(),
+    val recipeId: String? = null,
     val location: PostLocationRequest? = null
 )
 

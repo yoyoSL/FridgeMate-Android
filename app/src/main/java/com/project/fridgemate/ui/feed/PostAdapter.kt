@@ -17,7 +17,8 @@ class PostAdapter(
     private val onEditClick: (Post) -> Unit,
     private val onDeleteComment: (postId: String, commentId: String) -> Unit,
     private val onEditComment: (postId: String, commentId: String, newText: String) -> Unit,
-    private val onExpandComments: (postId: String) -> Unit
+    private val onExpandComments: (postId: String) -> Unit,
+    private val onRecipeClick: (LinkedRecipe) -> Unit = {}
 ) : RecyclerView.Adapter<PostAdapter.PostViewHolder>() {
 
     private val posts: MutableList<Post> = posts.toMutableList()
@@ -62,6 +63,30 @@ class PostAdapter(
 
             tvRecipeTitle.text = post.postTitle
             tvDescription.text = post.description
+
+            val recipe = post.linkedRecipe
+            if (recipe != null) {
+                cardLinkedRecipe.visibility = View.VISIBLE
+                tvLinkedRecipeTitle.text = recipe.title
+                val info = buildString {
+                    if (recipe.cookingTime.isNotBlank()) append(recipe.cookingTime)
+                    if (recipe.difficulty.isNotBlank()) {
+                        if (isNotEmpty()) append(" · ")
+                        append(recipe.difficulty)
+                    }
+                }
+                tvLinkedRecipeInfo.text = info
+                if (recipe.imageUrl.isNotEmpty()) {
+                    Picasso.get()
+                        .load(recipe.imageUrl)
+                        .placeholder(R.color.light_teal)
+                        .error(R.color.light_teal)
+                        .into(ivRecipeThumb)
+                }
+                cardLinkedRecipe.setOnClickListener { onRecipeClick(recipe) }
+            } else {
+                cardLinkedRecipe.visibility = View.GONE
+            }
 
             tvLikesCount.text = post.likesCount.toString()
             updateLikeButton(this, post.isLiked)

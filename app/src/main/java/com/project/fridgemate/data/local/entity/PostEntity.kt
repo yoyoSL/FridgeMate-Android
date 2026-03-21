@@ -19,5 +19,10 @@ data class PostEntity(
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
     val createdAt: String = "",
-    val cachedAt: Long = System.currentTimeMillis()
+    val cachedAt: Long = System.currentTimeMillis(),
+    val recipeId: String? = null,
+    val recipeTitle: String? = null,
+    val recipeCookingTime: String? = null,
+    val recipeDifficulty: String? = null,
+    val recipeImageUrl: String? = null
 )

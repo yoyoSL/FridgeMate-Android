@@ -68,13 +68,46 @@
         tools:layout="@layout/fragment_recipe_detail">
         <argument
             android:name="recipeId"
-            app:argType="long" />
+            app:argType="long"
+            android:defaultValue="0L" />
+        <argument
+            android:name="serverRecipeId"
+            app:argType="string"
+            android:defaultValue="" />
+        <action
+            android:id="@+id/action_recipeDetailFragment_to_addPostFragment"
+            app:destination="@id/addPostFragment" />
     </fragment>
     <fragment
         android:id="@+id/addPostFragment"
         android:name="com.project.fridgemate.ui.feed.AddPostFragment"
         android:label="AddPostFragment"
-        tools:layout="@layout/fragment_add_post" />
+        tools:layout="@layout/fragment_add_post">
+        <argument
+            android:name="prefillTitle"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="prefillDescription"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="prefillRecipeId"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="prefillRecipeName"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="prefillRecipeTime"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="prefillRecipeDifficulty"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
     <fragment
         android:id="@+id/mapViewFragment"
         android:name="com.project.fridgemate.ui.feed.MapViewFragment"
@@ -88,6 +121,9 @@
         <action
             android:id="@+id/action_myPostsFragment_to_editPostFragment"
             app:destination="@id/editPostFragment" />
+        <action
+            android:id="@+id/action_myPostsFragment_to_recipeDetailFragment"
+            app:destination="@id/recipeDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/editPostFragment"
@@ -105,6 +141,18 @@
             app:argType="string" />
         <argument
             android:name="postImageUrl"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="linkedRecipeName"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="linkedRecipeTime"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="linkedRecipeDifficulty"
             app:argType="string"
             android:defaultValue="" />
     </fragment>

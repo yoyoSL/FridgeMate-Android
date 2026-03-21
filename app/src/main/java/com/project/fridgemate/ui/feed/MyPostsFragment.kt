@@ -65,13 +65,23 @@ class MyPostsFragment : Fragment() {
                                     postId = post.id,
                                     postTitle = post.postTitle,
                                     postDescription = post.description,
-                                    postImageUrl = post.imageUrl
+                                    postImageUrl = post.imageUrl,
+                                    linkedRecipeName = post.linkedRecipe?.title ?: "",
+                                    linkedRecipeTime = post.linkedRecipe?.cookingTime ?: "",
+                                    linkedRecipeDifficulty = post.linkedRecipe?.difficulty ?: ""
                                 )
                             findNavController().navigate(action)
                         },
                         onDeleteComment = { postId, commentId -> viewModel.deleteComment(postId, commentId) },
                         onEditComment = { postId, commentId, newText -> viewModel.editComment(postId, commentId, newText) },
-                        onExpandComments = { postId -> viewModel.loadComments(postId) }
+                        onExpandComments = { postId -> viewModel.loadComments(postId) },
+                        onRecipeClick = { recipe ->
+                            val action = MyPostsFragmentDirections
+                                .actionMyPostsFragmentToRecipeDetailFragment(
+                                    serverRecipeId = recipe.id
+                                )
+                            findNavController().navigate(action)
+                        }
                     )
                     binding.rvMyPosts.adapter = postAdapter
                 } else {

@@ -7,10 +7,8 @@ import com.project.fridgemate.data.local.entity.RecipeEntity
 import com.project.fridgemate.data.remote.ApiClient
 import com.project.fridgemate.data.remote.api.RecipeApi
 import com.project.fridgemate.data.remote.dto.GenerateRecipesRequest
-import com.project.fridgemate.data.remote.dto.RecipeDto
 import com.project.fridgemate.data.remote.dto.RecipeIngredientDto
-import com.project.fridgemate.data.remote.dto.RecipeNutritionDto
-import com.project.fridgemate.data.remote.dto.SaveRecipeRequest
+import com.project.fridgemate.data.remote.dto.ServerRecipeDto
 
 class RecipeRepository(private val recipeDao: RecipeDao) {
 
@@ -18,24 +16,25 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
     private val gson = Gson()
 
     companion object {
-        private const val CACHE_TTL_MS = 30 * 60 * 1000L // 30 minutes
+        private const val CACHE_TTL_MS = 30 * 60 * 1000L
     }
 
-    fun getRecommended(): LiveData<List<RecipeEntity>> {
-        return recipeDao.getByType(RecipeEntity.TYPE_RECOMMENDED)
-    }
+    fun getRecommended(): LiveData<List<RecipeEntity>> =
+        recipeDao.getByType(RecipeEntity.TYPE_RECOMMENDED)
 
-    suspend fun clearRecommendedCache() {
-        recipeDao.deleteByType(RecipeEntity.TYPE_RECOMMENDED)
-    }
+    fun getFavorites(): LiveData<List<RecipeEntity>> =
+        recipeDao.getByType(RecipeEntity.TYPE_FAVORITE)
+
+    fun getByServerId(serverId: String): LiveData<RecipeEntity?> =
+        recipeDao.getByServerId(serverId)
 
     suspend fun isCacheExpired(): Boolean {
         val lastCache = recipeDao.getLatestCacheTime(RecipeEntity.TYPE_RECOMMENDED) ?: return true
         return System.currentTimeMillis() - lastCache > CACHE_TTL_MS
     }
 
-    fun getFavorites(): LiveData<List<RecipeEntity>> {
-        return recipeDao.getByType(RecipeEntity.TYPE_FAVORITE)
+    suspend fun clearRecommendedCache() {
+        recipeDao.deleteByType(RecipeEntity.TYPE_RECOMMENDED)
     }
 
     suspend fun fetchRecommended(
@@ -65,12 +64,15 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
 
     suspend fun fetchFavorites(): Result<Unit> {
         return try {
-            val response = recipeApi.getUserRecipes()
+            val response = recipeApi.getUserFavorites()
             if (response.isSuccessful) {
                 val recipes = response.body()?.items ?: emptyList()
-                val entities = recipes.map { it.toEntity(RecipeEntity.TYPE_FAVORITE).copy(isFavorite = true) }
+                val entities = recipes.map {
+                    it.toEntity(RecipeEntity.TYPE_FAVORITE).copy(isFavorite = true)
+                }
                 recipeDao.deleteByType(RecipeEntity.TYPE_FAVORITE)
                 recipeDao.insertAll(entities)
+                syncFavoriteFlags()
                 Result.success(Unit)
             } else {
                 Result.failure(Exception("Failed to load favorites"))
@@ -80,77 +82,82 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         }
     }
 
-    suspend fun saveToFavorites(entity: RecipeEntity): Result<Unit> {
+    /**
+     * After fetching favorites, mark any recommended recipes that the user
+     * has also favorited so the star icon shows correctly on both tabs.
+     */
+    private suspend fun syncFavoriteFlags() {
+        val favorites = recipeDao.getByTypeSync(RecipeEntity.TYPE_FAVORITE)
+        val favServerIds = favorites.mapNotNull { it.serverId }.toSet()
+        val recommended = recipeDao.getByTypeSync(RecipeEntity.TYPE_RECOMMENDED)
+        for (r in recommended) {
+            val shouldBeFav = r.serverId != null && r.serverId in favServerIds
+            if (r.isFavorite != shouldBeFav) {
+                recipeDao.updateFavorite(r.id, shouldBeFav)
+            }
+        }
+    }
+
+    suspend fun favoriteRecipe(serverId: String): Result<Unit> {
         return try {
-            val ingredients = runCatching {
-                gson.fromJson(entity.ingredientsJson, Array<RecipeIngredientDto>::class.java).toList()
-            }.getOrDefault(emptyList())
-
-            val steps = runCatching {
-                gson.fromJson(entity.stepsJson, Array<String>::class.java).toList()
-            }.getOrDefault(emptyList())
-
-            val response = recipeApi.saveToFavorites(
-                SaveRecipeRequest(
-                    title = entity.title,
-                    description = entity.description,
-                    cookingTime = entity.cookingTime,
-                    difficulty = entity.difficulty,
-                    ingredients = ingredients,
-                    steps = steps,
-                    nutrition = RecipeNutritionDto(entity.calories, entity.protein, entity.carbs, entity.fat),
-                    imageUrl = entity.imageUrl
-                )
-            )
-            if (response.isSuccessful) {
-                val serverId = response.body()?.recipe?.id
-                val favoriteEntity = entity.copy(
-                    id = 0,
-                    serverId = serverId,
-                    type = RecipeEntity.TYPE_FAVORITE,
-                    isFavorite = true,
-                    cachedAt = System.currentTimeMillis()
-                )
-                recipeDao.insertAll(listOf(favoriteEntity))
-                recipeDao.updateFavorite(entity.id, true)
+            val response = recipeApi.favoriteRecipe(serverId)
+            if (response.isSuccessful || response.code() == 409) {
+                recipeDao.updateFavoriteByServerId(serverId, true)
+                val existing = recipeDao.getByServerIdSync(serverId)
+                if (existing != null && existing.type == RecipeEntity.TYPE_RECOMMENDED) {
+                    recipeDao.insert(existing.copy(
+                        id = 0,
+                        type = RecipeEntity.TYPE_FAVORITE,
+                        isFavorite = true,
+                        cachedAt = System.currentTimeMillis()
+                    ))
+                }
                 Result.success(Unit)
             } else {
-                val error = response.errorBody()?.string() ?: "Failed to save recipe"
-                Result.failure(Exception(error))
+                Result.failure(Exception("Failed to favorite recipe"))
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun unfavoriteFromRecommended(entity: RecipeEntity): Result<Unit> {
+    suspend fun unfavoriteRecipe(serverId: String): Result<Unit> {
         return try {
-            if (entity.serverId != null) {
-                recipeApi.deleteFromFavorites(entity.serverId)
+            val response = recipeApi.unfavoriteRecipe(serverId)
+            if (response.isSuccessful) {
+                recipeDao.updateFavoriteByServerId(serverId, false)
+                recipeDao.deleteByServerIdAndType(serverId, RecipeEntity.TYPE_FAVORITE)
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Failed to unfavorite recipe"))
             }
-            recipeDao.updateFavorite(entity.id, false)
-            recipeDao.deleteByTitleAndType(entity.title, RecipeEntity.TYPE_FAVORITE)
-            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun removeFromFavorites(entity: RecipeEntity): Result<Unit> {
+    suspend fun fetchAndCacheRecipeByServerId(serverId: String): Result<RecipeEntity> {
+        val existing = recipeDao.getByServerIdSync(serverId)
+        if (existing != null) return Result.success(existing)
+
         return try {
-            if (entity.serverId != null) {
-                recipeApi.deleteFromFavorites(entity.serverId)
+            val response = recipeApi.getRecipeById(serverId)
+            if (response.isSuccessful) {
+                val dto = response.body()!!
+                val entity = dto.toEntity(RecipeEntity.TYPE_RECOMMENDED)
+                val roomId = recipeDao.insert(entity)
+                Result.success(entity.copy(id = roomId))
+            } else {
+                Result.failure(Exception("Recipe not found"))
             }
-            recipeDao.deleteById(entity.id)
-            recipeDao.updateFavoriteByTitle(entity.title, false)
-            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    private fun RecipeDto.toEntity(type: String): RecipeEntity {
+    private fun ServerRecipeDto.toEntity(type: String): RecipeEntity {
         return RecipeEntity(
+            serverId = id,
             title = title,
             description = description ?: "",
             cookingTime = cookingTime ?: "",
@@ -162,7 +169,8 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
             carbs = nutrition?.carbs ?: "",
             fat = nutrition?.fat ?: "",
             imageUrl = imageUrl ?: "",
-            type = type
+            type = type,
+            isFavorite = isFavorited ?: false
         )
     }
 }
