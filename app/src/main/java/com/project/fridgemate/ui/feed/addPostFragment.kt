@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.project.fridgemate.databinding.FragmentAddPostBinding
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
@@ -24,6 +25,7 @@ class AddPostFragment : Fragment() {
     private var _binding: FragmentAddPostBinding? = null
     private val binding get() = _binding!!
     private val feedViewModel: FeedViewModel by activityViewModels()
+    private val args: AddPostFragmentArgs by navArgs()
 
     private var selectedImageBytes: ByteArray? = null
     private var selectedMimeType: String = "image/jpeg"
@@ -81,6 +83,27 @@ class AddPostFragment : Fragment() {
         binding.btnPost.setOnClickListener {
             submitPost()
         }
+
+        if (args.prefillTitle.isNotEmpty()) {
+            binding.etRecipeTitle.setText(args.prefillTitle)
+        }
+        if (args.prefillDescription.isNotEmpty()) {
+            binding.etDescription.setText(args.prefillDescription)
+            binding.etDescription.setSelection(binding.etDescription.text?.length ?: 0)
+        }
+
+        if (args.prefillRecipeId.isNotEmpty() && args.prefillRecipeName.isNotEmpty()) {
+            binding.cardRecipePreview.visibility = View.VISIBLE
+            binding.tvRecipePreviewTitle.text = args.prefillRecipeName
+            val info = buildString {
+                if (args.prefillRecipeTime.isNotEmpty()) append(args.prefillRecipeTime)
+                if (args.prefillRecipeDifficulty.isNotEmpty()) {
+                    if (isNotEmpty()) append(" · ")
+                    append(args.prefillRecipeDifficulty)
+                }
+            }
+            binding.tvRecipePreviewInfo.text = info
+        }
     }
 
     private fun showImageSourceDialog() {
@@ -118,7 +141,8 @@ class AddPostFragment : Fragment() {
                 imageUrl = feedViewModel.uploadImage(bytes, selectedMimeType)
             }
 
-            feedViewModel.addPost(title, description, imageUrl)
+            val recipeId = args.prefillRecipeId.ifEmpty { null }
+            feedViewModel.addPost(title, description, imageUrl, recipeId)
             Toast.makeText(context, "Post added!", Toast.LENGTH_SHORT).show()
             findNavController().navigateUp()
         }
