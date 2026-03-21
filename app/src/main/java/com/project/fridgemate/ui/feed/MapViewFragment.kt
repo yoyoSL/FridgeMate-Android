@@ -1,6 +1,5 @@
 package com.project.fridgemate.ui.feed
 
-import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
@@ -12,6 +11,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentMapViewBinding
 import com.squareup.picasso.Picasso
@@ -48,7 +48,7 @@ class MapViewFragment : Fragment() {
     private fun setupMap() {
         binding.mapView.setTileSource(TileSourceFactory.MAPNIK)
         binding.mapView.setMultiTouchControls(true)
-        binding.mapView.setBuiltInZoomControls(false) // Disable default controls
+        binding.mapView.setBuiltInZoomControls(false)
         
         val mapController = binding.mapView.controller
         mapController.setZoom(4.0)
@@ -57,7 +57,7 @@ class MapViewFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        binding.btnClose.setOnClickListener {
+        binding.btnBack.setOnClickListener {
             findNavController().navigateUp()
         }
 
@@ -81,11 +81,8 @@ class MapViewFragment : Fragment() {
         val markerDrawable = if (circleDrawable != null && pinDrawable != null) {
             val tintedPin = DrawableCompat.wrap(pinDrawable).mutate()
             DrawableCompat.setTint(tintedPin, ContextCompat.getColor(requireContext(), R.color.teal_primary))
-            
             val layers = arrayOf(circleDrawable, tintedPin)
             val layerDrawable = LayerDrawable(layers)
-            
-            // Center the pin inside the circle and lift it up slightly
             val padding = 24
             layerDrawable.setLayerInset(1, padding, padding, padding, padding)
             layerDrawable
@@ -95,8 +92,14 @@ class MapViewFragment : Fragment() {
 
         viewModel.posts.observe(viewLifecycleOwner) { posts ->
             binding.mapView.overlays.clear()
-            posts.forEach { post ->
-                if (post.latitude != 0.0 && post.longitude != 0.0) {
+            
+            val validPosts = posts.filter { it.latitude != 0.0 && it.longitude != 0.0 }
+            
+            if (validPosts.isEmpty()) {
+                binding.cvNoPosts.visibility = View.VISIBLE
+            } else {
+                binding.cvNoPosts.visibility = View.GONE
+                validPosts.forEach { post ->
                     val marker = Marker(binding.mapView)
                     marker.position = GeoPoint(post.latitude, post.longitude)
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
@@ -125,7 +128,16 @@ class MapViewFragment : Fragment() {
 
         if (post.imageUrl.isNotEmpty()) {
             binding.ivPostImage.visibility = View.VISIBLE
-            Picasso.get().load(post.imageUrl).into(binding.ivPostImage)
+            val fullUrl = if (post.imageUrl.startsWith("/")) {
+                BuildConfig.BASE_URL.trimEnd('/') + post.imageUrl
+            } else {
+                post.imageUrl
+            }
+            Picasso.get()
+                .load(fullUrl)
+                .placeholder(R.color.light_teal)
+                .error(R.color.light_teal)
+                .into(binding.ivPostImage)
         } else {
             binding.ivPostImage.visibility = View.GONE
         }
