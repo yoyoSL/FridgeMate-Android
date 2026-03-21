@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.project.fridgemate.ui.dashboard.DashboardFragmentDirections
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentFeedBinding
 
@@ -30,6 +32,11 @@ class FeedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.swipeRefresh.setColorSchemeResources(R.color.teal_primary)
+        binding.swipeRefresh.setOnRefreshListener {
+            viewModel.loadPosts()
+        }
+
         binding.btnMapView.setOnClickListener {
             requireParentFragment().findNavController()
                 .navigate(R.id.action_dashboardFragment_to_mapViewFragment)
@@ -40,7 +47,14 @@ class FeedFragment : Fragment() {
                 .navigate(R.id.action_dashboardFragment_to_addPostFragment)
         }
 
+        binding.btnMyPosts.setOnClickListener {
+            requireParentFragment().findNavController()
+                .navigate(R.id.action_dashboardFragment_to_myPostsFragment)
+        }
+
         setupPosts()
+        observeLoading()
+        observeErrors()
     }
 
     private var postAdapter: PostAdapter? = null
@@ -49,7 +63,7 @@ class FeedFragment : Fragment() {
         binding.rvPosts.layoutManager = LinearLayoutManager(requireContext())
 
         viewModel.posts.observe(viewLifecycleOwner) { posts ->
-            if (posts.isEmpty()) {
+            if (posts.isEmpty() && viewModel.isLoading.value != true) {
                 binding.rvPosts.visibility = View.GONE
                 binding.emptyStateFeed.visibility = View.VISIBLE
             } else {
@@ -60,19 +74,21 @@ class FeedFragment : Fragment() {
                     postAdapter = PostAdapter(
                         posts = posts,
                         onLikeClick = { post -> viewModel.toggleLike(post) },
-                        onAddComment = { postId, text -> viewModel.addComment(postId, "Me", text) },
+                        onAddComment = { postId, text -> viewModel.addComment(postId, text) },
                         onDeleteClick = { post -> viewModel.deletePost(post.id) },
                         onEditClick = { post ->
-                            val bundle = Bundle().apply {
-                                putInt("postId", post.id)
-                                putString("postTitle", post.postTitle)
-                                putString("postDescription", post.description)
-                            }
-                            requireParentFragment().findNavController()
-                                .navigate(R.id.action_dashboardFragment_to_editPostFragment, bundle)
+                            val action = DashboardFragmentDirections
+                                .actionDashboardFragmentToEditPostFragment(
+                                    postId = post.id,
+                                    postTitle = post.postTitle,
+                                    postDescription = post.description,
+                                    postImageUrl = post.imageUrl
+                                )
+                            requireParentFragment().findNavController().navigate(action)
                         },
                         onDeleteComment = { postId, commentId -> viewModel.deleteComment(postId, commentId) },
-                        onEditComment = { postId, commentId, newText -> viewModel.editComment(postId, commentId, newText) }
+                        onEditComment = { postId, commentId, newText -> viewModel.editComment(postId, commentId, newText) },
+                        onExpandComments = { postId -> viewModel.loadComments(postId) }
                     )
                     binding.rvPosts.adapter = postAdapter
                 } else {
@@ -80,6 +96,31 @@ class FeedFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun observeLoading() {
+        viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
+            binding.swipeRefresh.isRefreshing = false
+            if (loading) {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.emptyStateFeed.visibility = View.GONE
+            } else {
+                binding.progressBar.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun observeErrors() {
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadPosts()
     }
 
     override fun onDestroyView() {

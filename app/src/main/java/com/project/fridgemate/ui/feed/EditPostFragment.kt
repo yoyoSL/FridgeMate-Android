@@ -1,6 +1,7 @@
 package com.project.fridgemate.ui.feed
 
 import android.Manifest
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,9 +12,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.project.fridgemate.databinding.FragmentEditPostBinding
+import com.squareup.picasso.Picasso
+import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 
 class EditPostFragment : Fragment() {
 
@@ -21,20 +26,33 @@ class EditPostFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val feedViewModel: FeedViewModel by activityViewModels()
+    private val args: EditPostFragmentArgs by navArgs()
 
-    // get the postid from nav
-    private var postId: Int = -1
+    private var postId: String = ""
     private var currentTitle: String = ""
     private var currentDescription: String = ""
+    private var currentImageUrl: String = ""
+
+    private var selectedImageBytes: ByteArray? = null
+    private var selectedMimeType: String = "image/jpeg"
 
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let { binding.ivPostImage.setImageURI(it) }
+            uri?.let {
+                binding.ivPostImage.setImageURI(it)
+                extractImageBytes(it)
+            }
         }
 
     private val takePictureLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-            bitmap?.let { binding.ivPostImage.setImageBitmap(it) }
+            bitmap?.let {
+                binding.ivPostImage.setImageBitmap(it)
+                val baos = ByteArrayOutputStream()
+                it.compress(Bitmap.CompressFormat.JPEG, 85, baos)
+                selectedImageBytes = baos.toByteArray()
+                selectedMimeType = "image/jpeg"
+            }
         }
 
     private val requestCameraPermission =
@@ -60,13 +78,17 @@ class EditPostFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        postId = arguments?.getInt("postId") ?: -1
-        currentTitle = arguments?.getString("postTitle") ?: ""
-        currentDescription = arguments?.getString("postDescription") ?: ""
+        postId = args.postId
+        currentTitle = args.postTitle
+        currentDescription = args.postDescription
+        currentImageUrl = args.postImageUrl
 
-        // with the current details fill the fields
         binding.etRecipeTitle.setText(currentTitle)
         binding.etDescription.setText(currentDescription)
+
+        if (currentImageUrl.isNotEmpty()) {
+            Picasso.get().load(currentImageUrl).into(binding.ivPostImage)
+        }
 
         binding.btnBack.setOnClickListener {
             findNavController().navigateUp()
@@ -107,9 +129,31 @@ class EditPostFragment : Fragment() {
             return
         }
 
-        feedViewModel.editPost(postId, newTitle, newDescription)
-        Toast.makeText(context, "Post updated!", Toast.LENGTH_SHORT).show()
-        findNavController().navigateUp()
+        binding.btnSave.isEnabled = false
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            var imageUrl: String? = null
+            val bytes = selectedImageBytes
+            if (bytes != null) {
+                imageUrl = feedViewModel.uploadImage(bytes, selectedMimeType)
+            }
+
+            feedViewModel.editPost(postId, newTitle, newDescription, imageUrl)
+            Toast.makeText(context, "Post updated!", Toast.LENGTH_SHORT).show()
+            findNavController().navigateUp()
+        }
+    }
+
+    private fun extractImageBytes(uri: Uri) {
+        try {
+            val contentResolver = requireContext().contentResolver
+            selectedMimeType = contentResolver.getType(uri) ?: "image/jpeg"
+            contentResolver.openInputStream(uri)?.use { stream ->
+                selectedImageBytes = stream.readBytes()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(context, "Failed to read image", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {

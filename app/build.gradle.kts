@@ -67,8 +67,10 @@ dependencies {
     implementation(libs.picasso)
     implementation(libs.lottie)
 
-    // Maps
+    // Maps & Location
     implementation(libs.osmdroid)
+    implementation(libs.play.services.location)
+    implementation(libs.swiperefreshlayout)
 
     // Encrypted storage
     implementation(libs.androidx.security.crypto)
