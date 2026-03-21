@@ -53,7 +53,8 @@ class DashboardFragment : Fragment() {
         profileViewModel.loadProfile()
         profileViewModel.user.observe(viewLifecycleOwner) { user ->
             user?.let {
-                binding.tvGreeting.text = getString(R.string.greeting_format, it.displayName)
+                val firstName = it.displayName.split(" ").firstOrNull() ?: it.displayName
+                binding.tvGreeting.text = getString(R.string.greeting_format, firstName)
             }
         }
     }
@@ -63,13 +64,14 @@ class DashboardFragment : Fragment() {
             selectTab(it)
             showFragment(FridgeFragment())
         }
-        binding.tabFeed.setOnClickListener { selectTab(it)
+        binding.tabFeed.setOnClickListener { 
+            selectTab(it)
             showFragment(FeedFragment())
         }
-        binding.tabRecipes.setOnClickListener { selectTab(it)
+        binding.tabRecipes.setOnClickListener { 
+            selectTab(it)
             showFragment(RecipesFragment())
         }
-        binding.tabJournal.setOnClickListener { /* TODO: Implement Journal */ }
     }
 
     private fun setupProfileMenu() {
@@ -123,7 +125,6 @@ class DashboardFragment : Fragment() {
         resetTab(binding.tabFeed, binding.ivTabFeed, binding.tvTabFeed, null)
         resetTab(binding.tabMyFridge, binding.ivTabFridge, binding.tvTabFridge, binding.vIndicatorFridge)
         resetTab(binding.tabRecipes, binding.ivTabRecipes, binding.tvTabRecipes, null)
-        resetTab(binding.tabJournal, binding.ivTabJournal, binding.tvTabJournal, null)
 
         // Highlight selected tab
         val accentColor = ContextCompat.getColor(requireContext(), R.color.teal_primary)
