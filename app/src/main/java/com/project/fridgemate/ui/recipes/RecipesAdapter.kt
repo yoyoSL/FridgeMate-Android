@@ -74,7 +74,7 @@ class RecipeAdapter(
             btn.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFD700"))
         } else {
             btn.setImageResource(R.drawable.ic_star_outline)
-            btn.imageTintList = ColorStateList.valueOf(Color.parseColor("#2D6A4F"))
+            btn.imageTintList = ColorStateList.valueOf(Color.parseColor("#8E8E8E"))
         }
     }
 }
