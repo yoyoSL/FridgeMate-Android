@@ -4,6 +4,7 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.animation.OvershootInterpolator
 import android.widget.ImageButton
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -20,9 +21,20 @@ class RecipeAdapter(
 ) : ListAdapter<RecipeEntity, RecipeAdapter.RecipeViewHolder>(DIFF) {
 
     companion object {
+        private const val PAYLOAD_FAVORITE = "PAYLOAD_FAVORITE"
+
         private val DIFF = object : DiffUtil.ItemCallback<RecipeEntity>() {
             override fun areItemsTheSame(a: RecipeEntity, b: RecipeEntity) = a.id == b.id
+            
             override fun areContentsTheSame(a: RecipeEntity, b: RecipeEntity) = a == b
+
+            override fun getChangePayload(oldItem: RecipeEntity, newItem: RecipeEntity): Any? {
+                return if (oldItem.isFavorite != newItem.isFavorite) {
+                    PAYLOAD_FAVORITE
+                } else {
+                    super.getChangePayload(oldItem, newItem)
+                }
+            }
         }
     }
 
@@ -62,19 +74,61 @@ class RecipeAdapter(
                 ivRecipeImage.setImageResource(R.color.light_teal)
             }
 
-            updateFavoriteIcon(btnFavorite, recipe.isFavorite)
-            btnFavorite.setOnClickListener { onFavoriteClick(recipe) }
+            updateFavoriteIcon(btnFavorite, recipe.isFavorite, animate = false)
+            
+            btnFavorite.setOnClickListener { 
+                val currentPos = holder.adapterPosition
+                if (currentPos != RecyclerView.NO_POSITION) {
+                    onFavoriteClick(getItem(currentPos))
+                }
+            }
             root.setOnClickListener { onItemClick(recipe) }
         }
     }
 
-    private fun updateFavoriteIcon(btn: ImageButton, isFavorite: Boolean) {
+    override fun onBindViewHolder(holder: RecipeViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.contains(PAYLOAD_FAVORITE)) {
+            val recipe = getItem(position)
+            updateFavoriteIcon(holder.binding.btnFavorite, recipe.isFavorite, animate = true)
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
+        }
+    }
+
+    private fun updateFavoriteIcon(btn: ImageButton, isFavorite: Boolean, animate: Boolean) {
         if (isFavorite) {
             btn.setImageResource(R.drawable.ic_star_filled)
-            btn.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFD700"))
+            btn.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFD700")) // Gold
+            if (animate) animateStar(btn)
         } else {
             btn.setImageResource(R.drawable.ic_star_outline)
-            btn.imageTintList = ColorStateList.valueOf(Color.parseColor("#8E8E8E"))
+            btn.imageTintList = ColorStateList.valueOf(Color.parseColor("#8E8E8E")) // Gray
+            if (animate) {
+                viewScalePop(btn, 0.9f)
+            }
         }
+    }
+
+    private fun animateStar(view: ImageButton) {
+        viewScalePop(view, 1.2f)
+    }
+
+    private fun viewScalePop(view: ImageButton, scale: Float) {
+        view.animate().cancel()
+        view.scaleX = 0.8f
+        view.scaleY = 0.8f
+        view.animate()
+            .scaleX(scale)
+            .scaleY(scale)
+            .setDuration(200)
+            .setInterpolator(OvershootInterpolator())
+            .withEndAction {
+                view.animate()
+                    .scaleX(1.0f)
+                    .scaleY(1.0f)
+                    .setDuration(100)
+                    .start()
+            }
+            .start()
     }
 }
