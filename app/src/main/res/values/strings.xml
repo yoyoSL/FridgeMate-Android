@@ -110,6 +110,24 @@
     <string name="ingredients">Ingredients</string>
     <string name="steps">Steps</string>
 
+    <string name="favorites_empty_title">No Favorites Yet</string>
+    <string name="favorites_empty_desc">Tap the star icon on any recipe to save it for later!</string>
+    <string name="recommended_empty_title">No recommendations yet</string>
+    <string name="recommended_empty_desc">Tap generate below to find recipes with your current ingredients!</string>
+
+    <string-array name="cooking_tips">
+        <item>A pinch of salt can enhance sweetness in desserts</item>
+        <item>Let meat rest after cooking for juicier results</item>
+        <item>Fresh herbs should be added at the end of cooking</item>
+        <item>Room temperature eggs blend better in batter</item>
+        <item>Toast your spices to unlock deeper flavors</item>
+        <item>Always preheat your pan before adding oil</item>
+        <item>Acid like lemon juice brightens any dish</item>
+        <item>Pat proteins dry for a better sear</item>
+        <item>Use a sharp knife — it\'s safer than a dull one</item>
+        <item>Season every layer as you cook, not just at the end</item>
+    </string-array>
+
     <!-- Feed & Posts -->
     <string name="feed_title">Feed</string>
     <string name="no_posts_yet">No posts yet</string>

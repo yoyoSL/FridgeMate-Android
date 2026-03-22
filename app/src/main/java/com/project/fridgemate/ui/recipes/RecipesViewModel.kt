@@ -87,11 +87,17 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
 
     fun toggleFavorite(recipe: RecipeEntity) {
         val serverId = recipe.serverId ?: return
+        val wasFavorite = recipe.isFavorite
+        
         viewModelScope.launch {
-            if (recipe.isFavorite) {
+            val result = if (wasFavorite) {
                 repository.unfavoriteRecipe(serverId)
             } else {
                 repository.favoriteRecipe(serverId)
+            }
+            
+            if (result.isFailure) {
+                _error.postValue("Failed to update favorite: ${result.exceptionOrNull()?.message}")
             }
         }
     }

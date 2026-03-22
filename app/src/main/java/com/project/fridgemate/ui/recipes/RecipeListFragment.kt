@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.widget.Toast
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -24,19 +23,6 @@ class RecipeListFragment : Fragment() {
         const val TYPE_RECOMMENDED = "RECOMMENDED"
         const val TYPE_FAVORITES = "FAVORITES"
 
-        private val COOKING_TIPS = listOf(
-            "A pinch of salt can enhance sweetness in desserts",
-            "Let meat rest after cooking for juicier results",
-            "Fresh herbs should be added at the end of cooking",
-            "Room temperature eggs blend better in batter",
-            "Toast your spices to unlock deeper flavors",
-            "Always preheat your pan before adding oil",
-            "Acid like lemon juice brightens any dish",
-            "Pat proteins dry for a better sear",
-            "Use a sharp knife — it's safer than a dull one",
-            "Season every layer as you cook, not just at the end"
-        )
-
         fun newInstance(type: String): RecipeListFragment {
             return RecipeListFragment().apply {
                 arguments = Bundle().apply {
@@ -50,19 +36,23 @@ class RecipeListFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: RecipesViewModel by activityViewModels()
     private lateinit var adapter: RecipeAdapter
+    
+    private val cookingTips: Array<String> by lazy {
+        resources.getStringArray(R.array.cooking_tips)
+    }
 
     private val tipHandler = Handler(Looper.getMainLooper())
     private var tipIndex = 0
     private val tipRunnable = object : Runnable {
         override fun run() {
             if (_binding == null) return
-            tipIndex = (tipIndex + 1) % COOKING_TIPS.size
+            tipIndex = (tipIndex + 1) % cookingTips.size
             val fadeOut = AlphaAnimation(1f, 0f).apply { duration = 300 }
             val fadeIn = AlphaAnimation(0f, 1f).apply { duration = 300 }
             binding.tvLoadingTip.startAnimation(fadeOut)
             tipHandler.postDelayed({
                 if (_binding == null) return@postDelayed
-                binding.tvLoadingTip.text = COOKING_TIPS[tipIndex]
+                binding.tvLoadingTip.text = cookingTips[tipIndex]
                 binding.tvLoadingTip.startAnimation(fadeIn)
             }, 300)
             tipHandler.postDelayed(this, 4000)
@@ -104,15 +94,7 @@ class RecipeListFragment : Fragment() {
 
         source.observe(viewLifecycleOwner) { recipes ->
             adapter.submitList(recipes)
-            if (type == TYPE_FAVORITES) {
-                val isEmpty = recipes.isEmpty()
-                binding.tvEmpty.text = getString(R.string.no_recipes_yet)
-                binding.tvEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
-            } else {
-                if (recipes.isNotEmpty()) {
-                    binding.tvEmpty.visibility = View.GONE
-                }
-            }
+            updateEmptyState(recipes.isEmpty(), type)
         }
 
         if (type == TYPE_RECOMMENDED) {
@@ -127,8 +109,7 @@ class RecipeListFragment : Fragment() {
                 if (error != null) {
                     val hasRecipes = adapter.itemCount > 0
                     if (!hasRecipes) {
-                        binding.tvEmpty.text = error
-                        binding.tvEmpty.visibility = View.VISIBLE
+                        showEmptyState(error)
                     } else {
                         Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
                     }
@@ -143,13 +124,49 @@ class RecipeListFragment : Fragment() {
         }
     }
 
+    private fun updateEmptyState(isEmpty: Boolean, type: String) {
+        if (isEmpty) {
+            if (type == TYPE_FAVORITES) {
+                showEmptyState(
+                    title = getString(R.string.favorites_empty_title),
+                    description = getString(R.string.favorites_empty_desc),
+                    iconRes = R.drawable.ic_star_filled
+                )
+            } else {
+                showEmptyState(
+                    title = getString(R.string.recommended_empty_title),
+                    description = getString(R.string.recommended_empty_desc),
+                    iconRes = R.drawable.ic_recipes
+                )
+            }
+        } else {
+            binding.emptyState.visibility = View.GONE
+            binding.rvRecipes.visibility = View.VISIBLE
+        }
+    }
+
+    private fun showEmptyState(title: String, description: String? = null, iconRes: Int = R.drawable.ic_recipes) {
+        binding.emptyState.visibility = View.VISIBLE
+        binding.tvEmptyTitle.text = title
+        binding.ivEmptyIcon.setImageResource(iconRes)
+        
+        if (description != null) {
+            binding.tvEmptyDesc.text = description
+            binding.tvEmptyDesc.visibility = View.VISIBLE
+        } else {
+            binding.tvEmptyDesc.visibility = View.GONE
+        }
+
+        binding.rvRecipes.visibility = View.GONE
+    }
+
     private fun showLoading() {
         binding.loadingOverlay.visibility = View.VISIBLE
         binding.rvRecipes.visibility = View.GONE
         binding.btnGenerate.visibility = View.GONE
-        binding.tvEmpty.visibility = View.GONE
-        tipIndex = (0 until COOKING_TIPS.size).random()
-        binding.tvLoadingTip.text = COOKING_TIPS[tipIndex]
+        binding.emptyState.visibility = View.GONE
+        tipIndex = (0 until cookingTips.size).random()
+        binding.tvLoadingTip.text = cookingTips[tipIndex]
         tipHandler.postDelayed(tipRunnable, 4000)
     }
 
