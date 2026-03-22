@@ -76,6 +76,7 @@ data class UserDto(
 data class UpdateProfileRequest(
     val displayName: String? = null,
     val userName: String? = null,
+    val profileImage: String? = null,
     val address: AddressDto? = null,
     val allergies: List<String>? = null,
     val dietPreference: String? = null

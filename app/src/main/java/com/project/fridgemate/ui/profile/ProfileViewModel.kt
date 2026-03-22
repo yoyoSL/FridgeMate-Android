@@ -5,11 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.project.fridgemate.data.remote.ApiClient
+import com.project.fridgemate.data.remote.api.NominatimApi
 import com.project.fridgemate.data.remote.dto.AddressDto
 import com.project.fridgemate.data.remote.dto.UpdateProfileRequest
 import com.project.fridgemate.data.remote.dto.UserDto
 import com.project.fridgemate.data.repository.UserRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ProfileViewModel : ViewModel() {
 
@@ -26,6 +29,12 @@ class ProfileViewModel : ViewModel() {
 
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
+
+    private val _locationDisplay = MutableLiveData<String>("")
+    val locationDisplay: LiveData<String> = _locationDisplay
+
+    private val _profileImageUrl = MutableLiveData<String?>()
+    val profileImageUrl: LiveData<String?> = _profileImageUrl
 
     private val _allergies = MutableLiveData<List<AllergyItem>>(
         listOf(
@@ -52,6 +61,16 @@ class ProfileViewModel : ViewModel() {
             try {
                 val result = userRepository.getUserById(userId)
                 _user.value = result
+                _profileImageUrl.value = result?.profileImage
+                // Show stored location in short format (city, COUNTRY_CODE)
+                result?.address?.let { addr ->
+                    val parts = listOfNotNull(
+                        addr.city?.takeIf { it.isNotEmpty() },
+                        addr.country?.takeIf { it.isNotEmpty() }
+                    )
+                    if (parts.isNotEmpty()) _locationDisplay.value = parts.joinToString(", ")
+                }
+                _selectedPreference.value = result?.dietPreference?.takeIf { it.isNotEmpty() } ?: "NONE"
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {
@@ -60,15 +79,62 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun saveProfile(name: String, location: String, allergies: List<String>) {
+    /** Reverse-geocodes device coordinates, updates display and persists to API. */
+    fun updateLocation(lat: Double, lng: Double) {
+        val userId = ApiClient.getTokenManager().userId ?: return
+        viewModelScope.launch {
+            try {
+                val result = withContext(Dispatchers.IO) {
+                    NominatimApi.instance.reverse(lat, lng, "json", 1)
+                }
+                val addr = result.address
+                val city = addr?.city ?: addr?.town ?: addr?.village ?: ""
+                val countryCode = addr?.countryCode?.uppercase() ?: ""
+                val parts = listOf(city, countryCode).filter { it.isNotEmpty() }
+                _locationDisplay.value = parts.joinToString(", ")
+
+                val addressDto = AddressDto(
+                    fullAddress = result.displayName,
+                    city = city.ifEmpty { null },
+                    country = countryCode.ifEmpty { null },
+                    lat = lat,
+                    lng = lng
+                )
+                userRepository.updateProfile(userId, UpdateProfileRequest(address = addressDto))
+            } catch (e: Exception) {
+                _error.value = "Could not detect location: ${e.localizedMessage}"
+            }
+        }
+    }
+
+    fun uploadProfileImage(bytes: ByteArray, mimeType: String) {
+        viewModelScope.launch {
+            _loading.value = true
+            try {
+                val url = userRepository.uploadProfileImage(bytes, mimeType)
+                if (url != null) {
+                    _profileImageUrl.value = url
+                } else {
+                    _error.value = "Failed to upload image"
+                }
+            } catch (e: Exception) {
+                _error.value = e.message
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+
+    fun saveProfile(name: String, allergies: List<String>) {
         val userId = ApiClient.getTokenManager().userId ?: return
         viewModelScope.launch {
             _loading.value = true
             try {
                 val request = UpdateProfileRequest(
                     displayName = name,
-                    address = AddressDto(fullAddress = location),
-                    allergies = allergies
+                    profileImage = _profileImageUrl.value,
+                    allergies = allergies,
+                    dietPreference = _selectedPreference.value
                 )
                 val result = userRepository.updateProfile(userId, request)
                 _user.value = result
