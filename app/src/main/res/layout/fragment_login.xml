@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="@string/email_or_username"
+            android:text="@string/email_label"
             android:textColor="@color/black"
             android:textSize="14sp"
             android:textStyle="bold" />

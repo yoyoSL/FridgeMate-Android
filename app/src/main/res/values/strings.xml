@@ -3,7 +3,7 @@
 
     <!-- Login Screen -->
     <string name="welcome_back">Welcome Back</string>
-    <string name="email_or_username">Email or Username</string>
+    <string name="email_label">Email</string>
     <string name="hint_email">Enter your email</string>
     <string name="password">Password</string>
     <string name="hint_password">Enter your password</string>
