@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="@drawable/bg_popup_menu">
+
+    <View
+        android:layout_width="32dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_step_number"
+        android:backgroundTint="@color/divider_color" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnEdit"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="start|center_vertical"
+        android:text="@string/edit_post"
+        android:textColor="@color/popup_text"
+        android:textSize="16sp"
+        app:icon="@drawable/ic_edit"
+        app:iconPadding="16dp"
+        app:iconTint="@color/popup_icon_tint"
+        app:rippleColor="#10000000" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDelete"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="start|center_vertical"
+        android:text="@string/delete_post"
+        android:textColor="@color/popup_logout_text"
+        android:textSize="16sp"
+        app:icon="@drawable/ic_delete"
+        app:iconPadding="16dp"
+        app:iconTint="@color/popup_logout_text"
+        app:rippleColor="#10D32F2F" />
+
+</LinearLayout>

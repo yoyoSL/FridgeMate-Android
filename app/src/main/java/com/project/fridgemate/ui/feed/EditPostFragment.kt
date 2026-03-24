@@ -15,6 +15,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentEditPostBinding
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.launch
@@ -40,6 +41,7 @@ class EditPostFragment : Fragment() {
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
                 binding.ivPostImage.setImageURI(it)
+                binding.layoutChangeImage.visibility = View.GONE
                 extractImageBytes(it)
             }
         }
@@ -48,6 +50,7 @@ class EditPostFragment : Fragment() {
         registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
             bitmap?.let {
                 binding.ivPostImage.setImageBitmap(it)
+                binding.layoutChangeImage.visibility = View.GONE
                 val baos = ByteArrayOutputStream()
                 it.compress(Bitmap.CompressFormat.JPEG, 85, baos)
                 selectedImageBytes = baos.toByteArray()
@@ -58,7 +61,7 @@ class EditPostFragment : Fragment() {
     private val requestCameraPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) takePictureLauncher.launch(null)
-            else Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+            else Toast.makeText(context, getString(R.string.camera_permission_denied), Toast.LENGTH_SHORT).show()
         }
 
     private val requestGalleryPermission =
@@ -88,6 +91,7 @@ class EditPostFragment : Fragment() {
 
         if (currentImageUrl.isNotEmpty()) {
             Picasso.get().load(currentImageUrl).into(binding.ivPostImage)
+            binding.layoutChangeImage.visibility = View.GONE
         }
 
         val recipeName = args.linkedRecipeName
@@ -104,7 +108,7 @@ class EditPostFragment : Fragment() {
             binding.tvRecipePreviewInfo.text = info
         }
 
-        binding.btnBack.setOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
 
@@ -115,12 +119,25 @@ class EditPostFragment : Fragment() {
         binding.btnSave.setOnClickListener {
             saveChanges()
         }
+        
+        feedViewModel.updateSuccess.observe(viewLifecycleOwner) { success ->
+            if (success == true) {
+                feedViewModel.resetUpdateState()
+                findNavController().navigateUp()
+            } else if (success == false) {
+                binding.btnSave.isEnabled = true
+                feedViewModel.resetUpdateState()
+            }
+        }
     }
 
     private fun showImageSourceDialog() {
-        val options = arrayOf("📷 Camera", "🖼️ Gallery")
+        val options = arrayOf(
+            getString(R.string.source_camera),
+            getString(R.string.source_gallery)
+        )
         AlertDialog.Builder(requireContext())
-            .setTitle("Choose image source")
+            .setTitle(getString(R.string.choose_image_source))
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> requestCameraPermission.launch(Manifest.permission.CAMERA)
@@ -135,11 +152,11 @@ class EditPostFragment : Fragment() {
         val newDescription = binding.etDescription.text.toString().trim()
 
         if (newTitle.isEmpty()) {
-            binding.etRecipeTitle.error = "Please add a title"
+            binding.etRecipeTitle.error = getString(R.string.error_enter_title)
             return
         }
         if (newDescription.isEmpty()) {
-            binding.etDescription.error = "Please add a description"
+            binding.etDescription.error = getString(R.string.error_enter_description)
             return
         }
 
@@ -153,8 +170,6 @@ class EditPostFragment : Fragment() {
             }
 
             feedViewModel.editPost(postId, newTitle, newDescription, imageUrl)
-            Toast.makeText(context, "Post updated!", Toast.LENGTH_SHORT).show()
-            findNavController().navigateUp()
         }
     }
 
@@ -166,7 +181,7 @@ class EditPostFragment : Fragment() {
                 selectedImageBytes = stream.readBytes()
             }
         } catch (e: Exception) {
-            Toast.makeText(context, "Failed to read image", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.error_read_image), Toast.LENGTH_SHORT).show()
         }
     }
 
