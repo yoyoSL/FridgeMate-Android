@@ -144,7 +144,7 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
             val response = recipeApi.getRecipeById(serverId)
             if (response.isSuccessful) {
                 val dto = response.body()!!
-                val entity = dto.toEntity(RecipeEntity.TYPE_RECOMMENDED)
+                val entity = dto.toEntity(RecipeEntity.TYPE_FEED)
                 val roomId = recipeDao.insert(entity)
                 Result.success(entity.copy(id = roomId))
             } else {
