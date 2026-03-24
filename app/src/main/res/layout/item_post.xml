@@ -1,247 +1,284 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="16dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="@color/white">
+    app:cardElevation="4dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:paddingBottom="12dp">
 
-        <!-- Header:-->
+        <!-- Author Profile Photo -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivUserPhoto"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_person"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/CircleImage" />
+
+        <!-- Author Info Block: Centered vertically to the photo -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/layoutUserInfo"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginStart="10dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="@id/ivUserPhoto"
+            app:layout_constraintEnd_toStartOf="@+id/btnMoreOptions"
+            app:layout_constraintStart_toEndOf="@id/ivUserPhoto"
+            app:layout_constraintTop_toTopOf="@id/ivUserPhoto">
+
+            <TextView
+                android:id="@+id/tvUserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="Sarah Johnson" />
+
+            <TextView
+                android:id="@+id/tvUserLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:textColor="@color/gray_text"
+                android:textSize="12sp"
+                tools:text="New York, NY" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnMoreOptions"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_more_vert"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/ivUserPhoto"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/ivUserPhoto"
+            app:tint="@color/gray_text" />
+
+        <!-- Post Image -->
+        <ImageView
+            android:id="@+id/ivPostImage"
+            android:layout_width="0dp"
+            android:layout_height="220dp"
+            android:layout_marginTop="12dp"
+            android:scaleType="centerCrop"
+            android:src="@color/light_teal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivUserPhoto" />
+
+        <!-- Post Title -->
+        <TextView
+            android:id="@+id/tvRecipeTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="12dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivPostImage"
+            tools:text="Creamy Tuscan Chicken" />
+
+        <!-- Post Description -->
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/gray_text"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvRecipeTitle"
+            tools:text="Just made this amazing dish!" />
+
+        <!-- Linked Recipe Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardLinkedRecipe"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/light_teal"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDescription"
+            app:strokeColor="@color/light_teal"
+            app:strokeWidth="1dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp">
+
+                <ImageView
+                    android:id="@+id/ivRecipeThumb"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="centerCrop"
+                    android:src="@color/teal_primary"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvLinkedRecipeTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:textColor="@color/dark_teal"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toStartOf="@+id/ivChevron"
+                    app:layout_constraintStart_toEndOf="@id/ivRecipeThumb"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Recipe Title" />
+
+                <TextView
+                    android:id="@+id/tvLinkedRecipeInfo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:textColor="@color/gray_text"
+                    android:textSize="11sp"
+                    app:layout_constraintEnd_toStartOf="@+id/ivChevron"
+                    app:layout_constraintStart_toEndOf="@id/ivRecipeThumb"
+                    app:layout_constraintTop_toBottomOf="@id/tvLinkedRecipeTitle"
+                    tools:text="25 min · Easy" />
+
+                <ImageView
+                    android:id="@+id/ivChevron"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/teal_primary" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/contentBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="tvDescription,cardLinkedRecipe" />
+
+        <!-- Actions -->
+        <ImageButton
+            android:id="@+id/btnLike"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="10dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_heart_outline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/contentBarrier" />
+
+        <TextView
+            android:id="@+id/tvLikesCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toBottomOf="@id/btnLike"
+            app:layout_constraintStart_toEndOf="@id/btnLike"
+            app:layout_constraintTop_toTopOf="@id/btnLike"
+            tools:text="42" />
+
+        <ImageButton
+            android:id="@+id/btnComment"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="16dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_comments"
+            app:layout_constraintStart_toEndOf="@id/tvLikesCount"
+            app:layout_constraintTop_toTopOf="@id/btnLike" />
+
+        <TextView
+            android:id="@+id/tvCommentsCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toBottomOf="@id/btnComment"
+            app:layout_constraintStart_toEndOf="@id/btnComment"
+            app:layout_constraintTop_toTopOf="@id/btnComment"
+            tools:text="8" />
+
+        <!-- Comments List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvComments"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:nestedScrollingEnabled="false"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnLike" />
+
+        <!-- Add Comment Area: Zero top margin to sit tight under the list -->
+        <LinearLayout
+            android:id="@+id/layoutAddComment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
             android:gravity="center_vertical"
-            android:padding="12dp">
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingBottom="12dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rvComments">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ivUserPhoto"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_person"
-                app:shapeAppearanceOverlay="@style/CircleImage" />
-
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etComment"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="10dp">
-
-                <TextView
-                    android:id="@+id/tvUserName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Sarah Johnson"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvUserLocation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="New York, NY"
-                    android:textSize="12sp"
-                    android:textColor="@color/gray_text" />
-
-            </LinearLayout>
-            <ImageButton
-                android:id="@+id/btnMoreOptions"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_more_vert"
-                android:visibility="gone"
-                app:tint="@color/gray_text" />
+                android:hint="Add a comment..."
+                android:inputType="text"
+                android:paddingVertical="8dp"
+                android:textSize="14sp" />
+
+            <ImageButton
+                android:id="@+id/btnSendComment"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_send"
+                app:tint="@color/teal_primary" />
         </LinearLayout>
 
-        <!-- Post pic -->
-        <ImageView
-            android:id="@+id/ivPostImage"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:scaleType="centerCrop"
-            android:src="@color/light_teal" />
-
-        <!-- Post Content -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="12dp">
-
-            <!-- Title -->
-            <TextView
-                android:id="@+id/tvRecipeTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Creamy Tuscan Chicken"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <!-- Description -->
-            <TextView
-                android:id="@+id/tvDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Just made this amazing dish!"
-                android:textSize="13sp"
-                android:textColor="@color/gray_text"
-                android:layout_marginTop="6dp" />
-
-            <!-- Linked Recipe Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardLinkedRecipe"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:visibility="gone"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                app:strokeColor="@color/light_teal"
-                app:strokeWidth="1dp"
-                app:cardBackgroundColor="@color/light_teal">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:padding="10dp">
-
-                    <ImageView
-                        android:id="@+id/ivRecipeThumb"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:scaleType="centerCrop"
-                        android:src="@color/teal_primary" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="10dp">
-
-                        <TextView
-                            android:id="@+id/tvLinkedRecipeTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="13sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/dark_teal" />
-
-                        <TextView
-                            android:id="@+id/tvLinkedRecipeInfo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="11sp"
-                            android:textColor="@color/gray_text" />
-
-                    </LinearLayout>
-
-                    <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:src="@drawable/ic_chevron_right"
-                        app:tint="@color/teal_primary" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- likes and comments -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="10dp"
-                android:gravity="center_vertical">
-
-                <!-- Like -->
-                <ImageButton
-                    android:id="@+id/btnLike"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_heart_outline" />
-
-                <TextView
-                    android:id="@+id/tvLikesCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="42"
-                    android:textSize="13sp"
-                    android:layout_marginStart="4dp" />
-
-                <!-- comments-->
-                <ImageButton
-                    android:id="@+id/btnComment"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_comments"
-                    android:layout_marginStart="16dp" />
-
-                <TextView
-                    android:id="@+id/tvCommentsCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="8"
-                    android:textSize="13sp"
-                    android:layout_marginStart="4dp" />
-
-            </LinearLayout>
-
-            <!-- Comments RecyclerView -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvComments"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:layout_marginTop="8dp"
-                android:nestedScrollingEnabled="false" />
-            <!-- add comment -->
-            <LinearLayout
-                android:id="@+id/layoutAddComment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etComment"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Add a comment..."
-                    android:inputType="text" />
-
-                <ImageButton
-                    android:id="@+id/btnSendComment"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_send"
-                    android:layout_marginStart="8dp"
-                    app:tint="@color/teal_primary" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

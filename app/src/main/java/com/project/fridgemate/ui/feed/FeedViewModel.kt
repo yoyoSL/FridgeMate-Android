@@ -32,7 +32,7 @@ data class Post(
     val likesCount: Int,
     val commentsCount: Int,
     val imageUrl: String = "",
-    val isLiked: Boolean = false,
+    var isLiked: Boolean = false,
     val comments: List<Comment> = emptyList(),
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
@@ -61,8 +61,15 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
     private val _error = MutableLiveData<String?>(null)
     val error: LiveData<String?> = _error
 
+    private val _updateSuccess = MutableLiveData<Boolean?>(null)
+    val updateSuccess: LiveData<Boolean?> = _updateSuccess
+
     init {
         loadPosts()
+    }
+
+    fun resetUpdateState() {
+        _updateSuccess.value = null
     }
 
     fun loadPosts() {
@@ -164,10 +171,22 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
             )
             when (val result = repository.updatePost(postId, request)) {
                 is FridgeResult.Success -> {
-                    loadPosts()
+                    _posts.value = _posts.value?.map {
+                        if (it.id == postId) {
+                            it.copy(
+                                postTitle = newTitle,
+                                description = newDescription,
+                                imageUrl = mediaUrls?.firstOrNull() ?: it.imageUrl
+                            )
+                        } else {
+                            it
+                        }
+                    }
+                    _updateSuccess.value = true
                 }
                 is FridgeResult.Error -> {
                     _error.value = result.message
+                    _updateSuccess.value = false
                     Log.e("FeedViewModel", "editPost error: ${result.message}")
                 }
                 else -> {}

@@ -61,45 +61,41 @@ class FeedFragment : Fragment() {
 
     private fun setupPosts() {
         binding.rvPosts.layoutManager = LinearLayoutManager(requireContext())
+        postAdapter = PostAdapter(
+            onLikeClick = { post -> viewModel.toggleLike(post) },
+            onAddComment = { postId, text -> viewModel.addComment(postId, text) },
+            onDeleteClick = { post -> viewModel.deletePost(post.id) },
+            onEditClick = { post ->
+                val action = DashboardFragmentDirections
+                    .actionDashboardFragmentToEditPostFragment(
+                        postId = post.id,
+                        postTitle = post.postTitle,
+                        postDescription = post.description,
+                        postImageUrl = post.imageUrl,
+                        linkedRecipeName = post.linkedRecipe?.title ?: "",
+                        linkedRecipeTime = post.linkedRecipe?.cookingTime ?: "",
+                        linkedRecipeDifficulty = post.linkedRecipe?.difficulty ?: ""
+                    )
+                requireParentFragment().findNavController().navigate(action)
+            },
+            onDeleteComment = { postId, commentId -> viewModel.deleteComment(postId, commentId) },
+            onEditComment = { postId, commentId, newText -> viewModel.editComment(postId, commentId, newText) },
+            onExpandComments = { postId -> viewModel.loadComments(postId) },
+            onRecipeClick = { recipe ->
+                val action = DashboardFragmentDirections
+                    .actionDashboardFragmentToRecipeDetailFragment(
+                        serverRecipeId = recipe.id
+                    )
+                requireParentFragment().findNavController().navigate(action)
+            }
+        )
+        binding.rvPosts.adapter = postAdapter
 
         viewModel.posts.observe(viewLifecycleOwner) { posts ->
             updateEmptyState(posts)
             
             if (posts.isNotEmpty()) {
-                if (postAdapter == null) {
-                    postAdapter = PostAdapter(
-                        posts = posts,
-                        onLikeClick = { post -> viewModel.toggleLike(post) },
-                        onAddComment = { postId, text -> viewModel.addComment(postId, text) },
-                        onDeleteClick = { post -> viewModel.deletePost(post.id) },
-                        onEditClick = { post ->
-                            val action = DashboardFragmentDirections
-                                .actionDashboardFragmentToEditPostFragment(
-                                    postId = post.id,
-                                    postTitle = post.postTitle,
-                                    postDescription = post.description,
-                                    postImageUrl = post.imageUrl,
-                                    linkedRecipeName = post.linkedRecipe?.title ?: "",
-                                    linkedRecipeTime = post.linkedRecipe?.cookingTime ?: "",
-                                    linkedRecipeDifficulty = post.linkedRecipe?.difficulty ?: ""
-                                )
-                            requireParentFragment().findNavController().navigate(action)
-                        },
-                        onDeleteComment = { postId, commentId -> viewModel.deleteComment(postId, commentId) },
-                        onEditComment = { postId, commentId, newText -> viewModel.editComment(postId, commentId, newText) },
-                        onExpandComments = { postId -> viewModel.loadComments(postId) },
-                        onRecipeClick = { recipe ->
-                            val action = DashboardFragmentDirections
-                                .actionDashboardFragmentToRecipeDetailFragment(
-                                    serverRecipeId = recipe.id
-                                )
-                            requireParentFragment().findNavController().navigate(action)
-                        }
-                    )
-                    binding.rvPosts.adapter = postAdapter
-                } else {
-                    postAdapter?.updatePosts(posts)
-                }
+                postAdapter?.submitList(posts)
             }
         }
     }

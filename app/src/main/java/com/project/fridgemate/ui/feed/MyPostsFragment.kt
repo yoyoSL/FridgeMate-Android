@@ -40,6 +40,35 @@ class MyPostsFragment : Fragment() {
 
     private fun setupPosts() {
         binding.rvMyPosts.layoutManager = LinearLayoutManager(requireContext())
+        postAdapter = PostAdapter(
+            onLikeClick = { post -> viewModel.toggleLike(post) },
+            onAddComment = { postId, text -> viewModel.addComment(postId, text) },
+            onDeleteClick = { post -> viewModel.deletePost(post.id) },
+            onEditClick = { post ->
+                val action = MyPostsFragmentDirections
+                    .actionMyPostsFragmentToEditPostFragment(
+                        postId = post.id,
+                        postTitle = post.postTitle,
+                        postDescription = post.description,
+                        postImageUrl = post.imageUrl,
+                        linkedRecipeName = post.linkedRecipe?.title ?: "",
+                        linkedRecipeTime = post.linkedRecipe?.cookingTime ?: "",
+                        linkedRecipeDifficulty = post.linkedRecipe?.difficulty ?: ""
+                    )
+                findNavController().navigate(action)
+            },
+            onDeleteComment = { postId, commentId -> viewModel.deleteComment(postId, commentId) },
+            onEditComment = { postId, commentId, newText -> viewModel.editComment(postId, commentId, newText) },
+            onExpandComments = { postId -> viewModel.loadComments(postId) },
+            onRecipeClick = { recipe ->
+                val action = MyPostsFragmentDirections
+                    .actionMyPostsFragmentToRecipeDetailFragment(
+                        serverRecipeId = recipe.id
+                    )
+                findNavController().navigate(action)
+            }
+        )
+        binding.rvMyPosts.adapter = postAdapter
 
         viewModel.posts.observe(viewLifecycleOwner) { allPosts ->
             val myPosts = allPosts.filter { it.isOwner }
@@ -52,41 +81,7 @@ class MyPostsFragment : Fragment() {
             } else {
                 binding.rvMyPosts.visibility = View.VISIBLE
                 binding.emptyState.visibility = View.GONE
-
-                if (postAdapter == null) {
-                    postAdapter = PostAdapter(
-                        posts = myPosts,
-                        onLikeClick = { post -> viewModel.toggleLike(post) },
-                        onAddComment = { postId, text -> viewModel.addComment(postId, text) },
-                        onDeleteClick = { post -> viewModel.deletePost(post.id) },
-                        onEditClick = { post ->
-                            val action = MyPostsFragmentDirections
-                                .actionMyPostsFragmentToEditPostFragment(
-                                    postId = post.id,
-                                    postTitle = post.postTitle,
-                                    postDescription = post.description,
-                                    postImageUrl = post.imageUrl,
-                                    linkedRecipeName = post.linkedRecipe?.title ?: "",
-                                    linkedRecipeTime = post.linkedRecipe?.cookingTime ?: "",
-                                    linkedRecipeDifficulty = post.linkedRecipe?.difficulty ?: ""
-                                )
-                            findNavController().navigate(action)
-                        },
-                        onDeleteComment = { postId, commentId -> viewModel.deleteComment(postId, commentId) },
-                        onEditComment = { postId, commentId, newText -> viewModel.editComment(postId, commentId, newText) },
-                        onExpandComments = { postId -> viewModel.loadComments(postId) },
-                        onRecipeClick = { recipe ->
-                            val action = MyPostsFragmentDirections
-                                .actionMyPostsFragmentToRecipeDetailFragment(
-                                    serverRecipeId = recipe.id
-                                )
-                            findNavController().navigate(action)
-                        }
-                    )
-                    binding.rvMyPosts.adapter = postAdapter
-                } else {
-                    postAdapter?.updatePosts(myPosts)
-                }
+                postAdapter?.submitList(myPosts)
             }
         }
 

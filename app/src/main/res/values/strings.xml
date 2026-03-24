@@ -24,7 +24,6 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="hint_confirm_password">Confirm your password</string>
     <string name="already_have_account">Already have an account? </string>
-    <string name="hint_location">Enter your city or address (optional)</string>
 
     <!-- Forgot Password Screen -->
     <string name="forgot_password_title">Forgot Password</string>
@@ -143,6 +142,22 @@
     <string name="add_photo">Add Photo</string>
     <string name="change_photo">Change Photo</string>
     <string name="no_posts_map">No posts found in this area</string>
+
+    <!-- Add Post Screen -->
+    <string name="error_enter_title">Please add a title</string>
+    <string name="error_enter_description">Please add a description</string>
+    <string name="source_camera">📷 Camera</string>
+    <string name="source_gallery">🖼️ Gallery</string>
+    <string name="choose_image_source">Choose image source</string>
+    <string name="camera_permission_denied">Camera permission denied</string>
+    <string name="error_read_image">Failed to read image</string>
+    <string name="post_description_hint">Share your cooking experience</string>
+    <string name="linked_recipe">Linked Recipe</string>
+
+    <string name="delete_post">Delete Post</string>
+    <string name="delete_post_confirmation">Are you sure you want to delete this post?</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
 
     <!-- Dietary Preferences -->
     <string name="dietary_preferences">Dietary Preferences</string>

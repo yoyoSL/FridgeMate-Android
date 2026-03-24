@@ -16,6 +16,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentAddPostBinding
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
@@ -34,6 +35,7 @@ class AddPostFragment : Fragment() {
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
                 binding.ivPostImage.setImageURI(it)
+                binding.layoutAddImage.visibility = View.GONE
                 extractImageBytes(it)
             }
         }
@@ -42,6 +44,7 @@ class AddPostFragment : Fragment() {
         registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
             bitmap?.let {
                 binding.ivPostImage.setImageBitmap(it)
+                binding.layoutAddImage.visibility = View.GONE
                 val baos = ByteArrayOutputStream()
                 it.compress(Bitmap.CompressFormat.JPEG, 85, baos)
                 selectedImageBytes = baos.toByteArray()
@@ -52,7 +55,7 @@ class AddPostFragment : Fragment() {
     private val requestCameraPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) takePictureLauncher.launch(null)
-            else Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+            else Toast.makeText(context, getString(R.string.camera_permission_denied), Toast.LENGTH_SHORT).show()
         }
 
     private val requestGalleryPermission =
@@ -72,7 +75,7 @@ class AddPostFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnBack.setOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
 
@@ -107,9 +110,12 @@ class AddPostFragment : Fragment() {
     }
 
     private fun showImageSourceDialog() {
-        val options = arrayOf("📷 Camera", "🖼️ Gallery")
+        val options = arrayOf(
+            getString(R.string.source_camera),
+            getString(R.string.source_gallery)
+        )
         AlertDialog.Builder(requireContext())
-            .setTitle("Choose image source")
+            .setTitle(getString(R.string.choose_image_source))
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> requestCameraPermission.launch(Manifest.permission.CAMERA)
@@ -124,11 +130,11 @@ class AddPostFragment : Fragment() {
         val description = binding.etDescription.text.toString().trim()
 
         if (title.isEmpty()) {
-            binding.etRecipeTitle.error = "Please add a title"
+            binding.etRecipeTitle.error = getString(R.string.error_enter_title)
             return
         }
         if (description.isEmpty()) {
-            binding.etDescription.error = "Please add a description"
+            binding.etDescription.error = getString(R.string.error_enter_description)
             return
         }
 
@@ -143,7 +149,6 @@ class AddPostFragment : Fragment() {
 
             val recipeId = args.prefillRecipeId.ifEmpty { null }
             feedViewModel.addPost(title, description, imageUrl, recipeId)
-            Toast.makeText(context, "Post added!", Toast.LENGTH_SHORT).show()
             findNavController().navigateUp()
         }
     }
@@ -156,7 +161,7 @@ class AddPostFragment : Fragment() {
                 selectedImageBytes = stream.readBytes()
             }
         } catch (e: Exception) {
-            Toast.makeText(context, "Failed to read image", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.error_read_image), Toast.LENGTH_SHORT).show()
         }
     }
 
