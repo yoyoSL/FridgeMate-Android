@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.DialogPostOptionsBinding
 import com.project.fridgemate.databinding.ItemPostBinding
@@ -65,7 +66,18 @@ class PostAdapter(
 
             tvUserName.text = post.userName
             tvUserLocation.text = post.userLocation
-            ivUserPhoto.setImageResource(R.drawable.ic_person)
+            if (post.authorImageUrl.isNotEmpty()) {
+                val url = if (post.authorImageUrl.startsWith("/"))
+                    BuildConfig.BASE_URL.trimEnd('/') + post.authorImageUrl
+                else post.authorImageUrl
+                Picasso.get()
+                    .load(url)
+                    .placeholder(R.drawable.ic_person)
+                    .error(R.drawable.ic_person)
+                    .into(ivUserPhoto)
+            } else {
+                ivUserPhoto.setImageResource(R.drawable.ic_person)
+            }
 
             if (post.imageUrl.isNotEmpty()) {
                 ivPostImage.visibility = View.VISIBLE

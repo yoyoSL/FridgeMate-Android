@@ -32,6 +32,7 @@ data class Post(
     val likesCount: Int,
     val commentsCount: Int,
     val imageUrl: String = "",
+    val authorImageUrl: String = "",
     var isLiked: Boolean = false,
     val comments: List<Comment> = emptyList(),
     val latitude: Double = 0.0,
@@ -45,6 +46,7 @@ data class Comment(
     val postId: String,
     val userName: String,
     val text: String,
+    val authorImageUrl: String = "",
     val isOwner: Boolean = false
 )
 
@@ -333,6 +335,7 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
             likesCount = likesCount,
             commentsCount = commentsCount,
             imageUrl = mediaUrls.firstOrNull() ?: "",
+            authorImageUrl = authorUserId.profileImage ?: "",
             isLiked = isLiked,
             isOwner = isOwner,
             latitude = lat,
@@ -347,6 +350,7 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
             postId = postId,
             userName = authorUserId.displayName,
             text = text,
+            authorImageUrl = authorUserId.profileImage ?: "",
             isOwner = isOwner
         )
     }

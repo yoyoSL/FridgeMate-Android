@@ -126,6 +126,19 @@ class MapViewFragment : Fragment() {
         binding.tvLikes.text = "${post.likesCount} likes"
         binding.tvComments.text = "${post.commentsCount} comments"
 
+        if (post.authorImageUrl.isNotEmpty()) {
+            val avatarUrl = if (post.authorImageUrl.startsWith("/"))
+                BuildConfig.BASE_URL.trimEnd('/') + post.authorImageUrl
+            else post.authorImageUrl
+            Picasso.get()
+                .load(avatarUrl)
+                .placeholder(R.drawable.ic_person)
+                .error(R.drawable.ic_person)
+                .into(binding.ivUserAvatar)
+        } else {
+            binding.ivUserAvatar.setImageResource(R.drawable.ic_person)
+        }
+
         if (post.imageUrl.isNotEmpty()) {
             binding.ivPostImage.visibility = View.VISIBLE
             val fullUrl = if (post.imageUrl.startsWith("/")) {
