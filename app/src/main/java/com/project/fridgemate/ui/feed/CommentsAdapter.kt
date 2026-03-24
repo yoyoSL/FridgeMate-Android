@@ -1,11 +1,13 @@
 package com.project.fridgemate.ui.feed
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.ItemCommentBinding
-import android.view.View
+import com.squareup.picasso.Picasso
 
 class CommentAdapter(
     private val comments: List<Comment>,
@@ -28,7 +30,18 @@ class CommentAdapter(
         with(holder.binding) {
             tvCommentUserName.text = comment.userName
             tvCommentText.text = comment.text
-            ivCommentUserPhoto.setImageResource(R.drawable.ic_person)
+            if (comment.authorImageUrl.isNotEmpty()) {
+                val url = if (comment.authorImageUrl.startsWith("/"))
+                    BuildConfig.BASE_URL.trimEnd('/') + comment.authorImageUrl
+                else comment.authorImageUrl
+                Picasso.get()
+                    .load(url)
+                    .placeholder(R.drawable.ic_person)
+                    .error(R.drawable.ic_person)
+                    .into(ivCommentUserPhoto)
+            } else {
+                ivCommentUserPhoto.setImageResource(R.drawable.ic_person)
+            }
             if (comment.isOwner) {
                 btnCommentOptions.visibility = View.VISIBLE
                 btnCommentOptions.setOnClickListener {
