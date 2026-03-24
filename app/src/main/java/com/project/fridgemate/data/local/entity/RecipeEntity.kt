@@ -25,5 +25,6 @@ data class RecipeEntity(
     companion object {
         const val TYPE_RECOMMENDED = "RECOMMENDED"
         const val TYPE_FAVORITE = "FAVORITE"
+        const val TYPE_FEED = "FEED"
     }
 }
