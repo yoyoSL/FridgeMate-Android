@@ -19,6 +19,7 @@ import com.project.fridgemate.MainActivity
 import com.project.fridgemate.R
 import com.squareup.picasso.Picasso
 import com.project.fridgemate.data.local.AppDatabase
+import com.project.fridgemate.data.remote.ApiClient
 import com.project.fridgemate.data.repository.AuthRepository
 import com.project.fridgemate.databinding.FragmentDashboardBinding
 import com.project.fridgemate.databinding.PopupProfileMenuBinding
@@ -48,6 +49,11 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (!ApiClient.getTokenManager().isLoggedIn) {
+            findNavController().navigate(R.id.action_dashboardFragment_to_authFragment)
+            return
+        }
 
         if (savedInstanceState != null) {
             currentTabId = savedInstanceState.getInt("selected_tab_id", R.id.tab_feed)
