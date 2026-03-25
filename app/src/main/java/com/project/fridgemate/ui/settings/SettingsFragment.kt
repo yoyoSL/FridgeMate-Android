@@ -145,12 +145,20 @@ class SettingsFragment : Fragment() {
         }
 
         binding.btnCreateFridge.setOnClickListener {
-            val name = binding.etFridgeName.text.toString()
+            val name = binding.etFridgeName.text.toString().trim()
+            if (name.isEmpty()) {
+                binding.etFridgeName.error = "Please enter a fridge name"
+                return@setOnClickListener
+            }
             viewModel.createFridge(name)
         }
 
         binding.btnJoinFridge.setOnClickListener {
-            val code = binding.etInviteCode.text.toString()
+            val code = binding.etInviteCode.text.toString().trim()
+            if (code.isEmpty()) {
+                binding.etInviteCode.error = "Please enter an invite code"
+                return@setOnClickListener
+            }
             viewModel.joinFridge(code)
         }
     }

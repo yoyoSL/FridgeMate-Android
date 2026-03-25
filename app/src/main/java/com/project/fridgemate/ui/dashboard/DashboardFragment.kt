@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +19,7 @@ import com.project.fridgemate.MainActivity
 import com.project.fridgemate.R
 import com.squareup.picasso.Picasso
 import com.project.fridgemate.data.local.AppDatabase
+import com.project.fridgemate.data.remote.ApiClient
 import com.project.fridgemate.data.repository.AuthRepository
 import com.project.fridgemate.databinding.FragmentDashboardBinding
 import com.project.fridgemate.databinding.PopupProfileMenuBinding
@@ -33,7 +34,7 @@ class DashboardFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val authRepository = AuthRepository()
-    private val profileViewModel: ProfileViewModel by viewModels()
+    private val profileViewModel: ProfileViewModel by activityViewModels()
 
     private var currentTabId: Int = R.id.tab_feed
 
@@ -48,6 +49,11 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (!ApiClient.getTokenManager().isLoggedIn) {
+            findNavController().navigate(R.id.action_dashboardFragment_to_authFragment)
+            return
+        }
 
         if (savedInstanceState != null) {
             currentTabId = savedInstanceState.getInt("selected_tab_id", R.id.tab_feed)

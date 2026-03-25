@@ -74,6 +74,7 @@ class MyPostsFragment : Fragment() {
             val myPosts = allPosts.filter { it.isOwner }
 
             binding.progressBar.visibility = View.GONE
+            postAdapter?.submitList(myPosts)
 
             if (myPosts.isEmpty()) {
                 binding.rvMyPosts.visibility = View.GONE
@@ -81,13 +82,13 @@ class MyPostsFragment : Fragment() {
             } else {
                 binding.rvMyPosts.visibility = View.VISIBLE
                 binding.emptyState.visibility = View.GONE
-                postAdapter?.submitList(myPosts)
             }
         }
 
         viewModel.error.observe(viewLifecycleOwner) { error ->
             error?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel.clearError()
             }
         }
     }

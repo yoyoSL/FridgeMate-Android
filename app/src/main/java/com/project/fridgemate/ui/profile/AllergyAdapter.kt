@@ -29,6 +29,7 @@ class AllergyAdapter(
         holder.checkBox.isChecked = item.isChecked
 
         holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
+            item.isChecked = isChecked
             onToggle(item.name, isChecked)
         }
     }

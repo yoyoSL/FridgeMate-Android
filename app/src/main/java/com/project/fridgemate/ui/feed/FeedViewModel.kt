@@ -74,6 +74,10 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
         _updateSuccess.value = null
     }
 
+    fun clearError() {
+        _error.value = null
+    }
+
     fun loadPosts() {
         viewModelScope.launch {
             _isLoading.value = true

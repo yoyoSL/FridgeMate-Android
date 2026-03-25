@@ -145,6 +145,10 @@ class AddPostFragment : Fragment() {
             val bytes = selectedImageBytes
             if (bytes != null) {
                 imageUrl = feedViewModel.uploadImage(bytes, selectedMimeType)
+                if (imageUrl == null) {
+                    binding.btnPost.isEnabled = true
+                    return@launch
+                }
             }
 
             val recipeId = args.prefillRecipeId.ifEmpty { null }

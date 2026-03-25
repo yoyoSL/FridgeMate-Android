@@ -163,6 +163,10 @@ class MyProfileFragment : Fragment() {
         binding.btnChangePhoto.setOnClickListener { showImageSourceDialog() }
         binding.btnSaveChanges.setOnClickListener {
             val fullName = binding.etFullName.text.toString().trim()
+            if (fullName.isEmpty()) {
+                binding.etFullName.error = "Name cannot be empty"
+                return@setOnClickListener
+            }
             val allergies = allergyAdapter.getSelectedAllergies()
             profileViewModel.saveProfile(fullName, allergies)
         }
@@ -189,8 +193,9 @@ class MyProfileFragment : Fragment() {
 
         profileViewModel.saveSuccess.observe(viewLifecycleOwner) { success ->
             if (success) {
-                Toast.makeText(context, "Profile saved!", Toast.LENGTH_SHORT).show()
                 profileViewModel.clearSaveSuccess()
+                Toast.makeText(context, "Profile saved!", Toast.LENGTH_SHORT).show()
+                findNavController().navigateUp()
             }
         }
 
