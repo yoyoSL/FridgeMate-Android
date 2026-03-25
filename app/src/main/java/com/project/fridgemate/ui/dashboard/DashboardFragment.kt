@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +33,7 @@ class DashboardFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val authRepository = AuthRepository()
-    private val profileViewModel: ProfileViewModel by viewModels()
+    private val profileViewModel: ProfileViewModel by activityViewModels()
 
     private var currentTabId: Int = R.id.tab_feed
 
