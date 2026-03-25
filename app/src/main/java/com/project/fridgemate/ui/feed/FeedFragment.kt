@@ -92,11 +92,8 @@ class FeedFragment : Fragment() {
         binding.rvPosts.adapter = postAdapter
 
         viewModel.posts.observe(viewLifecycleOwner) { posts ->
+            postAdapter?.submitList(posts)
             updateEmptyState(posts)
-            
-            if (posts.isNotEmpty()) {
-                postAdapter?.submitList(posts)
-            }
         }
     }
 
