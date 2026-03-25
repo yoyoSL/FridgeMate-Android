@@ -125,6 +125,7 @@ class FeedFragment : Fragment() {
         viewModel.error.observe(viewLifecycleOwner) { error ->
             error?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel.clearError()
                 updateEmptyState(viewModel.posts.value ?: emptyList())
             }
         }
