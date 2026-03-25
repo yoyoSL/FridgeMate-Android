@@ -189,8 +189,8 @@ class MyProfileFragment : Fragment() {
 
         profileViewModel.saveSuccess.observe(viewLifecycleOwner) { success ->
             if (success) {
-                Toast.makeText(context, "Profile saved!", Toast.LENGTH_SHORT).show()
                 profileViewModel.clearSaveSuccess()
+                findNavController().navigate(R.id.action_myProfileFragment_to_dashboardFragment)
             }
         }
 
