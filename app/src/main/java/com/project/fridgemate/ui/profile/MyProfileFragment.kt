@@ -163,6 +163,10 @@ class MyProfileFragment : Fragment() {
         binding.btnChangePhoto.setOnClickListener { showImageSourceDialog() }
         binding.btnSaveChanges.setOnClickListener {
             val fullName = binding.etFullName.text.toString().trim()
+            if (fullName.isEmpty()) {
+                binding.etFullName.error = "Name cannot be empty"
+                return@setOnClickListener
+            }
             val allergies = allergyAdapter.getSelectedAllergies()
             profileViewModel.saveProfile(fullName, allergies)
         }

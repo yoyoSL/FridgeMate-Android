@@ -167,6 +167,10 @@ class EditPostFragment : Fragment() {
             val bytes = selectedImageBytes
             if (bytes != null) {
                 imageUrl = feedViewModel.uploadImage(bytes, selectedMimeType)
+                if (imageUrl == null) {
+                    binding.btnSave.isEnabled = true
+                    return@launch
+                }
             }
 
             feedViewModel.editPost(postId, newTitle, newDescription, imageUrl)

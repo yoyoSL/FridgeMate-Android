@@ -92,11 +92,8 @@ class FeedFragment : Fragment() {
         binding.rvPosts.adapter = postAdapter
 
         viewModel.posts.observe(viewLifecycleOwner) { posts ->
+            postAdapter?.submitList(posts)
             updateEmptyState(posts)
-            
-            if (posts.isNotEmpty()) {
-                postAdapter?.submitList(posts)
-            }
         }
     }
 
@@ -128,6 +125,7 @@ class FeedFragment : Fragment() {
         viewModel.error.observe(viewLifecycleOwner) { error ->
             error?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel.clearError()
                 updateEmptyState(viewModel.posts.value ?: emptyList())
             }
         }
