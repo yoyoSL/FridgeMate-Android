@@ -84,6 +84,7 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
             }
             is FridgeResult.NoFridge -> {
                 _noFridge.postValue(true)
+                repository.clearRecommendedCache()
                 null
             }
             is FridgeResult.Error -> {

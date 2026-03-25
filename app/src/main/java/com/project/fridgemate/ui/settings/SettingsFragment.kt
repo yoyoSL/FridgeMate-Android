@@ -14,6 +14,10 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.project.fridgemate.data.local.AppDatabase
+import com.project.fridgemate.data.local.entity.RecipeEntity
+import kotlinx.coroutines.launch
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -72,6 +76,7 @@ class SettingsFragment : Fragment() {
                     binding.cardSharedFridge.visibility = View.GONE
                     binding.cardNoFridge.visibility = View.VISIBLE
                     binding.cardFridgeScanner.visibility = View.GONE
+                    clearRecipeCache()
                 }
                 null -> {}
             }
@@ -191,6 +196,13 @@ class SettingsFragment : Fragment() {
         val mimeType = contentResolver.getType(uri) ?: "image/jpeg"
         val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: return
         viewModel.uploadFridgeScan(bytes, mimeType)
+    }
+
+    private fun clearRecipeCache() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val dao = AppDatabase.getInstance(requireActivity().application).recipeDao()
+            dao.deleteByType(RecipeEntity.TYPE_RECOMMENDED)
+        }
     }
 
     override fun onDestroyView() {
