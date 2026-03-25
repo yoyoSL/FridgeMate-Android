@@ -94,7 +94,8 @@
 
     <!-- Recipes Screen -->
     <string name="recipes_empty_title">Ready to cook?</string>
-    <string name="recipes_empty_desc">Add some ingredients to your fridge first, and we\'ll show you what you can make!</string>
+    <string name="recipes_empty_desc">Create or join a fridge to get started!</string>
+    <string name="recipes_fridge_empty_desc">Add some ingredients to your fridge first, and we\'ll show you what you can make!</string>
     <string name="no_recipes_yet">No recipes yet</string>
     <string name="recommended">Recommended</string>
     <string name="favorites">Favorites</string>

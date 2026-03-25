@@ -31,6 +31,9 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
     private val _noFridge = MutableLiveData(false)
     val noFridge: LiveData<Boolean> = _noFridge
 
+    private val _fridgeEmpty = MutableLiveData(false)
+    val fridgeEmpty: LiveData<Boolean> = _fridgeEmpty
+
     init {
         val dao = AppDatabase.getInstance(application).recipeDao()
         repository = RecipeRepository(dao)
@@ -55,18 +58,17 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
         dietPreference: String? = null
     ) {
         _error.value = null
-        _isLoading.value = true
         viewModelScope.launch {
             val ingredients = fetchFridgeIngredients()
             if (ingredients == null) {
-                _isLoading.value = false
                 return@launch
             }
             if (ingredients.isEmpty()) {
-                _isLoading.value = false
-                _error.value = "Your fridge is empty. Add items to generate recipes."
+                _fridgeEmpty.value = true
                 return@launch
             }
+            _fridgeEmpty.value = false
+            _isLoading.value = true
             val result = repository.fetchRecommended(ingredients, allergies, dietPreference)
             _isLoading.value = false
             if (result.isFailure) {

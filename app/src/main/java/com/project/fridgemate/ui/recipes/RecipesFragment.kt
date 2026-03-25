@@ -52,25 +52,16 @@ class RecipesFragment : Fragment() {
     }
 
     private fun observeDataState() {
-        viewModel.noFridge.observe(viewLifecycleOwner) {
-            updateVisibility()
-        }
-        viewModel.isLoading.observe(viewLifecycleOwner) {
-            updateVisibility()
-        }
-    }
-
-    private fun updateVisibility() {
-        val noFridge = viewModel.noFridge.value == true
-        val loading = viewModel.isLoading.value == true
-        if (noFridge && !loading) {
-            binding.emptyState.visibility = View.VISIBLE
-            binding.tabLayout.visibility = View.GONE
-            binding.viewPager.visibility = View.GONE
-        } else {
-            binding.emptyState.visibility = View.GONE
-            binding.tabLayout.visibility = View.VISIBLE
-            binding.viewPager.visibility = View.VISIBLE
+        viewModel.noFridge.observe(viewLifecycleOwner) { noFridge ->
+            if (noFridge) {
+                binding.emptyState.visibility = View.VISIBLE
+                binding.tabLayout.visibility = View.GONE
+                binding.viewPager.visibility = View.GONE
+            } else {
+                binding.emptyState.visibility = View.GONE
+                binding.tabLayout.visibility = View.VISIBLE
+                binding.viewPager.visibility = View.VISIBLE
+            }
         }
     }
 
