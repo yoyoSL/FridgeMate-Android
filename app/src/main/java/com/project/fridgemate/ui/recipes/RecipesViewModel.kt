@@ -28,6 +28,9 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
     private val _error = MutableLiveData<String?>(null)
     val error: LiveData<String?> = _error
 
+    private val _noFridge = MutableLiveData(false)
+    val noFridge: LiveData<Boolean> = _noFridge
+
     init {
         val dao = AppDatabase.getInstance(application).recipeDao()
         repository = RecipeRepository(dao)
@@ -41,6 +44,8 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             if (repository.isCacheExpired()) {
                 loadRecommended()
+            } else {
+                _noFridge.value = false
             }
         }
     }
@@ -50,16 +55,18 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
         dietPreference: String? = null
     ) {
         _error.value = null
+        _isLoading.value = true
         viewModelScope.launch {
             val ingredients = fetchFridgeIngredients()
             if (ingredients == null) {
+                _isLoading.value = false
                 return@launch
             }
             if (ingredients.isEmpty()) {
+                _isLoading.value = false
                 _error.value = "Your fridge is empty. Add items to generate recipes."
                 return@launch
             }
-            _isLoading.value = true
             val result = repository.fetchRecommended(ingredients, allergies, dietPreference)
             _isLoading.value = false
             if (result.isFailure) {
@@ -71,11 +78,12 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
     private suspend fun fetchFridgeIngredients(): List<String>? {
         return when (val fridgeResult = fridgeRepository.getMyFridge()) {
             is FridgeResult.Success -> {
+                _noFridge.postValue(false)
                 val items = inventoryRepository.getItems(fridgeResult.data.id)
                 items.map { it.name }
             }
             is FridgeResult.NoFridge -> {
-                _error.value = "No active fridge. Create or join a fridge first."
+                _noFridge.postValue(true)
                 null
             }
             is FridgeResult.Error -> {

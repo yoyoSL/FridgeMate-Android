@@ -101,7 +101,12 @@ class RecipeListFragment : Fragment() {
             binding.btnGenerate.visibility = View.VISIBLE
 
             viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
-                if (loading) showLoading() else hideLoading()
+                if (loading) {
+                    showLoading()
+                } else {
+                    hideLoading()
+                    updateEmptyState(adapter.itemCount == 0, type)
+                }
                 binding.btnGenerate.isEnabled = !loading
             }
 
@@ -119,12 +124,12 @@ class RecipeListFragment : Fragment() {
             binding.btnGenerate.setOnClickListener {
                 viewModel.loadRecommended()
             }
-
-            viewModel.loadRecommendedIfNeeded()
         }
     }
 
     private fun updateEmptyState(isEmpty: Boolean, type: String) {
+        if (type == TYPE_RECOMMENDED && viewModel.isLoading.value == true) return
+
         if (isEmpty) {
             if (type == TYPE_FAVORITES) {
                 showEmptyState(
