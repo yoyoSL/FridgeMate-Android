@@ -36,6 +36,7 @@ class MyPostsFragment : Fragment() {
         }
 
         setupPosts()
+        viewModel.loadMyPosts()
     }
 
     private fun setupPosts() {
@@ -70,13 +71,14 @@ class MyPostsFragment : Fragment() {
         )
         binding.rvMyPosts.adapter = postAdapter
 
-        viewModel.posts.observe(viewLifecycleOwner) { allPosts ->
-            val myPosts = allPosts.filter { it.isOwner }
+        viewModel.isMyPostsLoading.observe(viewLifecycleOwner) { loading ->
+            binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
+        }
 
-            binding.progressBar.visibility = View.GONE
+        viewModel.myPosts.observe(viewLifecycleOwner) { myPosts ->
             postAdapter?.submitList(myPosts)
 
-            if (myPosts.isEmpty()) {
+            if (myPosts.isEmpty() && viewModel.isMyPostsLoading.value != true) {
                 binding.rvMyPosts.visibility = View.GONE
                 binding.emptyState.visibility = View.VISIBLE
             } else {
