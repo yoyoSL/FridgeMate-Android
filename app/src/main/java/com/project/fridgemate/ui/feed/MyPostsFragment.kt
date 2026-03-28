@@ -77,6 +77,7 @@ class MyPostsFragment : Fragment() {
 
         viewModel.myPosts.observe(viewLifecycleOwner) { myPosts ->
             postAdapter?.submitList(myPosts)
+            { binding.rvMyPosts.scrollToPosition(0)}
 
             if (myPosts.isEmpty() && viewModel.isMyPostsLoading.value != true) {
                 binding.rvMyPosts.visibility = View.GONE
