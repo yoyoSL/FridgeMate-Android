@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.osmdroid)
     implementation(libs.play.services.location)
     implementation(libs.swiperefreshlayout)
+    implementation(libs.viewpager2)
 
     // Encrypted storage
     implementation(libs.androidx.security.crypto)

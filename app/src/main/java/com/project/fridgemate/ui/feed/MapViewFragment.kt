@@ -1,11 +1,13 @@
 package com.project.fridgemate.ui.feed
 
+import android.animation.ValueAnimator
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
@@ -14,6 +16,9 @@ import androidx.navigation.fragment.findNavController
 import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentMapViewBinding
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayoutMediator
 import com.squareup.picasso.Picasso
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -26,6 +31,8 @@ class MapViewFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: FeedViewModel by activityViewModels()
+
+    private var tabLayoutMediator: TabLayoutMediator? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -72,6 +79,74 @@ class MapViewFragment : Fragment() {
         binding.btnZoomOut.setOnClickListener {
             binding.mapView.controller.zoomOut()
         }
+
+        // Dynamic height adjustment for ViewPager2
+        binding.vpPostDetail.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                updateViewPagerHeight(position)
+            }
+
+            override fun onPageScrollStateChanged(state: Int) {
+                super.onPageScrollStateChanged(state)
+                if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    updateViewPagerHeight(binding.vpPostDetail.currentItem)
+                }
+            }
+        })
+    }
+
+    private fun updateViewPagerHeight(position: Int) {
+        val viewPager = binding.vpPostDetail
+        val recyclerView = viewPager.getChildAt(0) as? RecyclerView ?: return
+        
+        // Try to find the view holder for the current position
+        val viewHolder = recyclerView.findViewHolderForAdapterPosition(position)
+        
+        if (viewHolder == null) {
+            // If the view isn't ready (e.g., during a fast jump), try again in the next frame
+            viewPager.post {
+                val updatedViewHolder = recyclerView.findViewHolderForAdapterPosition(position)
+                if (updatedViewHolder != null) {
+                    measureAndSetHeight(updatedViewHolder.itemView)
+                }
+            }
+        } else {
+            measureAndSetHeight(viewHolder.itemView)
+        }
+    }
+
+    private var heightAnimator: ValueAnimator? = null
+
+    private fun measureAndSetHeight(itemView: View) {
+        val container = itemView.findViewById<View>(R.id.llItemContainer) ?: return
+        
+        itemView.post {
+            val width = binding.vpPostDetail.width
+            if (width <= 0) return@post
+
+            val wMeasureSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+            val hMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            container.measure(wMeasureSpec, hMeasureSpec)
+
+            val targetHeight = container.measuredHeight
+            val currentHeight = binding.vpPostDetail.height
+            
+            if (currentHeight != targetHeight && targetHeight > 0) {
+                heightAnimator?.cancel()
+                heightAnimator = ValueAnimator.ofInt(currentHeight, targetHeight).apply {
+                    addUpdateListener { animator ->
+                        val value = animator.animatedValue as Int
+                        val params = binding.vpPostDetail.layoutParams
+                        params.height = value
+                        binding.vpPostDetail.layoutParams = params
+                    }
+                    duration = 100
+                    interpolator = AccelerateDecelerateInterpolator()
+                    start()
+                }
+            }
+        }
     }
 
     private fun observePosts() {
@@ -93,21 +168,27 @@ class MapViewFragment : Fragment() {
         viewModel.posts.observe(viewLifecycleOwner) { posts ->
             binding.mapView.overlays.clear()
             
-            val validPosts = posts.filter { it.latitude != 0.0 && it.longitude != 0.0 }
+            val validPosts = posts.filter { it.latitude != 0.0 || it.longitude != 0.0 }
             
             if (validPosts.isEmpty()) {
                 binding.cvNoPosts.visibility = View.VISIBLE
             } else {
                 binding.cvNoPosts.visibility = View.GONE
-                validPosts.forEach { post ->
+                
+                // Group posts by location to handle overlapping pins
+                val groupedPosts = validPosts.groupBy { GeoPoint(it.latitude, it.longitude) }
+                
+                groupedPosts.forEach { (point, postsAtLocation) ->
                     val marker = Marker(binding.mapView)
-                    marker.position = GeoPoint(post.latitude, post.longitude)
+                    marker.position = point
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                     marker.icon = markerDrawable
-                    marker.title = post.postTitle
+                    marker.title = if (postsAtLocation.size > 1) 
+                        "${postsAtLocation.size} posts here" 
+                    else postsAtLocation[0].postTitle
                     
                     marker.setOnMarkerClickListener { _, _ ->
-                        showPostDetail(post)
+                        showPostDetails(postsAtLocation)
                         true
                     }
                     binding.mapView.overlays.add(marker)
@@ -117,42 +198,25 @@ class MapViewFragment : Fragment() {
         }
     }
 
-    private fun showPostDetail(post: Post) {
+    private fun showPostDetails(posts: List<Post>) {
         binding.cvPostDetail.visibility = View.VISIBLE
-        binding.tvUserName.text = post.userName
-        binding.tvLocation.text = post.userLocation
-        binding.tvPostTitle.text = post.postTitle
-        binding.tvDescription.text = post.description
-        binding.tvLikes.text = "${post.likesCount} likes"
-        binding.tvComments.text = "${post.commentsCount} comments"
-
-        if (post.authorImageUrl.isNotEmpty()) {
-            val avatarUrl = if (post.authorImageUrl.startsWith("/"))
-                BuildConfig.BASE_URL.trimEnd('/') + post.authorImageUrl
-            else post.authorImageUrl
-            Picasso.get()
-                .load(avatarUrl)
-                .placeholder(R.drawable.ic_person)
-                .error(R.drawable.ic_person)
-                .into(binding.ivUserAvatar)
-        } else {
-            binding.ivUserAvatar.setImageResource(R.drawable.ic_person)
+        
+        tabLayoutMediator?.detach()
+        
+        val adapter = MapPostDetailAdapter(posts)
+        binding.vpPostDetail.adapter = adapter
+        
+        // Reset height for the first item
+        binding.vpPostDetail.post {
+            updateViewPagerHeight(0)
         }
-
-        if (post.imageUrl.isNotEmpty()) {
-            binding.ivPostImage.visibility = View.VISIBLE
-            val fullUrl = if (post.imageUrl.startsWith("/")) {
-                BuildConfig.BASE_URL.trimEnd('/') + post.imageUrl
-            } else {
-                post.imageUrl
-            }
-            Picasso.get()
-                .load(fullUrl)
-                .placeholder(R.color.light_teal)
-                .error(R.color.light_teal)
-                .into(binding.ivPostImage)
+        
+        if (posts.size > 1) {
+            binding.tlDots.visibility = View.VISIBLE
+            tabLayoutMediator = TabLayoutMediator(binding.tlDots, binding.vpPostDetail) { _, _ -> }
+            tabLayoutMediator?.attach()
         } else {
-            binding.ivPostImage.visibility = View.GONE
+            binding.tlDots.visibility = View.GONE
         }
     }
 
@@ -168,6 +232,8 @@ class MapViewFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        tabLayoutMediator?.detach()
+        tabLayoutMediator = null
         _binding = null
     }
 }

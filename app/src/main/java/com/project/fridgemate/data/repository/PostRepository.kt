@@ -211,10 +211,11 @@ class PostRepository(context: Context) {
 
     private fun PostDto.toEntity(): PostEntity {
         val loc = location
+        val authorAddr = authorUserId.address
         return PostEntity(
             id = id,
             authorName = authorUserId.displayName,
-            authorLocation = loc?.placeName ?: authorUserId.address?.city ?: "",
+            authorLocation = loc?.placeName ?: authorAddr?.city ?: "",
             authorProfileImage = authorUserId.profileImage ?: "",
             title = title ?: "",
             text = text,
@@ -223,8 +224,8 @@ class PostRepository(context: Context) {
             commentsCount = commentsCount,
             isLiked = isLiked,
             isOwner = isOwner,
-            latitude = loc?.coordinates?.getOrNull(1) ?: 0.0,
-            longitude = loc?.coordinates?.getOrNull(0) ?: 0.0,
+            latitude = loc?.coordinates?.getOrNull(1) ?: authorAddr?.lat ?: 0.0,
+            longitude = loc?.coordinates?.getOrNull(0) ?: authorAddr?.lng ?: 0.0,
             createdAt = createdAt,
             recipeId = recipeId?.id,
             recipeTitle = recipeId?.title,
