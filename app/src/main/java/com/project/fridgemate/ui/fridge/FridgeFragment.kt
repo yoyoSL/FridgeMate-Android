@@ -51,17 +51,20 @@ class FridgeFragment : Fragment() {
     }
 
     private fun showLoading() {
+        binding.loadingOverlay.visibility = View.VISIBLE
         binding.rvFridge.visibility = View.GONE
         binding.emptyState.visibility = View.GONE
     }
 
     private fun showItems(items: List<FridgeItem>) {
+        binding.loadingOverlay.visibility = View.GONE
         binding.rvFridge.adapter = FridgeAdapter(items)
         binding.rvFridge.visibility = View.VISIBLE
         binding.emptyState.visibility = View.GONE
     }
 
     private fun showEmptyState() {
+        binding.loadingOverlay.visibility = View.GONE
         binding.rvFridge.visibility = View.GONE
         binding.emptyState.visibility = View.VISIBLE
         binding.tvEmptyTitle.text = getString(R.string.fridge_empty_title)
@@ -69,6 +72,7 @@ class FridgeFragment : Fragment() {
     }
 
     private fun showNoFridge() {
+        binding.loadingOverlay.visibility = View.GONE
         binding.rvFridge.visibility = View.GONE
         binding.emptyState.visibility = View.VISIBLE
         binding.tvEmptyTitle.text = getString(R.string.no_fridge_title)
@@ -76,6 +80,7 @@ class FridgeFragment : Fragment() {
     }
 
     private fun showNotLoggedIn() {
+        binding.loadingOverlay.visibility = View.GONE
         binding.rvFridge.visibility = View.GONE
         binding.emptyState.visibility = View.VISIBLE
         binding.tvEmptyTitle.text = getString(R.string.fridge_not_logged_in_title)
