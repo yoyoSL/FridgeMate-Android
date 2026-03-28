@@ -1,8 +1,9 @@
 package com.project.fridgemate.ui.settings
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.project.fridgemate.data.remote.dto.DetectedItemDto
 import com.project.fridgemate.data.remote.dto.FridgeMemberDetailDto
@@ -11,9 +12,9 @@ import com.project.fridgemate.data.repository.FridgeResult
 import com.project.fridgemate.data.repository.ScanRepository
 import kotlinx.coroutines.launch
 
-class SharedFridgeViewModel : ViewModel() {
+class SharedFridgeViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = FridgeRepository()
+    private val repository = FridgeRepository(application.applicationContext)
     private val scanRepository = ScanRepository()
 
     private val _hasFridge = MutableLiveData<Boolean?>(null)

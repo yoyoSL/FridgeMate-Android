@@ -29,6 +29,7 @@ class RecipesFragment : Fragment() {
 
         setupViewPager()
         observeDataState()
+        viewModel.loadRecommendedIfNeeded()
     }
 
     private fun setupViewPager() {
@@ -51,31 +52,16 @@ class RecipesFragment : Fragment() {
     }
 
     private fun observeDataState() {
-        // We show the empty state only if BOTH recommended and favorites are empty
-        viewModel.recommended.observe(viewLifecycleOwner) { recs ->
-            updateEmptyStateVisibility(recs, viewModel.favorites.value)
-        }
-        viewModel.favorites.observe(viewLifecycleOwner) { favs ->
-            updateEmptyStateVisibility(viewModel.recommended.value, favs)
-        }
-        
-        viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
-            if (loading) {
+        viewModel.noFridge.observe(viewLifecycleOwner) { noFridge ->
+            if (noFridge) {
+                binding.emptyState.visibility = View.VISIBLE
+                binding.tabLayout.visibility = View.GONE
+                binding.viewPager.visibility = View.GONE
+            } else {
                 binding.emptyState.visibility = View.GONE
+                binding.tabLayout.visibility = View.VISIBLE
+                binding.viewPager.visibility = View.VISIBLE
             }
-        }
-    }
-
-    private fun updateEmptyStateVisibility(recommended: List<Any>?, favorites: List<Any>?) {
-        val allEmpty = (recommended?.isEmpty() ?: true) && (favorites?.isEmpty() ?: true)
-        if (allEmpty) {
-            binding.emptyState.visibility = View.VISIBLE
-            binding.tabLayout.visibility = View.GONE
-            binding.viewPager.visibility = View.GONE
-        } else {
-            binding.emptyState.visibility = View.GONE
-            binding.tabLayout.visibility = View.VISIBLE
-            binding.viewPager.visibility = View.VISIBLE
         }
     }
 

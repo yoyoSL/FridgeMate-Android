@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class FridgeViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val fridgeRepository = FridgeRepository()
+    private val fridgeRepository = FridgeRepository(application.applicationContext)
     private val itemRepository = InventoryItemRepository(application.applicationContext)
 
     sealed class State {

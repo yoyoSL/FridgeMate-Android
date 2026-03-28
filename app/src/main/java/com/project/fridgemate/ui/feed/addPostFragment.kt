@@ -139,6 +139,7 @@ class AddPostFragment : Fragment() {
         }
 
         binding.btnPost.isEnabled = false
+        binding.loadingOverlay.visibility = View.VISIBLE
 
         viewLifecycleOwner.lifecycleScope.launch {
             var imageUrl: String? = null
@@ -147,12 +148,14 @@ class AddPostFragment : Fragment() {
                 imageUrl = feedViewModel.uploadImage(bytes, selectedMimeType)
                 if (imageUrl == null) {
                     binding.btnPost.isEnabled = true
+                    binding.loadingOverlay.visibility = View.GONE
                     return@launch
                 }
             }
 
             val recipeId = args.prefillRecipeId.ifEmpty { null }
             feedViewModel.addPost(title, description, imageUrl, recipeId)
+            binding.loadingOverlay.visibility = View.GONE
             findNavController().navigateUp()
         }
     }

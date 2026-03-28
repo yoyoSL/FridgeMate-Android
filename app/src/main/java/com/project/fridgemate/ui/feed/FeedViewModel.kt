@@ -63,6 +63,12 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
     private val _error = MutableLiveData<String?>(null)
     val error: LiveData<String?> = _error
 
+    private val _myPosts = MutableLiveData<List<Post>>(emptyList())
+    val myPosts: LiveData<List<Post>> = _myPosts
+
+    private val _isMyPostsLoading = MutableLiveData(false)
+    val isMyPostsLoading: LiveData<Boolean> = _isMyPostsLoading
+
     private val _updateSuccess = MutableLiveData<Boolean?>(null)
     val updateSuccess: LiveData<Boolean?> = _updateSuccess
 
@@ -96,32 +102,54 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun loadMyPosts() {
+        viewModelScope.launch {
+            _isMyPostsLoading.value = true
+            when (val result = repository.getMyPosts()) {
+                is FridgeResult.Success -> {
+                    _myPosts.value = result.data.items.map { it.toPost() }
+                }
+                is FridgeResult.Error -> {
+                    _error.value = result.message
+                    Log.e("FeedViewModel", "loadMyPosts error: ${result.message}")
+                }
+                else -> {}
+            }
+            _isMyPostsLoading.value = false
+        }
+    }
+
     fun toggleLike(post: Post) {
-        val current = _posts.value?.map {
+        val optimistic: (Post) -> Post = {
             if (it.id == post.id) it.copy(
                 isLiked = !it.isLiked,
                 likesCount = if (it.isLiked) it.likesCount - 1 else it.likesCount + 1
             ) else it
-        } ?: return
-        _posts.value = current
+        }
+        _posts.value = _posts.value?.map(optimistic)
+        _myPosts.value = _myPosts.value?.map(optimistic)
 
         viewModelScope.launch {
             when (val result = repository.toggleLike(post.id)) {
                 is FridgeResult.Success -> {
-                    _posts.value = _posts.value?.map {
+                    val update: (Post) -> Post = {
                         if (it.id == post.id) it.copy(
                             isLiked = result.data.liked,
                             likesCount = result.data.likesCount
                         ) else it
                     }
+                    _posts.value = _posts.value?.map(update)
+                    _myPosts.value = _myPosts.value?.map(update)
                 }
                 is FridgeResult.Error -> {
-                    _posts.value = _posts.value?.map {
+                    val revert: (Post) -> Post = {
                         if (it.id == post.id) it.copy(
                             isLiked = post.isLiked,
                             likesCount = post.likesCount
                         ) else it
                     }
+                    _posts.value = _posts.value?.map(revert)
+                    _myPosts.value = _myPosts.value?.map(revert)
                     Log.e("FeedViewModel", "toggleLike error: ${result.message}")
                 }
                 else -> {}
@@ -152,6 +180,7 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
             when (val result = repository.createPost(request)) {
                 is FridgeResult.Success -> {
                     loadPosts()
+                    loadMyPosts()
                 }
                 is FridgeResult.Error -> {
                     _error.value = result.message
@@ -177,17 +206,15 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
             )
             when (val result = repository.updatePost(postId, request)) {
                 is FridgeResult.Success -> {
-                    _posts.value = _posts.value?.map {
-                        if (it.id == postId) {
-                            it.copy(
-                                postTitle = newTitle,
-                                description = newDescription,
-                                imageUrl = mediaUrls?.firstOrNull() ?: it.imageUrl
-                            )
-                        } else {
-                            it
-                        }
+                    val update: (Post) -> Post = {
+                        if (it.id == postId) it.copy(
+                            postTitle = newTitle,
+                            description = newDescription,
+                            imageUrl = mediaUrls?.firstOrNull() ?: it.imageUrl
+                        ) else it
                     }
+                    _posts.value = _posts.value?.map(update)
+                    _myPosts.value = _myPosts.value?.map(update)
                     _updateSuccess.value = true
                 }
                 is FridgeResult.Error -> {
@@ -202,12 +229,14 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deletePost(postId: String) {
         _posts.value = _posts.value?.filter { it.id != postId }
+        _myPosts.value = _myPosts.value?.filter { it.id != postId }
 
         viewModelScope.launch {
             when (val result = repository.deletePost(postId)) {
                 is FridgeResult.Error -> {
                     _error.value = result.message
                     loadPosts()
+                    loadMyPosts()
                 }
                 else -> {}
             }
@@ -218,11 +247,12 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             when (val result = repository.getComments(postId)) {
                 is FridgeResult.Success -> {
-                    _posts.value = _posts.value?.map { post ->
-                        if (post.id == postId) {
-                            post.copy(comments = result.data.map { it.toComment() })
-                        } else post
+                    val comments = result.data.map { it.toComment() }
+                    val update: (Post) -> Post = {
+                        if (it.id == postId) it.copy(comments = comments) else it
                     }
+                    _posts.value = _posts.value?.map(update)
+                    _myPosts.value = _myPosts.value?.map(update)
                 }
                 is FridgeResult.Error -> {
                     Log.e("FeedViewModel", "loadComments error: ${result.message}")
@@ -236,16 +266,17 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             when (val result = repository.createComment(postId, text)) {
                 is FridgeResult.Success -> {
-                    _posts.value = _posts.value?.map { post ->
-                        if (post.id == postId) {
-                            val newComments = post.comments.toMutableList()
-                            newComments.add(result.data.toComment())
-                            post.copy(
-                                comments = newComments,
-                                commentsCount = post.commentsCount + 1
+                    val newComment = result.data.toComment()
+                    val update: (Post) -> Post = {
+                        if (it.id == postId) {
+                            it.copy(
+                                comments = it.comments + newComment,
+                                commentsCount = it.commentsCount + 1
                             )
-                        } else post
+                        } else it
                     }
+                    _posts.value = _posts.value?.map(update)
+                    _myPosts.value = _myPosts.value?.map(update)
                 }
                 is FridgeResult.Error -> {
                     _error.value = result.message
@@ -260,16 +291,16 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             when (val result = repository.updateComment(postId, commentId, newText)) {
                 is FridgeResult.Success -> {
-                    _posts.value = _posts.value?.map { post ->
-                        if (post.id == postId) {
-                            post.copy(
-                                comments = post.comments.map { comment ->
-                                    if (comment.id == commentId) result.data.toComment()
-                                    else comment
-                                }
-                            )
-                        } else post
+                    val updated = result.data.toComment()
+                    val update: (Post) -> Post = {
+                        if (it.id == postId) it.copy(
+                            comments = it.comments.map { c ->
+                                if (c.id == commentId) updated else c
+                            }
+                        ) else it
                     }
+                    _posts.value = _posts.value?.map(update)
+                    _myPosts.value = _myPosts.value?.map(update)
                 }
                 is FridgeResult.Error -> {
                     _error.value = result.message
@@ -281,14 +312,14 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deleteComment(postId: String, commentId: String) {
-        _posts.value = _posts.value?.map { post ->
-            if (post.id == postId) {
-                post.copy(
-                    comments = post.comments.filter { it.id != commentId },
-                    commentsCount = post.commentsCount - 1
-                )
-            } else post
+        val optimistic: (Post) -> Post = {
+            if (it.id == postId) it.copy(
+                comments = it.comments.filter { c -> c.id != commentId },
+                commentsCount = it.commentsCount - 1
+            ) else it
         }
+        _posts.value = _posts.value?.map(optimistic)
+        _myPosts.value = _myPosts.value?.map(optimistic)
 
         viewModelScope.launch {
             when (val result = repository.deleteComment(postId, commentId)) {
