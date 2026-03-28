@@ -1,11 +1,13 @@
 package com.project.fridgemate.ui.feed
 
+import android.animation.ValueAnimator
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
@@ -84,26 +86,64 @@ class MapViewFragment : Fragment() {
                 super.onPageSelected(position)
                 updateViewPagerHeight(position)
             }
+
+            override fun onPageScrollStateChanged(state: Int) {
+                super.onPageScrollStateChanged(state)
+                if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    updateViewPagerHeight(binding.vpPostDetail.currentItem)
+                }
+            }
         })
     }
 
     private fun updateViewPagerHeight(position: Int) {
-        binding.vpPostDetail.post {
-            val recyclerView = binding.vpPostDetail.getChildAt(0) as? RecyclerView
-            val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
-            val itemView = viewHolder?.itemView
+        val viewPager = binding.vpPostDetail
+        val recyclerView = viewPager.getChildAt(0) as? RecyclerView ?: return
+        
+        // Try to find the view holder for the current position
+        val viewHolder = recyclerView.findViewHolderForAdapterPosition(position)
+        
+        if (viewHolder == null) {
+            // If the view isn't ready (e.g., during a fast jump), try again in the next frame
+            viewPager.post {
+                val updatedViewHolder = recyclerView.findViewHolderForAdapterPosition(position)
+                if (updatedViewHolder != null) {
+                    measureAndSetHeight(updatedViewHolder.itemView)
+                }
+            }
+        } else {
+            measureAndSetHeight(viewHolder.itemView)
+        }
+    }
 
-            itemView?.post {
-                val container = itemView.findViewById<View>(R.id.llItemContainer)
-                val wMeasureSpec = View.MeasureSpec.makeMeasureSpec(itemView.width, View.MeasureSpec.EXACTLY)
-                val hMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-                container.measure(wMeasureSpec, hMeasureSpec)
+    private var heightAnimator: ValueAnimator? = null
 
-                val targetHeight = container.measuredHeight
-                if (binding.vpPostDetail.layoutParams.height != targetHeight) {
-                    val params = binding.vpPostDetail.layoutParams
-                    params.height = targetHeight
-                    binding.vpPostDetail.layoutParams = params
+    private fun measureAndSetHeight(itemView: View) {
+        val container = itemView.findViewById<View>(R.id.llItemContainer) ?: return
+        
+        itemView.post {
+            val width = binding.vpPostDetail.width
+            if (width <= 0) return@post
+
+            val wMeasureSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+            val hMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            container.measure(wMeasureSpec, hMeasureSpec)
+
+            val targetHeight = container.measuredHeight
+            val currentHeight = binding.vpPostDetail.height
+            
+            if (currentHeight != targetHeight && targetHeight > 0) {
+                heightAnimator?.cancel()
+                heightAnimator = ValueAnimator.ofInt(currentHeight, targetHeight).apply {
+                    addUpdateListener { animator ->
+                        val value = animator.animatedValue as Int
+                        val params = binding.vpPostDetail.layoutParams
+                        params.height = value
+                        binding.vpPostDetail.layoutParams = params
+                    }
+                    duration = 100
+                    interpolator = AccelerateDecelerateInterpolator()
+                    start()
                 }
             }
         }
