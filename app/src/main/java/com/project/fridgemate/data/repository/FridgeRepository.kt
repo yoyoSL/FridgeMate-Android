@@ -1,5 +1,10 @@
 package com.project.fridgemate.data.repository
 
+import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.project.fridgemate.data.local.AppDatabase
+import com.project.fridgemate.data.local.entity.FridgeEntity
 import com.project.fridgemate.data.remote.ApiClient
 import com.project.fridgemate.data.remote.api.FridgeApi
 import com.project.fridgemate.data.remote.dto.CreateFridgeRequest
@@ -13,22 +18,27 @@ sealed class FridgeResult<out T> {
     data object NoFridge : FridgeResult<Nothing>()
 }
 
-class FridgeRepository {
+class FridgeRepository(context: Context) {
 
     private val fridgeApi: FridgeApi = ApiClient.createApi(FridgeApi::class.java)
+    private val fridgeDao = AppDatabase.getInstance(context).fridgeDao()
+    private val gson = Gson()
 
     suspend fun getMyFridge(): FridgeResult<FridgeDto> {
         return try {
             val response = fridgeApi.getMyFridge()
             if (response.isSuccessful) {
-                FridgeResult.Success(response.body()!!.data)
+                val data = response.body()!!.data
+                cacheFridge(data)
+                FridgeResult.Success(data)
             } else if (response.code() == 404) {
+                try { fridgeDao.clear() } catch (_: Exception) { }
                 FridgeResult.NoFridge
             } else {
-                FridgeResult.Error(parseError(response.errorBody()?.string()))
+                loadCachedFridge() ?: FridgeResult.Error(parseError(response.errorBody()?.string()))
             }
         } catch (e: Exception) {
-            FridgeResult.Error(networkErrorMessage(e))
+            loadCachedFridge() ?: FridgeResult.Error(networkErrorMessage(e))
         }
     }
 
@@ -36,12 +46,14 @@ class FridgeRepository {
         return try {
             val response = fridgeApi.getMyFridgeMembers()
             if (response.isSuccessful) {
-                FridgeResult.Success(response.body()!!.items)
+                val members = response.body()!!.items
+                cacheMembers(members)
+                FridgeResult.Success(members)
             } else {
-                FridgeResult.Error(parseError(response.errorBody()?.string()))
+                loadCachedMembers() ?: FridgeResult.Error(parseError(response.errorBody()?.string()))
             }
         } catch (e: Exception) {
-            FridgeResult.Error(networkErrorMessage(e))
+            loadCachedMembers() ?: FridgeResult.Error(networkErrorMessage(e))
         }
     }
 
@@ -75,6 +87,7 @@ class FridgeRepository {
         return try {
             val response = fridgeApi.leaveFridge()
             if (response.isSuccessful) {
+                try { fridgeDao.clear() } catch (_: Exception) { }
                 FridgeResult.Success(Unit)
             } else {
                 FridgeResult.Error(parseError(response.errorBody()?.string()))
@@ -82,6 +95,49 @@ class FridgeRepository {
         } catch (e: Exception) {
             FridgeResult.Error(networkErrorMessage(e))
         }
+    }
+
+    private suspend fun cacheFridge(fridge: FridgeDto) {
+        try {
+            fridgeDao.clear()
+            fridgeDao.insert(
+                FridgeEntity(
+                    id = fridge.id,
+                    name = fridge.name,
+                    inviteCode = fridge.inviteCode
+                )
+            )
+        } catch (_: Exception) { }
+    }
+
+    private suspend fun cacheMembers(members: List<FridgeMemberDetailDto>) {
+        try {
+            val entity = fridgeDao.get() ?: return
+            fridgeDao.insert(entity.copy(membersJson = gson.toJson(members)))
+        } catch (_: Exception) { }
+    }
+
+    private suspend fun loadCachedFridge(): FridgeResult.Success<FridgeDto>? {
+        return try {
+            val entity = fridgeDao.get() ?: return null
+            FridgeResult.Success(
+                FridgeDto(
+                    id = entity.id,
+                    name = entity.name,
+                    inviteCode = entity.inviteCode,
+                    members = emptyList()
+                )
+            )
+        } catch (_: Exception) { null }
+    }
+
+    private suspend fun loadCachedMembers(): FridgeResult.Success<List<FridgeMemberDetailDto>>? {
+        return try {
+            val entity = fridgeDao.get() ?: return null
+            val type = object : TypeToken<List<FridgeMemberDetailDto>>() {}.type
+            val members: List<FridgeMemberDetailDto> = gson.fromJson(entity.membersJson, type) ?: emptyList()
+            if (members.isNotEmpty()) FridgeResult.Success(members) else null
+        } catch (_: Exception) { null }
     }
 
     private fun parseError(errorBody: String?): String {

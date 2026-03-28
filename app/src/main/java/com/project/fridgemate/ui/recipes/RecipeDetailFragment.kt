@@ -55,6 +55,9 @@ class RecipeDetailFragment : Fragment() {
         val dao = AppDatabase.getInstance(requireContext()).recipeDao()
 
         if (serverRecipeId.isNotEmpty()) {
+            binding.loadingOverlay.visibility = View.VISIBLE
+            binding.contentScroll.visibility = View.GONE
+
             val repository = RecipeRepository(dao)
             lifecycleScope.launch {
                 val result = withContext(Dispatchers.IO) {
@@ -68,6 +71,8 @@ class RecipeDetailFragment : Fragment() {
             }
             dao.getByServerId(serverRecipeId).observe(viewLifecycleOwner) { recipe ->
                 if (recipe == null) return@observe
+                binding.loadingOverlay.visibility = View.GONE
+                binding.contentScroll.visibility = View.VISIBLE
                 bindRecipe(recipe)
             }
         } else if (recipeId != 0L) {
