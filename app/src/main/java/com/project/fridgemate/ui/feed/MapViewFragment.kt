@@ -14,6 +14,9 @@ import androidx.navigation.fragment.findNavController
 import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentMapViewBinding
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayoutMediator
 import com.squareup.picasso.Picasso
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -26,6 +29,8 @@ class MapViewFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: FeedViewModel by activityViewModels()
+
+    private var tabLayoutMediator: TabLayoutMediator? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -72,6 +77,36 @@ class MapViewFragment : Fragment() {
         binding.btnZoomOut.setOnClickListener {
             binding.mapView.controller.zoomOut()
         }
+
+        // Dynamic height adjustment for ViewPager2
+        binding.vpPostDetail.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                updateViewPagerHeight(position)
+            }
+        })
+    }
+
+    private fun updateViewPagerHeight(position: Int) {
+        binding.vpPostDetail.post {
+            val recyclerView = binding.vpPostDetail.getChildAt(0) as? RecyclerView
+            val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
+            val itemView = viewHolder?.itemView
+
+            itemView?.post {
+                val container = itemView.findViewById<View>(R.id.llItemContainer)
+                val wMeasureSpec = View.MeasureSpec.makeMeasureSpec(itemView.width, View.MeasureSpec.EXACTLY)
+                val hMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                container.measure(wMeasureSpec, hMeasureSpec)
+
+                val targetHeight = container.measuredHeight
+                if (binding.vpPostDetail.layoutParams.height != targetHeight) {
+                    val params = binding.vpPostDetail.layoutParams
+                    params.height = targetHeight
+                    binding.vpPostDetail.layoutParams = params
+                }
+            }
+        }
     }
 
     private fun observePosts() {
@@ -99,15 +134,21 @@ class MapViewFragment : Fragment() {
                 binding.cvNoPosts.visibility = View.VISIBLE
             } else {
                 binding.cvNoPosts.visibility = View.GONE
-                validPosts.forEach { post ->
+                
+                // Group posts by location to handle overlapping pins
+                val groupedPosts = validPosts.groupBy { GeoPoint(it.latitude, it.longitude) }
+                
+                groupedPosts.forEach { (point, postsAtLocation) ->
                     val marker = Marker(binding.mapView)
-                    marker.position = GeoPoint(post.latitude, post.longitude)
+                    marker.position = point
                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                     marker.icon = markerDrawable
-                    marker.title = post.postTitle
+                    marker.title = if (postsAtLocation.size > 1) 
+                        "${postsAtLocation.size} posts here" 
+                    else postsAtLocation[0].postTitle
                     
                     marker.setOnMarkerClickListener { _, _ ->
-                        showPostDetail(post)
+                        showPostDetails(postsAtLocation)
                         true
                     }
                     binding.mapView.overlays.add(marker)
@@ -117,42 +158,25 @@ class MapViewFragment : Fragment() {
         }
     }
 
-    private fun showPostDetail(post: Post) {
+    private fun showPostDetails(posts: List<Post>) {
         binding.cvPostDetail.visibility = View.VISIBLE
-        binding.tvUserName.text = post.userName
-        binding.tvLocation.text = post.userLocation
-        binding.tvPostTitle.text = post.postTitle
-        binding.tvDescription.text = post.description
-        binding.tvLikes.text = "${post.likesCount} likes"
-        binding.tvComments.text = "${post.commentsCount} comments"
-
-        if (post.authorImageUrl.isNotEmpty()) {
-            val avatarUrl = if (post.authorImageUrl.startsWith("/"))
-                BuildConfig.BASE_URL.trimEnd('/') + post.authorImageUrl
-            else post.authorImageUrl
-            Picasso.get()
-                .load(avatarUrl)
-                .placeholder(R.drawable.ic_person)
-                .error(R.drawable.ic_person)
-                .into(binding.ivUserAvatar)
-        } else {
-            binding.ivUserAvatar.setImageResource(R.drawable.ic_person)
+        
+        tabLayoutMediator?.detach()
+        
+        val adapter = MapPostDetailAdapter(posts)
+        binding.vpPostDetail.adapter = adapter
+        
+        // Reset height for the first item
+        binding.vpPostDetail.post {
+            updateViewPagerHeight(0)
         }
-
-        if (post.imageUrl.isNotEmpty()) {
-            binding.ivPostImage.visibility = View.VISIBLE
-            val fullUrl = if (post.imageUrl.startsWith("/")) {
-                BuildConfig.BASE_URL.trimEnd('/') + post.imageUrl
-            } else {
-                post.imageUrl
-            }
-            Picasso.get()
-                .load(fullUrl)
-                .placeholder(R.color.light_teal)
-                .error(R.color.light_teal)
-                .into(binding.ivPostImage)
+        
+        if (posts.size > 1) {
+            binding.tlDots.visibility = View.VISIBLE
+            tabLayoutMediator = TabLayoutMediator(binding.tlDots, binding.vpPostDetail) { _, _ -> }
+            tabLayoutMediator?.attach()
         } else {
-            binding.ivPostImage.visibility = View.GONE
+            binding.tlDots.visibility = View.GONE
         }
     }
 
@@ -168,6 +192,8 @@ class MapViewFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        tabLayoutMediator?.detach()
+        tabLayoutMediator = null
         _binding = null
     }
 }
