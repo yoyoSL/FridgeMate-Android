@@ -228,4 +228,20 @@
 
     </androidx.core.widget.NestedScrollView>
 
+    <FrameLayout
+        android:id="@+id/loadingOverlayAddPost"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80FFFFFF"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ProgressBar
+            android:background="#80FFFFFF"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:indeterminateTint="@color/teal_primary"/>
+
+    </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
