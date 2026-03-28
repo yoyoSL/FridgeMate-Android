@@ -1,8 +1,9 @@
 package com.project.fridgemate.ui.profile
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.project.fridgemate.data.remote.ApiClient
 import com.project.fridgemate.data.remote.api.NominatimApi
@@ -14,9 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ProfileViewModel : ViewModel() {
+class ProfileViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val userRepository = UserRepository()
+    private val userRepository = UserRepository(application.applicationContext)
 
     private val _user = MutableLiveData<UserDto?>()
     val user: LiveData<UserDto?> = _user
@@ -57,26 +58,38 @@ class ProfileViewModel : ViewModel() {
     fun loadProfile() {
         val userId = ApiClient.getTokenManager().userId ?: return
         viewModelScope.launch {
-            _loading.value = true
+            // Show cached data immediately — no spinner needed
+            val cached = userRepository.getCachedUser(userId)
+            if (cached != null) {
+                applyUser(cached)
+            } else {
+                // No cache yet — show spinner while doing first load
+                _loading.value = true
+            }
+
+            // Refresh from network in background
             try {
-                val result = userRepository.getUserById(userId)
-                _user.value = result
-                _profileImageUrl.value = result?.profileImage
-                // Show stored location in short format (city, COUNTRY_CODE)
-                result?.address?.let { addr ->
-                    val parts = listOfNotNull(
-                        addr.city?.takeIf { it.isNotEmpty() },
-                        addr.country?.takeIf { it.isNotEmpty() }
-                    )
-                    if (parts.isNotEmpty()) _locationDisplay.value = parts.joinToString(", ")
-                }
-                _selectedPreference.value = result?.dietPreference?.takeIf { it.isNotEmpty() } ?: "NONE"
+                val fresh = userRepository.getUserById(userId)
+                if (fresh != null) applyUser(fresh)
             } catch (e: Exception) {
-                _error.value = e.message
+                if (cached == null) _error.value = e.message
             } finally {
                 _loading.value = false
             }
         }
+    }
+
+    private fun applyUser(user: UserDto) {
+        _user.value = user
+        _profileImageUrl.value = user.profileImage
+        user.address?.let { addr ->
+            val parts = listOfNotNull(
+                addr.city?.takeIf { it.isNotEmpty() },
+                addr.country?.takeIf { it.isNotEmpty() }
+            )
+            if (parts.isNotEmpty()) _locationDisplay.value = parts.joinToString(", ")
+        }
+        _selectedPreference.value = user.dietPreference.takeIf { it.isNotEmpty() } ?: "NONE"
     }
 
     /** Reverse-geocodes device coordinates, updates display and persists to API. */
