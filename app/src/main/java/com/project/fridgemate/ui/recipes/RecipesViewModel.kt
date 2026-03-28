@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 class RecipesViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: RecipeRepository
-    private val fridgeRepository = FridgeRepository()
+    private val fridgeRepository = FridgeRepository(application.applicationContext)
     private val inventoryRepository = InventoryItemRepository()
 
     val recommended: LiveData<List<RecipeEntity>>

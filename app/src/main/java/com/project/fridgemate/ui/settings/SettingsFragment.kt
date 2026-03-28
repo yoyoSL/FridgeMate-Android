@@ -110,6 +110,13 @@ class SettingsFragment : Fragment() {
             }
         }
 
+        viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
+            binding.loadingOverlay.visibility = if (loading) View.VISIBLE else View.GONE
+            binding.btnCreateFridge.isEnabled = !loading
+            binding.btnJoinFridge.isEnabled = !loading
+            binding.btnLeaveFridge.isEnabled = !loading
+        }
+
         viewModel.isScanning.observe(viewLifecycleOwner) { scanning ->
             binding.scanProgressLayout.visibility = if (scanning) View.VISIBLE else View.GONE
             binding.btnUploadFridgePhoto.isEnabled = !scanning
