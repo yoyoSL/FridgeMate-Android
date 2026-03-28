@@ -346,10 +346,11 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun PostDto.toPost(): Post {
         val loc = location
-        val lng = loc?.coordinates?.getOrNull(0) ?: 0.0
-        val lat = loc?.coordinates?.getOrNull(1) ?: 0.0
+        val authorAddr = authorUserId.address
+        val lng = loc?.coordinates?.getOrNull(0) ?: authorAddr?.lng ?: 0.0
+        val lat = loc?.coordinates?.getOrNull(1) ?: authorAddr?.lat ?: 0.0
         val placeName = loc?.placeName
-        val city = authorUserId.address?.city
+        val city = authorAddr?.city
 
         val recipe = recipeId?.let {
             LinkedRecipe(

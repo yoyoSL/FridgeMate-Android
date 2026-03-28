@@ -93,7 +93,7 @@ class MapViewFragment : Fragment() {
         viewModel.posts.observe(viewLifecycleOwner) { posts ->
             binding.mapView.overlays.clear()
             
-            val validPosts = posts.filter { it.latitude != 0.0 && it.longitude != 0.0 }
+            val validPosts = posts.filter { it.latitude != 0.0 || it.longitude != 0.0 }
             
             if (validPosts.isEmpty()) {
                 binding.cvNoPosts.visibility = View.VISIBLE
