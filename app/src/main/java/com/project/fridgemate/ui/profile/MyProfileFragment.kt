@@ -188,7 +188,9 @@ class MyProfileFragment : Fragment() {
         }
 
         profileViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            binding.loadingOverlay.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.btnSaveChanges.isEnabled = !isLoading
+            binding.btnChangePhoto.isEnabled = !isLoading
         }
 
         profileViewModel.saveSuccess.observe(viewLifecycleOwner) { success ->
