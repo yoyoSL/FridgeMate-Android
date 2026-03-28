@@ -1,8 +1,9 @@
 package com.project.fridgemate.ui.fridge
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.project.fridgemate.data.remote.dto.InventoryItemDto
 import com.project.fridgemate.data.repository.FridgeRepository
@@ -10,10 +11,10 @@ import com.project.fridgemate.data.repository.FridgeResult
 import com.project.fridgemate.data.repository.InventoryItemRepository
 import kotlinx.coroutines.launch
 
-class FridgeViewModel : ViewModel() {
+class FridgeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val fridgeRepository = FridgeRepository()
-    private val itemRepository = InventoryItemRepository()
+    private val itemRepository = InventoryItemRepository(application.applicationContext)
 
     sealed class State {
         object Loading : State()
@@ -28,18 +29,28 @@ class FridgeViewModel : ViewModel() {
 
     fun loadItems() {
         viewModelScope.launch {
-            _state.value = State.Loading
+            // Show cached items immediately — no spinner needed
+            val cached = itemRepository.getCachedItems()
+            if (cached.isNotEmpty()) {
+                _state.value = State.Items(buildFridgeItemList(cached))
+            } else {
+                // No cache yet — show spinner on first load
+                _state.value = State.Loading
+            }
+
+            // Refresh from network in background
             when (val fridgeResult = fridgeRepository.getMyFridge()) {
-                is FridgeResult.NoFridge -> _state.value = State.NoFridge
-                is FridgeResult.Error -> _state.value = State.Error(fridgeResult.message)
+                is FridgeResult.NoFridge -> {
+                    itemRepository.clearCache()
+                    _state.value = State.NoFridge
+                }
+                is FridgeResult.Error -> {
+                    if (cached.isEmpty()) _state.value = State.Error(fridgeResult.message)
+                }
                 is FridgeResult.Success -> {
-                    val fridgeId = fridgeResult.data.id
-                    val items = itemRepository.getItems(fridgeId)
-                    _state.value = if (items.isEmpty()) {
-                        State.Empty
-                    } else {
-                        State.Items(buildFridgeItemList(items))
-                    }
+                    val items = itemRepository.getItems(fridgeResult.data.id)
+                    _state.value = if (items.isEmpty()) State.Empty
+                                   else State.Items(buildFridgeItemList(items))
                 }
             }
         }
