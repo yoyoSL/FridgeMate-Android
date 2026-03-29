@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.project.fridgemate.ui.auth.AuthFragmentDirections
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentLoginBinding
 import com.project.fridgemate.ui.auth.AuthFragment
@@ -60,7 +61,8 @@ class LoginFragment : Fragment() {
                 is AuthResult.Loading -> setLoadingState(true)
                 is AuthResult.Success -> {
                     setLoadingState(false)
-                    findNavController().navigate(R.id.action_authFragment_to_dashboardFragment)
+                    val action = AuthFragmentDirections.actionAuthFragmentToDashboardFragment()
+                    findNavController().navigate(action)
                 }
                 is AuthResult.Error -> {
                     setLoadingState(false)

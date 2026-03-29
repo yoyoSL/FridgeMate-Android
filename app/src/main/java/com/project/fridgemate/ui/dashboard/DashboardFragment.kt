@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.project.fridgemate.ui.dashboard.DashboardFragmentDirections
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -51,7 +52,8 @@ class DashboardFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         if (!ApiClient.getTokenManager().isLoggedIn) {
-            findNavController().navigate(R.id.action_dashboardFragment_to_authFragment)
+            val action = DashboardFragmentDirections.actionDashboardFragmentToAuthFragment()
+            findNavController().navigate(action)
             return
         }
 
@@ -197,12 +199,14 @@ class DashboardFragment : Fragment() {
 
         popupBinding.menuProfile.setOnClickListener {
             popupWindow.dismiss()
-            findNavController().navigate(R.id.action_dashboardFragment_to_myProfileFragment)
+            val action = DashboardFragmentDirections.actionDashboardFragmentToMyProfileFragment()
+            findNavController().navigate(action)
         }
 
         popupBinding.menuSettings.setOnClickListener {
             popupWindow.dismiss()
-            findNavController().navigate(R.id.action_dashboardFragment_to_settingsFragment)
+            val action = DashboardFragmentDirections.actionDashboardFragmentToSettingsFragment()
+            findNavController().navigate(action)
         }
 
         popupBinding.menuLogout.setOnClickListener {
