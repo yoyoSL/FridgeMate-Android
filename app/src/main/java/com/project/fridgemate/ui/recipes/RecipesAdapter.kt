@@ -102,7 +102,7 @@ class RecipeAdapter(
             if (animate) animateStar(btn)
         } else {
             btn.setImageResource(R.drawable.ic_star_outline)
-            btn.imageTintList = ColorStateList.valueOf(Color.parseColor("#8E8E8E")) // Gray
+            btn.imageTintList = ColorStateList.valueOf(btn.context.getColor(R.color.gray_text))
             if (animate) {
                 viewScalePop(btn, 0.9f)
             }

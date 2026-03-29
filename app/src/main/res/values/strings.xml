@@ -104,6 +104,7 @@
     <string name="try_adding_ingredients">Try adding ingredients to your fridge or generating new ideas!</string>
     <string name="recipe_name_placeholder">Recipe Name</string>
     <string name="calories">Calories</string>
+    <string name="kcal">kcal</string>
     <string name="fat">Fat</string>
     <string name="carbs">Carbs</string>
     <string name="protein">Protein</string>

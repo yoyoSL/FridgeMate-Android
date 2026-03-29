@@ -62,7 +62,7 @@ class FridgeViewModel(application: Application) : AndroidViewModel(application) 
         if (lowItems.isNotEmpty()) {
             result.add(FridgeItem.RunningLow(lowItems.map { it.name }))
         }
-        result.add(FridgeItem.CategoryHeader("All Items"))
+        result.add(FridgeItem.CategoryHeader("Items"))
         items.forEach { result.add(FridgeItem.Product(it.name, it.quantity, it.isRunningLow)) }
         return result
     }
