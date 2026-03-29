@@ -19,7 +19,7 @@
         android:layout_height="48dp"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="16dp"
-        android:text="Generate New Recipes"
+        android:text="@string/generate_new_recipes"
         android:textAllCaps="false"
         android:backgroundTint="@color/teal_primary"
         android:drawablePadding="8dp"
@@ -49,7 +49,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Our chef is cooking up recipes..."
+            android:text="@string/chef_cooking"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/dark_teal" />
@@ -90,7 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="No recipes yet"
+            android:text="@string/no_recipes_yet"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/gray_text" />
@@ -101,7 +101,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:text="Try adding ingredients to your fridge or generating new ideas!"
+            android:text="@string/try_adding_ingredients"
             android:textSize="14sp"
             android:textColor="@color/gray_text" />
 

@@ -10,6 +10,7 @@ import com.project.fridgemate.data.remote.dto.FridgeMemberDetailDto
 import com.project.fridgemate.data.repository.FridgeRepository
 import com.project.fridgemate.data.repository.FridgeResult
 import com.project.fridgemate.data.repository.ScanRepository
+import com.project.fridgemate.R
 import kotlinx.coroutines.launch
 
 class SharedFridgeViewModel(application: Application) : AndroidViewModel(application) {
@@ -71,14 +72,14 @@ class SharedFridgeViewModel(application: Application) : AndroidViewModel(applica
 
     fun createFridge(name: String) {
         if (name.isBlank()) {
-            _error.value = "Please enter a fridge name"
+            _error.value = getApplication<Application>().getString(R.string.error_enter_fridge_name)
             return
         }
         _isLoading.value = true
         viewModelScope.launch {
             when (val result = repository.createFridge(name)) {
                 is FridgeResult.Success -> {
-                    _actionSuccess.value = "Fridge created!"
+                    _actionSuccess.value = getApplication<Application>().getString(R.string.fridge_created_success)
                     loadFridge()
                 }
                 is FridgeResult.Error -> {
@@ -92,7 +93,7 @@ class SharedFridgeViewModel(application: Application) : AndroidViewModel(applica
 
     fun joinFridge(inviteCode: String) {
         if (inviteCode.isBlank()) {
-            _error.value = "Please enter an invite code"
+            _error.value = getApplication<Application>().getString(R.string.error_enter_invite_code)
             return
         }
         _isLoading.value = true
@@ -146,16 +147,20 @@ class SharedFridgeViewModel(application: Application) : AndroidViewModel(applica
                     if (scan.status == "completed") {
                         _scanResult.value = scan.detectedItems
                         val count = scan.detectedItems.size
-                        _actionSuccess.value = "$count item${if (count != 1) "s" else ""} detected and added to your fridge!"
+                        _actionSuccess.value = getApplication<Application>().resources.getQuantityString(
+                            R.plurals.items_detected_success,
+                            count,
+                            count
+                        )
                     } else {
-                        _error.value = scan.error ?: "Scan failed. Please try again."
+                        _error.value = scan.error ?: getApplication<Application>().getString(R.string.error_scan_failed)
                     }
                 }
                 is FridgeResult.Error -> {
                     _error.value = result.message
                 }
                 is FridgeResult.NoFridge -> {
-                    _error.value = "No active fridge. Please create or join a fridge first."
+                    _error.value = getApplication<Application>().getString(R.string.error_no_active_fridge)
                 }
             }
             _isScanning.value = false
