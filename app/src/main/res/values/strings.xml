@@ -88,6 +88,8 @@
     <string name="invite_code">Invite Code</string>
     <string name="copy">Copy</string>
     <string name="leave_fridge">Leave Fridge</string>
+    <string name="leave_fridge_confirmation">Are you sure you want to leave this fridge?</string>
+    <string name="leave">Leave</string>
     <string name="upload_fridge_photo">Upload Fridge Photo</string>
     <string name="scanning_fridge">Scanning your fridge…</string>
     <string name="detected_items">Detected Items</string>
