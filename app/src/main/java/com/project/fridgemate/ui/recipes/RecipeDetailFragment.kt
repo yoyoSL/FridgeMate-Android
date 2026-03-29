@@ -6,30 +6,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
-import com.project.fridgemate.data.local.AppDatabase
 import com.project.fridgemate.data.local.entity.RecipeEntity
 import com.project.fridgemate.databinding.ItemDetailIngredientBinding
 import com.project.fridgemate.databinding.ItemDetailStepBinding
 import com.project.fridgemate.data.remote.dto.RecipeIngredientDto
-import com.project.fridgemate.data.repository.RecipeRepository
 import com.project.fridgemate.databinding.FragmentRecipeDetailBinding
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class RecipeDetailFragment : Fragment() {
 
@@ -54,31 +46,27 @@ class RecipeDetailFragment : Fragment() {
         val recipeId = args.recipeId
         val serverRecipeId = args.serverRecipeId
 
-        val dao = AppDatabase.getInstance(requireContext()).recipeDao()
-
         if (serverRecipeId.isNotEmpty()) {
             binding.loadingOverlay.visibility = View.VISIBLE
             binding.contentScroll.visibility = View.GONE
 
-            val repository = RecipeRepository(dao)
-            lifecycleScope.launch {
-                val result = withContext(Dispatchers.IO) {
-                    repository.fetchAndCacheRecipeByServerId(serverRecipeId)
-                }
-                if (result.isFailure) {
+            viewModel.fetchRecipeDetail(serverRecipeId)
+
+            viewModel.detailLoading.observe(viewLifecycleOwner) { loading ->
+                if (!loading && viewModel.error.value != null) {
                     Toast.makeText(requireContext(), "Could not load recipe", Toast.LENGTH_SHORT).show()
                     findNavController().navigateUp()
-                    return@launch
                 }
             }
-            dao.getByServerId(serverRecipeId).observe(viewLifecycleOwner) { recipe ->
+
+            viewModel.getRecipeByServerId(serverRecipeId).observe(viewLifecycleOwner) { recipe ->
                 if (recipe == null) return@observe
                 binding.loadingOverlay.visibility = View.GONE
                 binding.contentScroll.visibility = View.VISIBLE
                 bindRecipe(recipe)
             }
         } else if (recipeId != 0L) {
-            dao.getById(recipeId).observe(viewLifecycleOwner) { recipe ->
+            viewModel.getRecipeByRoomId(recipeId).observe(viewLifecycleOwner) { recipe ->
                 if (recipe == null) return@observe
                 bindRecipe(recipe)
             }
