@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.fragment.findNavController
 import com.project.fridgemate.R
+import com.project.fridgemate.ui.auth.AuthFragmentDirections
 import com.project.fridgemate.data.remote.ApiClient
 import com.project.fridgemate.databinding.FragmentAuthBinding
 import com.project.fridgemate.ui.login.LoginFragment
@@ -34,7 +35,8 @@ class AuthFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         if (ApiClient.getTokenManager().isLoggedIn) {
-            findNavController().navigate(R.id.action_authFragment_to_dashboardFragment)
+            val action = AuthFragmentDirections.actionAuthFragmentToDashboardFragment()
+            findNavController().navigate(action)
             return
         }
 

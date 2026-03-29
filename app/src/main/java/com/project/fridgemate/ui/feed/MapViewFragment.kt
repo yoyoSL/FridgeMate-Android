@@ -13,6 +13,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.project.fridgemate.ui.feed.MapViewFragmentDirections
 import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentMapViewBinding
@@ -204,10 +205,10 @@ class MapViewFragment : Fragment() {
         tabLayoutMediator?.detach()
         
         val adapter = MapPostDetailAdapter(posts) { linkedRecipe ->
-            val bundle = Bundle().apply {
-                putString("serverRecipeId", linkedRecipe.id)
-            }
-            findNavController().navigate(R.id.recipeDetailFragment, bundle)
+            val action = MapViewFragmentDirections.actionMapViewFragmentToRecipeDetailFragment(
+                serverRecipeId = linkedRecipe.id
+            )
+            findNavController().navigate(action)
         }
         binding.vpPostDetail.adapter = adapter
         

@@ -38,18 +38,18 @@ class FeedFragment : Fragment() {
         }
 
         binding.btnMapView.setOnClickListener {
-            requireParentFragment().findNavController()
-                .navigate(R.id.action_dashboardFragment_to_mapViewFragment)
+            val action = DashboardFragmentDirections.actionDashboardFragmentToMapViewFragment()
+            requireParentFragment().findNavController().navigate(action)
         }
 
         binding.fabAddPost.setOnClickListener {
-            requireParentFragment().findNavController()
-                .navigate(R.id.action_dashboardFragment_to_addPostFragment)
+            val action = DashboardFragmentDirections.actionDashboardFragmentToAddPostFragment()
+            requireParentFragment().findNavController().navigate(action)
         }
 
         binding.btnMyPosts.setOnClickListener {
-            requireParentFragment().findNavController()
-                .navigate(R.id.action_dashboardFragment_to_myPostsFragment)
+            val action = DashboardFragmentDirections.actionDashboardFragmentToMyPostsFragment()
+            requireParentFragment().findNavController().navigate(action)
         }
 
         setupPosts()
