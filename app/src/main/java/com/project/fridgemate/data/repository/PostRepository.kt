@@ -212,6 +212,12 @@ class PostRepository(context: Context) {
     private fun PostDto.toEntity(): PostEntity {
         val loc = location
         val authorAddr = authorUserId.address
+        
+        // Priority: Post's specific coordinates, then Author's registered coordinates
+        val hasPostCoords = loc?.coordinates != null && loc.coordinates.size >= 2
+        val lng = if (hasPostCoords) loc?.coordinates!![0] else authorAddr?.lng ?: 0.0
+        val lat = if (hasPostCoords) loc?.coordinates!![1] else authorAddr?.lat ?: 0.0
+        
         return PostEntity(
             id = id,
             authorName = authorUserId.displayName,
@@ -224,8 +230,8 @@ class PostRepository(context: Context) {
             commentsCount = commentsCount,
             isLiked = isLiked,
             isOwner = isOwner,
-            latitude = loc?.coordinates?.getOrNull(1) ?: authorAddr?.lat ?: 0.0,
-            longitude = loc?.coordinates?.getOrNull(0) ?: authorAddr?.lng ?: 0.0,
+            latitude = lat,
+            longitude = lng,
             createdAt = createdAt,
             recipeId = recipeId?.id,
             recipeTitle = recipeId?.title,

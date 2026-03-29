@@ -1,7 +1,10 @@
 package com.project.fridgemate.ui.feed
 
 import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -11,15 +14,23 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.project.fridgemate.R
 import com.project.fridgemate.databinding.FragmentAddPostBinding
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.util.Locale
 
 class AddPostFragment : Fragment() {
 
@@ -61,6 +72,18 @@ class AddPostFragment : Fragment() {
     private val requestGalleryPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) pickImageLauncher.launch("image/*")
+        }
+
+    private val requestLocationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+            ) {
+                submitPost()
+            } else {
+                Toast.makeText(context, "Location permission is required to post with location", Toast.LENGTH_SHORT).show()
+                submitPost() // Still submit without location if denied? Or maybe just submit.
+            }
         }
 
     override fun onCreateView(
@@ -138,6 +161,11 @@ class AddPostFragment : Fragment() {
             return
         }
 
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestLocationPermission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+            return
+        }
+
         binding.btnPost.isEnabled = false
         binding.loadingOverlay.visibility = View.VISIBLE
 
@@ -153,10 +181,56 @@ class AddPostFragment : Fragment() {
                 }
             }
 
+            var lat: Double? = null
+            var lng: Double? = null
+            var shortAddress: String? = null
+
+            try {
+                val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+                
+                // Request a fresh high-accuracy location
+                val priority = if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+                    Priority.PRIORITY_HIGH_ACCURACY
+                else
+                    Priority.PRIORITY_BALANCED_POWER_ACCURACY
+                
+                val location = fusedLocationClient.getCurrentLocation(
+                    priority,
+                    CancellationTokenSource().token
+                ).await()
+
+                if (location != null) {
+                    lat = location.latitude
+                    lng = location.longitude
+                    shortAddress = getShortAddress(location.latitude, location.longitude)
+                }
+            } catch (e: Exception) {
+                // Ignore location errors
+            }
+
             val recipeId = args.prefillRecipeId.ifEmpty { null }
-            feedViewModel.addPost(title, description, imageUrl, recipeId)
+            feedViewModel.addPost(title, description, imageUrl, recipeId, lat, lng, shortAddress)
             binding.loadingOverlay.visibility = View.GONE
             findNavController().navigateUp()
+        }
+    }
+
+    private suspend fun getShortAddress(lat: Double, lng: Double): String? = withContext(Dispatchers.IO) {
+        try {
+            val geocoder = Geocoder(requireContext(), Locale.getDefault())
+            val addresses = geocoder.getFromLocation(lat, lng, 1)
+            if (!addresses.isNullOrEmpty()) {
+                val address = addresses[0]
+                val city = address.locality ?: address.subAdminArea ?: address.adminArea
+                val country = address.countryCode ?: address.countryName
+                if (city != null && country != null) {
+                    "$city, $country"
+                } else {
+                    city ?: country
+                }
+            } else null
+        } catch (e: Exception) {
+            null
         }
     }
 

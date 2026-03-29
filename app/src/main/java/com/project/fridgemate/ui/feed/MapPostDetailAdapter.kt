@@ -9,7 +9,10 @@ import com.project.fridgemate.R
 import com.project.fridgemate.databinding.ItemMapPostDetailBinding
 import com.squareup.picasso.Picasso
 
-class MapPostDetailAdapter(private val posts: List<Post>) :
+class MapPostDetailAdapter(
+    private val posts: List<Post>,
+    private val onRecipeClick: (LinkedRecipe) -> Unit
+) :
     RecyclerView.Adapter<MapPostDetailAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: ItemMapPostDetailBinding) : RecyclerView.ViewHolder(binding.root)
@@ -58,6 +61,33 @@ class MapPostDetailAdapter(private val posts: List<Post>) :
                     .into(ivPostImage)
             } else {
                 ivPostImage.visibility = View.GONE
+            }
+
+            val recipe = post.linkedRecipe
+            if (recipe != null) {
+                cardLinkedRecipe.visibility = View.VISIBLE
+                tvLinkedRecipeTitle.text = recipe.title
+                tvLinkedRecipeInfo.text = "${recipe.cookingTime} · ${recipe.difficulty}"
+
+                if (recipe.imageUrl.isNotEmpty()) {
+                    val fullRecipeUrl = if (recipe.imageUrl.startsWith("/")) {
+                        BuildConfig.BASE_URL.trimEnd('/') + recipe.imageUrl
+                    } else {
+                        recipe.imageUrl
+                    }
+                    Picasso.get()
+                        .load(fullRecipeUrl)
+                        .placeholder(R.color.teal_primary)
+                        .into(ivRecipeThumb)
+                } else {
+                    ivRecipeThumb.setImageResource(R.color.teal_primary)
+                }
+
+                cardLinkedRecipe.setOnClickListener {
+                    onRecipeClick(recipe)
+                }
+            } else {
+                cardLinkedRecipe.visibility = View.GONE
             }
         }
     }

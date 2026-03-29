@@ -163,11 +163,12 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
         imageUrl: String? = null,
         recipeId: String? = null,
         latitude: Double? = null,
-        longitude: Double? = null
+        longitude: Double? = null,
+        placeName: String? = null
     ) {
         viewModelScope.launch {
             val location = if (latitude != null && longitude != null)
-                PostLocationRequest(lat = latitude, lng = longitude)
+                PostLocationRequest(lat = latitude, lng = longitude, placeName = placeName)
             else null
 
             val request = CreatePostRequest(
@@ -191,7 +192,15 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun editPost(postId: String, newTitle: String, newDescription: String, imageUrl: String? = null) {
+    fun editPost(
+        postId: String,
+        newTitle: String,
+        newDescription: String,
+        imageUrl: String? = null,
+        latitude: Double? = null,
+        longitude: Double? = null,
+        placeName: String? = null
+    ) {
         viewModelScope.launch {
             val currentPost = _posts.value?.find { it.id == postId }
             val mediaUrls = when {
@@ -199,10 +208,16 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
                 currentPost?.imageUrl?.isNotEmpty() == true -> listOf(currentPost.imageUrl)
                 else -> null
             }
+            
+            val locationRequest = if (latitude != null && longitude != null) {
+                PostLocationRequest(latitude, longitude, placeName)
+            } else null
+
             val request = UpdatePostRequest(
                 title = newTitle,
                 text = newDescription,
-                mediaUrls = mediaUrls
+                mediaUrls = mediaUrls,
+                location = locationRequest
             )
             when (val result = repository.updatePost(postId, request)) {
                 is FridgeResult.Success -> {
@@ -210,7 +225,10 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
                         if (it.id == postId) it.copy(
                             postTitle = newTitle,
                             description = newDescription,
-                            imageUrl = mediaUrls?.firstOrNull() ?: it.imageUrl
+                            imageUrl = mediaUrls?.firstOrNull() ?: it.imageUrl,
+                            latitude = latitude ?: it.latitude,
+                            longitude = longitude ?: it.longitude,
+                            userLocation = placeName ?: it.userLocation
                         ) else it
                     }
                     _posts.value = _posts.value?.map(update)
@@ -347,8 +365,11 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
     private fun PostDto.toPost(): Post {
         val loc = location
         val authorAddr = authorUserId.address
-        val lng = loc?.coordinates?.getOrNull(0) ?: authorAddr?.lng ?: 0.0
+        
+        // Priority: Post's specific location, then Author's registered location
         val lat = loc?.coordinates?.getOrNull(1) ?: authorAddr?.lat ?: 0.0
+        val lng = loc?.coordinates?.getOrNull(0) ?: authorAddr?.lng ?: 0.0
+
         val placeName = loc?.placeName
         val city = authorAddr?.city
 

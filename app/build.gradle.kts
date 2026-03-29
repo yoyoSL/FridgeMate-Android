@@ -70,6 +70,7 @@ dependencies {
     // Maps & Location
     implementation(libs.osmdroid)
     implementation(libs.play.services.location)
+    implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.swiperefreshlayout)
     implementation(libs.viewpager2)
 
