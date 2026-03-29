@@ -2,8 +2,6 @@ package com.project.fridgemate.ui.feed
 
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.transition.AutoTransition
-import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +11,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.AutoTransition
+import androidx.transition.TransitionManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
@@ -142,38 +142,33 @@ class PostAdapter(
             }
             
             btnComment.setOnClickListener {
-                // Use the RecyclerView as the transition root to prevent cards from colliding/jumping
+                // Prepare the transition
                 val recyclerView = root.parent as? RecyclerView
-                if (recyclerView != null) {
-                    TransitionManager.beginDelayedTransition(recyclerView, AutoTransition().apply {
-                        duration = 120
-                    })
-                } else {
-                    TransitionManager.beginDelayedTransition(root as ViewGroup, AutoTransition().apply {
-                        duration = 120
-                    })
-                }
+                val transitionRoot = recyclerView ?: (root as ViewGroup)
+                
+                TransitionManager.beginDelayedTransition(transitionRoot, AutoTransition().apply {
+                    duration = 200
+                    // Exclude the button itself to prevent weird button fading
+                    excludeTarget(btnComment, true)
+                })
 
-                if (rvComments.visibility == View.GONE) {
+                if (layoutCommentsSection.visibility == View.GONE) {
                     expandedPosts.add(post.id)
-                    rvComments.visibility = View.VISIBLE
-                    layoutAddComment.visibility = View.VISIBLE
-                    onExpandComments(post.id)
+                    // Setup data before showing to ensure layout is ready
                     setupComments(holder, post)
+                    layoutCommentsSection.visibility = View.VISIBLE
+                    onExpandComments(post.id)
                 } else {
                     expandedPosts.remove(post.id)
-                    rvComments.visibility = View.GONE
-                    layoutAddComment.visibility = View.GONE
+                    layoutCommentsSection.visibility = View.GONE
                 }
             }
 
             if (expandedPosts.contains(post.id)) {
-                rvComments.visibility = View.VISIBLE
-                layoutAddComment.visibility = View.VISIBLE
                 setupComments(holder, post)
+                layoutCommentsSection.visibility = View.VISIBLE
             } else {
-                rvComments.visibility = View.GONE
-                layoutAddComment.visibility = View.GONE
+                layoutCommentsSection.visibility = View.GONE
             }
 
             btnSendComment.setOnClickListener {
@@ -205,12 +200,19 @@ class PostAdapter(
     }
 
     private fun setupComments(holder: PostViewHolder, post: Post) {
-        holder.binding.rvComments.layoutManager = LinearLayoutManager(holder.itemView.context)
-        holder.binding.rvComments.adapter = CommentAdapter(
-            comments = post.comments,
-            onDeleteComment = { comment -> onDeleteComment(post.id, comment.id) },
-            onEditComment = { comment, newText -> onEditComment(post.id, comment.id, newText) }
-        )
+        val rv = holder.binding.rvComments
+        rv.itemAnimator = null // Prevent flickering during expansion
+        
+        // Only set the adapter if it's not already set to the same data to avoid unnecessary layout passes
+        val currentAdapter = rv.adapter as? CommentAdapter
+        if (currentAdapter == null || currentAdapter.itemCount != post.comments.size) {
+            rv.layoutManager = LinearLayoutManager(holder.itemView.context)
+            rv.adapter = CommentAdapter(
+                comments = post.comments,
+                onDeleteComment = { comment -> onDeleteComment(post.id, comment.id) },
+                onEditComment = { comment, newText -> onEditComment(post.id, comment.id, newText) }
+            )
+        }
     }
 
     private fun showOptionsMenu(anchor: View, post: Post) {

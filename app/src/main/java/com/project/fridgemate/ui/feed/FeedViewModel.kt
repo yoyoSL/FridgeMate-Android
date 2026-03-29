@@ -93,7 +93,14 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
             _error.value = null
             when (val result = repository.getPosts()) {
                 is FridgeResult.Success -> {
-                    _posts.value = result.data.items.map { it.toPost() }
+                    val posts = result.data.items.map { it.toPost() }
+                    _posts.value = posts
+                    // Automatically load comments for all fetched posts
+                    posts.forEach { post ->
+                        if (post.commentsCount > 0) {
+                            loadComments(post.id)
+                        }
+                    }
                 }
                 is FridgeResult.Error -> {
                     _error.value = result.message
@@ -110,7 +117,14 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
             _isMyPostsLoading.value = true
             when (val result = repository.getMyPosts()) {
                 is FridgeResult.Success -> {
-                    _myPosts.value = result.data.items.map { it.toPost() }
+                    val posts = result.data.items.map { it.toPost() }
+                    _myPosts.value = posts
+                    // Automatically load comments for my posts
+                    posts.forEach { post ->
+                        if (post.commentsCount > 0) {
+                            loadComments(post.id)
+                        }
+                    }
                 }
                 is FridgeResult.Error -> {
                     _error.value = result.message
@@ -265,6 +279,12 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadComments(postId: String) {
+        // Skip if we already have the comments (unless they've changed)
+        val currentPost = _posts.value?.find { it.id == postId } ?: _myPosts.value?.find { it.id == postId }
+        if (currentPost != null && currentPost.comments.isNotEmpty() && currentPost.comments.size == currentPost.commentsCount) {
+            return
+        }
+
         viewModelScope.launch {
             when (val result = repository.getComments(postId)) {
                 is FridgeResult.Success -> {

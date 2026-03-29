@@ -7,12 +7,17 @@
     android:layout_marginBottom="22dp"
     app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="16dp"
-    app:cardElevation="4dp">
+    app:cardElevation="4dp"
+    android:clipChildren="true"
+    android:clipToPadding="true"
+    android:clipToOutline="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="12dp">
+        android:paddingBottom="12dp"
+        android:clipChildren="true"
+        android:clipToPadding="true">
 
         <!-- Author Profile Photo -->
         <com.google.android.material.imageview.ShapeableImageView
@@ -267,52 +272,55 @@
             app:layout_constraintTop_toTopOf="@id/btnComment"
             tools:text="8" />
 
-        <!-- Comments List -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvComments"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:nestedScrollingEnabled="false"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnLike" />
-
-        <!-- Add Comment Area: Zero top margin to sit tight under the list -->
+        <!-- Comments Container -->
         <LinearLayout
-            android:id="@+id/layoutAddComment"
+            android:id="@+id/layoutCommentsSection"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="12dp"
-            android:paddingBottom="12dp"
+            android:orientation="vertical"
             android:visibility="gone"
+            android:transitionGroup="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rvComments">
+            app:layout_constraintTop_toBottomOf="@id/btnLike">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etComment"
-                android:layout_width="0dp"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvComments"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:hint="@string/add_comment_hint"
-                android:inputType="text"
-                android:paddingVertical="8dp"
-                android:textSize="14sp" />
+                android:layout_marginTop="4dp"
+                android:nestedScrollingEnabled="false" />
 
-            <ImageButton
-                android:id="@+id/btnSendComment"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="8dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_send"
-                app:tint="@color/teal_primary" />
+            <LinearLayout
+                android:id="@+id/layoutAddComment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="12dp"
+                android:paddingBottom="12dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etComment"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/add_comment_hint"
+                    android:inputType="text"
+                    android:paddingVertical="8dp"
+                    android:textSize="14sp" />
+
+                <ImageButton
+                    android:id="@+id/btnSendComment"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_send"
+                    app:tint="@color/teal_primary" />
+            </LinearLayout>
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
