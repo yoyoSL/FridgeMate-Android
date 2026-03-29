@@ -18,6 +18,8 @@ class CommentAdapter(
     private val onEditComment: (Comment, String) -> Unit = { _, _ -> }
 ) : RecyclerView.Adapter<CommentAdapter.CommentViewHolder>() {
 
+    private var editingCommentId: String? = null
+
     inner class CommentViewHolder(val binding: ItemCommentBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -33,6 +35,40 @@ class CommentAdapter(
         with(holder.binding) {
             tvCommentUserName.text = comment.userName
             tvCommentText.text = comment.text
+            
+            if (editingCommentId == comment.id) {
+                tvCommentText.visibility = View.GONE
+                layoutEditComment.visibility = View.VISIBLE
+                btnCommentOptions.visibility = View.GONE
+                etEditComment.setText(comment.text)
+                etEditComment.requestFocus()
+                
+                btnSaveEdit.setOnClickListener {
+                    val newText = etEditComment.text.toString().trim()
+                    if (newText.isNotEmpty()) {
+                        onEditComment(comment, newText)
+                        editingCommentId = null
+                        notifyItemChanged(position)
+                    }
+                }
+                
+                btnCancelEdit.setOnClickListener {
+                    editingCommentId = null
+                    notifyItemChanged(position)
+                }
+            } else {
+                tvCommentText.visibility = View.VISIBLE
+                layoutEditComment.visibility = View.GONE
+                if (comment.isOwner) {
+                    btnCommentOptions.visibility = View.VISIBLE
+                    btnCommentOptions.setOnClickListener {
+                        showCommentOptions(it, comment)
+                    }
+                } else {
+                    btnCommentOptions.visibility = View.GONE
+                }
+            }
+
             if (comment.authorImageUrl.isNotEmpty()) {
                 val url = if (comment.authorImageUrl.startsWith("/"))
                     BuildConfig.BASE_URL.trimEnd('/') + comment.authorImageUrl
@@ -45,14 +81,6 @@ class CommentAdapter(
             } else {
                 ivCommentUserPhoto.setImageResource(R.drawable.ic_person)
             }
-            if (comment.isOwner) {
-                btnCommentOptions.visibility = View.VISIBLE
-                btnCommentOptions.setOnClickListener {
-                    showCommentOptions(it, comment)
-                }
-            } else {
-                btnCommentOptions.visibility = View.GONE
-            }
         }
     }
 
@@ -64,7 +92,8 @@ class CommentAdapter(
 
         binding.btnEdit.setOnClickListener {
             dialog.dismiss()
-            showEditDialog(anchor, comment)
+            editingCommentId = comment.id
+            notifyDataSetChanged()
         }
 
         binding.btnDelete.setOnClickListener {
@@ -95,21 +124,5 @@ class CommentAdapter(
         dialog.show()
     }
 
-    private fun showEditDialog(anchor: View, comment: Comment) {
-        val editText = android.widget.EditText(anchor.context)
-        editText.setText(comment.text)
-
-        androidx.appcompat.app.AlertDialog.Builder(anchor.context)
-            .setTitle("Edit Comment")
-            .setView(editText)
-            .setPositiveButton("Save") { _, _ ->
-                val newText = editText.text.toString().trim()
-                if (newText.isNotEmpty()) {
-                    onEditComment(comment, newText)
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
     override fun getItemCount() = comments.size
 }
