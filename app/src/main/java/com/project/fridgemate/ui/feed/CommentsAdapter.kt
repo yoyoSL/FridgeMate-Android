@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.project.fridgemate.databinding.DialogConfirmDeleteBinding
 import com.project.fridgemate.databinding.ItemCommentBinding
 import com.squareup.picasso.Picasso
 
@@ -65,20 +67,33 @@ class CommentAdapter(
                     true
                 }
                 2 -> {
-                    androidx.appcompat.app.AlertDialog.Builder(anchor.context)
-                        .setTitle("Delete Comment?")
-                        .setMessage("Are you sure?")
-                        .setPositiveButton("Delete") { _, _ ->
-                            onDeleteComment(comment)
-                        }
-                        .setNegativeButton("Cancel", null)
-                        .show()
+                    showDeleteConfirmation(anchor.context, comment)
                     true
                 }
                 else -> false
             }
         }
         popup.show()
+    }
+
+    private fun showDeleteConfirmation(context: android.content.Context, comment: Comment) {
+        val dialog = BottomSheetDialog(context)
+        val binding = DialogConfirmDeleteBinding.inflate(LayoutInflater.from(context))
+        dialog.setContentView(binding.root)
+
+        binding.tvTitle.text = context.getString(R.string.delete_comment)
+        binding.tvMessage.text = context.getString(R.string.delete_comment_confirmation)
+
+        binding.btnConfirmDelete.setOnClickListener {
+            onDeleteComment(comment)
+            dialog.dismiss()
+        }
+
+        binding.btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun showEditDialog(anchor: View, comment: Comment) {

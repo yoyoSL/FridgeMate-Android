@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
+import com.project.fridgemate.databinding.DialogConfirmDeleteBinding
 import com.project.fridgemate.databinding.DialogPostOptionsBinding
 import com.project.fridgemate.databinding.ItemPostBinding
 import com.squareup.picasso.Picasso
@@ -215,14 +216,27 @@ class PostAdapter(
 
         binding.btnDelete.setOnClickListener {
             dialog.dismiss()
-            androidx.appcompat.app.AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.delete_post))
-                .setMessage(context.getString(R.string.delete_post_confirmation))
-                .setPositiveButton(context.getString(R.string.delete)) { _, _ ->
-                    onDeleteClick(post)
-                }
-                .setNegativeButton(context.getString(R.string.cancel), null)
-                .show()
+            showDeleteConfirmation(context, post)
+        }
+
+        dialog.show()
+    }
+
+    private fun showDeleteConfirmation(context: android.content.Context, post: Post) {
+        val dialog = BottomSheetDialog(context)
+        val binding = DialogConfirmDeleteBinding.inflate(LayoutInflater.from(context))
+        dialog.setContentView(binding.root)
+
+        binding.tvTitle.text = context.getString(R.string.delete_post)
+        binding.tvMessage.text = context.getString(R.string.delete_post_confirmation)
+
+        binding.btnConfirmDelete.setOnClickListener {
+            onDeleteClick(post)
+            dialog.dismiss()
+        }
+
+        binding.btnCancel.setOnClickListener {
+            dialog.dismiss()
         }
 
         dialog.show()
