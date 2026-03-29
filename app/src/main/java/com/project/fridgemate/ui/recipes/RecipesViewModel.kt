@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.project.fridgemate.R
 import com.project.fridgemate.data.local.AppDatabase
 import com.project.fridgemate.data.local.entity.RecipeEntity
 import com.project.fridgemate.data.repository.FridgeRepository
@@ -12,6 +13,9 @@ import com.project.fridgemate.data.repository.FridgeResult
 import com.project.fridgemate.data.repository.InventoryItemRepository
 import com.project.fridgemate.data.repository.RecipeRepository
 import kotlinx.coroutines.launch
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 class RecipesViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -56,21 +60,28 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
     fun loadRecommended() {
         _error.value = null
         viewModelScope.launch {
+            val cached = inventoryRepository.getCachedItems()
+            if (cached.isNotEmpty()) {
+                _isLoading.value = true
+            }
+
             val ingredients = fetchFridgeIngredients()
             if (ingredients == null) {
+                _isLoading.value = false
                 return@launch
             }
             if (ingredients.isEmpty()) {
+                _isLoading.value = false
                 _fridgeEmpty.value = true
                 return@launch
             }
             _fridgeEmpty.value = false
             _isLoading.value = true
             val result = repository.fetchRecommended(ingredients)
-            _isLoading.value = false
             if (result.isFailure) {
-                _error.value = result.exceptionOrNull()?.message ?: "Failed to load recipes"
+                _error.value = friendlyError(result.exceptionOrNull())
             }
+            _isLoading.value = false
         }
     }
 
@@ -87,7 +98,7 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
                 null
             }
             is FridgeResult.Error -> {
-                _error.value = fridgeResult.message
+                _error.value = friendlyError(Exception(fridgeResult.message))
                 null
             }
         }
@@ -104,10 +115,29 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
         _detailLoading.value = true
         viewModelScope.launch {
             val result = repository.fetchAndCacheRecipeByServerId(serverId)
-            _detailLoading.value = false
             if (result.isFailure) {
-                _error.value = result.exceptionOrNull()?.message ?: "Could not load recipe"
+                _error.value = friendlyError(result.exceptionOrNull())
             }
+            _detailLoading.value = false
+        }
+    }
+
+    private fun friendlyError(e: Throwable?): String {
+        val ctx = getApplication<Application>()
+        return when {
+            e is UnknownHostException || e is ConnectException ->
+                ctx.getString(R.string.error_no_connection)
+            e is SocketTimeoutException ->
+                ctx.getString(R.string.error_timeout)
+            e?.message?.contains("500") == true || e?.message?.contains("502") == true ||
+                e?.message?.contains("503") == true ->
+                ctx.getString(R.string.error_server)
+            e?.message?.contains("401") == true || e?.message?.contains("403") == true ->
+                ctx.getString(R.string.error_auth_expired)
+            e?.message?.contains("429") == true ->
+                ctx.getString(R.string.error_rate_limit)
+            else ->
+                ctx.getString(R.string.error_generic)
         }
     }
 
@@ -123,7 +153,7 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
             }
             
             if (result.isFailure) {
-                _error.postValue("Failed to update favorite: ${result.exceptionOrNull()?.message}")
+                _error.postValue(friendlyError(result.exceptionOrNull()))
             }
         }
     }

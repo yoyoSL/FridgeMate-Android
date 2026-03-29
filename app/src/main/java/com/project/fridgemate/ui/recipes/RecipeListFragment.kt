@@ -103,22 +103,19 @@ class RecipeListFragment : Fragment() {
                     showLoading()
                 } else {
                     hideLoading()
-                    updateEmptyState(adapter.itemCount == 0, type)
+                    val error = viewModel.error.value
+                    if (error != null) {
+                        showError(error)
+                    } else {
+                        updateEmptyState(adapter.itemCount == 0, type)
+                    }
                 }
             }
 
             viewModel.error.observe(viewLifecycleOwner) { error ->
+                if (viewModel.isLoading.value == true) return@observe
                 if (error != null) {
-                    val hasRecipes = adapter.itemCount > 0
-                    if (!hasRecipes) {
-                        showEmptyState(
-                            title = getString(R.string.recommended_empty_title),
-                            description = error
-                        )
-                        binding.btnGenerate.visibility = View.VISIBLE
-                    } else {
-                        Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
-                    }
+                    showError(error)
                 }
             }
 
@@ -132,8 +129,27 @@ class RecipeListFragment : Fragment() {
         }
     }
 
+    private fun showError(error: String) {
+        binding.loadingOverlay.visibility = View.GONE
+        val hasRecipes = adapter.itemCount > 0
+        if (!hasRecipes) {
+            showEmptyState(
+                title = getString(R.string.recommended_empty_title),
+                description = error
+            )
+            binding.btnGenerate.visibility = View.VISIBLE
+        } else {
+            binding.rvRecipes.visibility = View.VISIBLE
+            binding.emptyState.visibility = View.GONE
+            binding.btnGenerate.visibility = View.VISIBLE
+            Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun updateEmptyState(isEmpty: Boolean, type: String) {
         if (type == TYPE_RECOMMENDED && viewModel.isLoading.value == true) return
+
+        binding.loadingOverlay.visibility = View.GONE
 
         if (isEmpty) {
             if (type == TYPE_FAVORITES) {
@@ -149,13 +165,6 @@ class RecipeListFragment : Fragment() {
                     iconRes = R.drawable.ic_recipes
                 )
                 binding.btnGenerate.visibility = View.GONE
-            } else {
-                showEmptyState(
-                    title = getString(R.string.recommended_empty_title),
-                    description = getString(R.string.recommended_empty_desc),
-                    iconRes = R.drawable.ic_recipes
-                )
-                binding.btnGenerate.visibility = View.VISIBLE
             }
         } else {
             binding.emptyState.visibility = View.GONE
@@ -192,7 +201,6 @@ class RecipeListFragment : Fragment() {
     private fun hideLoading() {
         tipHandler.removeCallbacks(tipRunnable)
         binding.loadingOverlay.visibility = View.GONE
-        binding.rvRecipes.visibility = View.VISIBLE
     }
 
     override fun onDestroyView() {
