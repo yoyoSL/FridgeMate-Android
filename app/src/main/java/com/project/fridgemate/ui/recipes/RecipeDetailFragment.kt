@@ -21,6 +21,8 @@ import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
 import com.project.fridgemate.data.local.AppDatabase
 import com.project.fridgemate.data.local.entity.RecipeEntity
+import com.project.fridgemate.databinding.ItemDetailIngredientBinding
+import com.project.fridgemate.databinding.ItemDetailStepBinding
 import com.project.fridgemate.data.remote.dto.RecipeIngredientDto
 import com.project.fridgemate.data.repository.RecipeRepository
 import com.project.fridgemate.databinding.FragmentRecipeDetailBinding
@@ -47,7 +49,7 @@ class RecipeDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+        binding.btnBack.setOnClickListener { findNavController().navigateUp() }
 
         val recipeId = args.recipeId
         val serverRecipeId = args.serverRecipeId
@@ -88,8 +90,8 @@ class RecipeDetailFragment : Fragment() {
     private fun bindRecipe(recipe: RecipeEntity) {
         binding.tvTitle.text = recipe.title
         binding.tvDescription.text = recipe.description.ifBlank { "A delicious recipe just for you." }
-        binding.chipTime.text = recipe.cookingTime.ifBlank { "—" }
-        binding.chipDifficulty.text = recipe.difficulty
+        binding.tvRecipeTime.text = recipe.cookingTime.ifBlank { "—" }
+        binding.tvRecipeDifficulty.text = recipe.difficulty
 
         binding.tvCalories.text = recipe.calories.ifBlank { "—" }
         binding.tvProtein.text = recipe.protein.ifBlank { "—" }
@@ -142,7 +144,7 @@ class RecipeDetailFragment : Fragment() {
         } else {
             binding.btnFavorite.setImageResource(R.drawable.ic_star_outline)
             binding.btnFavorite.imageTintList = ColorStateList.valueOf(
-                ContextCompat.getColor(requireContext(), R.color.dark_teal)
+                ContextCompat.getColor(requireContext(), R.color.gray_text)
             )
         }
     }
@@ -155,35 +157,13 @@ class RecipeDetailFragment : Fragment() {
         } catch (_: Exception) { emptyList() }
 
         for (ingredient in ingredients) {
-            val row = LinearLayout(requireContext()).apply {
-                orientation = LinearLayout.HORIZONTAL
-                setPadding(0, 12, 0, 12)
+            val itemBinding = ItemDetailIngredientBinding.inflate(layoutInflater, binding.llIngredients, false)
+            itemBinding.tvIngredientText.text = if (ingredient.amount.isNotBlank()) {
+                "${ingredient.name}  \u2014  ${ingredient.amount}"
+            } else {
+                ingredient.name
             }
-
-            val bullet = TextView(requireContext()).apply {
-                text = "\u2022"
-                textSize = 16f
-                setTextColor(ContextCompat.getColor(context, R.color.teal_primary))
-                setPadding(0, 0, 16, 0)
-            }
-
-            val text = TextView(requireContext()).apply {
-                this.text = "${ingredient.name}  \u2014  ${ingredient.amount}"
-                textSize = 15f
-                setTextColor(Color.parseColor("#333333"))
-            }
-
-            row.addView(bullet)
-            row.addView(text)
-            binding.llIngredients.addView(row)
-
-            val divider = View(requireContext()).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, 1
-                ).apply { setMargins(0, 0, 0, 0) }
-                setBackgroundColor(ContextCompat.getColor(context, R.color.divider_color))
-            }
-            binding.llIngredients.addView(divider)
+            binding.llIngredients.addView(itemBinding.root)
         }
     }
 
@@ -195,33 +175,10 @@ class RecipeDetailFragment : Fragment() {
         } catch (_: Exception) { emptyList() }
 
         for ((index, step) in steps.withIndex()) {
-            val row = LinearLayout(requireContext()).apply {
-                orientation = LinearLayout.HORIZONTAL
-                setPadding(0, 16, 0, 16)
-            }
-
-            val number = TextView(requireContext()).apply {
-                text = "${index + 1}"
-                textSize = 14f
-                setTextColor(Color.WHITE)
-                gravity = android.view.Gravity.CENTER
-                val size = (28 * resources.displayMetrics.density).toInt()
-                layoutParams = LinearLayout.LayoutParams(size, size).apply {
-                    setMargins(0, 0, 16, 0)
-                }
-                background = ContextCompat.getDrawable(context, R.drawable.bg_step_number)
-            }
-
-            val text = TextView(requireContext()).apply {
-                this.text = step
-                textSize = 15f
-                setTextColor(Color.parseColor("#333333"))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            }
-
-            row.addView(number)
-            row.addView(text)
-            binding.llSteps.addView(row)
+            val itemBinding = ItemDetailStepBinding.inflate(layoutInflater, binding.llSteps, false)
+            itemBinding.tvStepNumber.text = (index + 1).toString()
+            itemBinding.tvStepText.text = step
+            binding.llSteps.addView(itemBinding.root)
         }
     }
 

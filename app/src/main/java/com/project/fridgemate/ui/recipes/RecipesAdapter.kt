@@ -95,7 +95,7 @@ class RecipeAdapter(
         }
     }
 
-    private fun updateFavoriteIcon(btn: ImageButton, isFavorite: Boolean, animate: Boolean) {
+    private fun updateFavoriteIcon(btn: com.google.android.material.floatingactionbutton.FloatingActionButton, isFavorite: Boolean, animate: Boolean) {
         if (isFavorite) {
             btn.setImageResource(R.drawable.ic_star_filled)
             btn.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFD700")) // Gold
@@ -109,11 +109,11 @@ class RecipeAdapter(
         }
     }
 
-    private fun animateStar(view: ImageButton) {
+    private fun animateStar(view: com.google.android.material.floatingactionbutton.FloatingActionButton) {
         viewScalePop(view, 1.2f)
     }
 
-    private fun viewScalePop(view: ImageButton, scale: Float) {
+    private fun viewScalePop(view: com.google.android.material.floatingactionbutton.FloatingActionButton, scale: Float) {
         view.animate().cancel()
         view.scaleX = 0.8f
         view.scaleY = 0.8f
