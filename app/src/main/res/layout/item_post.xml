@@ -133,40 +133,76 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp">
 
-                <ImageView
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/ivRecipeThumb"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
                     android:scaleType="centerCrop"
                     android:src="@color/teal_primary"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:shapeAppearanceOverlay="@style/RoundedSmall" />
 
                 <TextView
                     android:id="@+id/tvLinkedRecipeTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginStart="12dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:textColor="@color/dark_teal"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toStartOf="@+id/ivChevron"
                     app:layout_constraintStart_toEndOf="@id/ivRecipeThumb"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/ivRecipeThumb"
                     tools:text="Recipe Title" />
 
-                <TextView
-                    android:id="@+id/tvLinkedRecipeInfo"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:textColor="@color/gray_text"
-                    android:textSize="11sp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
                     app:layout_constraintEnd_toStartOf="@+id/ivChevron"
                     app:layout_constraintStart_toEndOf="@id/ivRecipeThumb"
-                    app:layout_constraintTop_toBottomOf="@id/tvLinkedRecipeTitle"
-                    tools:text="25 min · Easy" />
+                    app:layout_constraintTop_toBottomOf="@id/tvLinkedRecipeTitle">
+
+                    <ImageView
+                        android:id="@+id/ivTimeIcon"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_time"
+                        app:tint="@color/gray_text" />
+
+                    <TextView
+                        android:id="@+id/tvCookingTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:textColor="@color/gray_text"
+                        android:textSize="11sp"
+                        tools:text="25 min" />
+
+                    <ImageView
+                        android:id="@+id/ivDifficultyIcon"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginStart="12dp"
+                        android:src="@drawable/ic_chef_hat"
+                        app:tint="@color/gray_text" />
+
+                    <TextView
+                        android:id="@+id/tvDifficulty"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:textColor="@color/gray_text"
+                        android:textSize="11sp"
+                        tools:text="Easy" />
+                </LinearLayout>
 
                 <ImageView
                     android:id="@+id/ivChevron"

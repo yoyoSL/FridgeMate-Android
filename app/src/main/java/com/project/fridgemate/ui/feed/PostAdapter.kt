@@ -83,8 +83,11 @@ class PostAdapter(
             if (post.imageUrl.isNotEmpty()) {
                 ivPostImage.visibility = View.VISIBLE
                 ivPostImage.setBackgroundColor(0)
+                val url = if (post.imageUrl.startsWith("/"))
+                    BuildConfig.BASE_URL.trimEnd('/') + post.imageUrl
+                else post.imageUrl
                 Picasso.get()
-                    .load(post.imageUrl)
+                    .load(url)
                     .placeholder(R.color.light_teal)
                     .error(R.color.light_teal)
                     .into(ivPostImage)
@@ -99,20 +102,27 @@ class PostAdapter(
             if (recipe != null) {
                 cardLinkedRecipe.visibility = View.VISIBLE
                 tvLinkedRecipeTitle.text = recipe.title
-                val info = buildString {
-                    if (recipe.cookingTime.isNotBlank()) append(recipe.cookingTime)
-                    if (recipe.difficulty.isNotBlank()) {
-                        if (isNotEmpty()) append(" · ")
-                        append(recipe.difficulty)
-                    }
-                }
-                tvLinkedRecipeInfo.text = info
+                
+                tvCookingTime.text = recipe.cookingTime
+                tvDifficulty.text = recipe.difficulty
+                
+                // Hide icons if info is missing
+                ivTimeIcon.visibility = if (recipe.cookingTime.isBlank()) View.GONE else View.VISIBLE
+                tvCookingTime.visibility = if (recipe.cookingTime.isBlank()) View.GONE else View.VISIBLE
+                ivDifficultyIcon.visibility = if (recipe.difficulty.isBlank()) View.GONE else View.VISIBLE
+                tvDifficulty.visibility = if (recipe.difficulty.isBlank()) View.GONE else View.VISIBLE
+
                 if (recipe.imageUrl.isNotEmpty()) {
+                    val url = if (recipe.imageUrl.startsWith("/"))
+                        BuildConfig.BASE_URL.trimEnd('/') + recipe.imageUrl
+                    else recipe.imageUrl
                     Picasso.get()
-                        .load(recipe.imageUrl)
+                        .load(url)
                         .placeholder(R.color.light_teal)
                         .error(R.color.light_teal)
                         .into(ivRecipeThumb)
+                } else {
+                    ivRecipeThumb.setImageResource(R.color.teal_primary)
                 }
                 cardLinkedRecipe.setOnClickListener { onRecipeClick(recipe) }
             } else {

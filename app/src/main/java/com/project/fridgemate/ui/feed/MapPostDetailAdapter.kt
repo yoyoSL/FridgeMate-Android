@@ -67,7 +67,15 @@ class MapPostDetailAdapter(
             if (recipe != null) {
                 cardLinkedRecipe.visibility = View.VISIBLE
                 tvLinkedRecipeTitle.text = recipe.title
-                tvLinkedRecipeInfo.text = "${recipe.cookingTime} · ${recipe.difficulty}"
+                
+                tvCookingTime.text = recipe.cookingTime
+                tvDifficulty.text = recipe.difficulty
+
+                // Hide icons if info is missing
+                ivTimeIcon.visibility = if (recipe.cookingTime.isBlank()) View.GONE else View.VISIBLE
+                tvCookingTime.visibility = if (recipe.cookingTime.isBlank()) View.GONE else View.VISIBLE
+                ivDifficultyIcon.visibility = if (recipe.difficulty.isBlank()) View.GONE else View.VISIBLE
+                tvDifficulty.visibility = if (recipe.difficulty.isBlank()) View.GONE else View.VISIBLE
 
                 if (recipe.imageUrl.isNotEmpty()) {
                     val fullRecipeUrl = if (recipe.imageUrl.startsWith("/")) {
