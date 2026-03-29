@@ -99,7 +99,6 @@ class SharedFridgeViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch {
             when (val result = repository.joinFridge(inviteCode)) {
                 is FridgeResult.Success -> {
-                    _actionSuccess.value = "Joined fridge!"
                     loadFridge()
                 }
                 is FridgeResult.Error -> {
@@ -116,7 +115,6 @@ class SharedFridgeViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch {
             when (val result = repository.leaveFridge()) {
                 is FridgeResult.Success -> {
-                    _actionSuccess.value = "Left fridge"
                     _hasFridge.value = false
                     _members.value = emptyList()
                     _isLoading.value = false
