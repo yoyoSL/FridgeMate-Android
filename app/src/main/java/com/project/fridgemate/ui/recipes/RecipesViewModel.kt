@@ -53,10 +53,7 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun loadRecommended(
-        allergies: List<String>? = null,
-        dietPreference: String? = null
-    ) {
+    fun loadRecommended() {
         _error.value = null
         viewModelScope.launch {
             val ingredients = fetchFridgeIngredients()
@@ -69,7 +66,7 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
             }
             _fridgeEmpty.value = false
             _isLoading.value = true
-            val result = repository.fetchRecommended(ingredients, allergies, dietPreference)
+            val result = repository.fetchRecommended(ingredients)
             _isLoading.value = false
             if (result.isFailure) {
                 _error.value = result.exceptionOrNull()?.message ?: "Failed to load recipes"

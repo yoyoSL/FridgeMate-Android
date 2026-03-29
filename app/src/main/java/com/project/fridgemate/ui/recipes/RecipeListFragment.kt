@@ -160,7 +160,7 @@ class RecipeListFragment : Fragment() {
         } else {
             binding.emptyState.visibility = View.GONE
             binding.rvRecipes.visibility = View.VISIBLE
-            binding.btnGenerate.visibility = View.VISIBLE
+            binding.btnGenerate.visibility = if (type == TYPE_RECOMMENDED) View.VISIBLE else View.GONE
         }
     }
 

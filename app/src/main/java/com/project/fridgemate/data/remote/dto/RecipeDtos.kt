@@ -6,8 +6,6 @@ import com.google.gson.annotations.SerializedName
 
 data class GenerateRecipesRequest(
     val ingredients: List<String>,
-    val allergies: List<String>? = null,
-    val dietPreference: String? = null,
     val count: Int = 3
 )
 
