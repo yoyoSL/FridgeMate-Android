@@ -84,6 +84,72 @@
                 android:textSize="14sp"
                 tools:text="Just made this amazing dish with the ingredients I had! The sun-dried tomatoes really make it special." />
 
+            <!-- Linked Recipe Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardLinkedRecipe"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/light_teal"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/light_teal"
+                app:strokeWidth="1dp"
+                tools:visibility="visible">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <ImageView
+                        android:id="@+id/ivRecipeThumb"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:scaleType="centerCrop"
+                        android:src="@color/teal_primary"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvLinkedRecipeTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:textColor="@color/dark_teal"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@+id/ivChevron"
+                        app:layout_constraintStart_toEndOf="@id/ivRecipeThumb"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Recipe Title" />
+
+                    <TextView
+                        android:id="@+id/tvLinkedRecipeInfo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:textColor="@color/gray_text"
+                        android:textSize="11sp"
+                        app:layout_constraintEnd_toStartOf="@+id/ivChevron"
+                        app:layout_constraintStart_toEndOf="@id/ivRecipeThumb"
+                        app:layout_constraintTop_toBottomOf="@id/tvLinkedRecipeTitle"
+                        tools:text="25 min · Easy" />
+
+                    <ImageView
+                        android:id="@+id/ivChevron"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="@color/teal_primary" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

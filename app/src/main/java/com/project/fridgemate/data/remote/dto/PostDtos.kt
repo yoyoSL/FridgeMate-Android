@@ -78,7 +78,8 @@ data class CreatePostRequest(
 data class UpdatePostRequest(
     val title: String? = null,
     val text: String? = null,
-    val mediaUrls: List<String>? = null
+    val mediaUrls: List<String>? = null,
+    val location: PostLocationRequest? = null
 )
 
 data class PostLocationRequest(

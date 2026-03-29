@@ -203,7 +203,12 @@ class MapViewFragment : Fragment() {
         
         tabLayoutMediator?.detach()
         
-        val adapter = MapPostDetailAdapter(posts)
+        val adapter = MapPostDetailAdapter(posts) { linkedRecipe ->
+            val bundle = Bundle().apply {
+                putString("serverRecipeId", linkedRecipe.id)
+            }
+            findNavController().navigate(R.id.recipeDetailFragment, bundle)
+        }
         binding.vpPostDetail.adapter = adapter
         
         // Reset height for the first item

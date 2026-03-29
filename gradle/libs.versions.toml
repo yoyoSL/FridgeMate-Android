@@ -25,6 +25,7 @@ securityCrypto = "1.0.0"
 lottie = "6.6.2"
 osmdroid = "6.1.20"
 playServicesLocation = "21.0.1"
+kotlinxCoroutinesPlayServices = "1.7.3"
 swiperefreshlayout = "1.1.0"
 viewpager2 = "1.1.0"
 
@@ -57,6 +58,7 @@ androidx-security-crypto = { group = "androidx.security", name = "security-crypt
 lottie = { group = "com.airbnb.android", name = "lottie", version.ref = "lottie" }
 osmdroid = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
 swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
 
