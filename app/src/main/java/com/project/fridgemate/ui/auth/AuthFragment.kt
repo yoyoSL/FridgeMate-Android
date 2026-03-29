@@ -9,18 +9,20 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.project.fridgemate.R
 import com.project.fridgemate.ui.auth.AuthFragmentDirections
-import com.project.fridgemate.data.remote.ApiClient
 import com.project.fridgemate.databinding.FragmentAuthBinding
 import com.project.fridgemate.ui.login.LoginFragment
+import com.project.fridgemate.ui.profile.ProfileViewModel
 import com.project.fridgemate.ui.register.RegisterFragment
 
 class AuthFragment : Fragment() {
 
     private var _binding: FragmentAuthBinding? = null
     private val binding get() = _binding!!
+    private val profileViewModel: ProfileViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,7 +36,7 @@ class AuthFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (ApiClient.getTokenManager().isLoggedIn) {
+        if (profileViewModel.isLoggedIn) {
             val action = AuthFragmentDirections.actionAuthFragmentToDashboardFragment()
             findNavController().navigate(action)
             return

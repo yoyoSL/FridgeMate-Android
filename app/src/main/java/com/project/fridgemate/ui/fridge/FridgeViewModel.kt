@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.project.fridgemate.data.remote.ApiClient
 import com.project.fridgemate.data.remote.dto.InventoryItemDto
 import com.project.fridgemate.data.repository.FridgeRepository
 import com.project.fridgemate.data.repository.FridgeResult
@@ -21,6 +22,7 @@ class FridgeViewModel(application: Application) : AndroidViewModel(application) 
         data class Items(val items: List<FridgeItem>) : State()
         object Empty : State()
         object NoFridge : State()
+        object NotLoggedIn : State()
         data class Error(val message: String) : State()
     }
 
@@ -28,8 +30,11 @@ class FridgeViewModel(application: Application) : AndroidViewModel(application) 
     val state: LiveData<State> = _state
 
     fun loadItems() {
+        if (!ApiClient.getTokenManager().isLoggedIn) {
+            _state.value = State.NotLoggedIn
+            return
+        }
         viewModelScope.launch {
-            // Show cached items immediately — no spinner needed
             val cached = itemRepository.getCachedItems()
             if (cached.isNotEmpty()) {
                 _state.value = State.Items(buildFridgeItemList(cached))

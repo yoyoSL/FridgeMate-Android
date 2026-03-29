@@ -25,6 +25,9 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
     fun getFavorites(): LiveData<List<RecipeEntity>> =
         recipeDao.getByType(RecipeEntity.TYPE_FAVORITE)
 
+    fun getByRoomId(roomId: Long): LiveData<RecipeEntity?> =
+        recipeDao.getById(roomId)
+
     fun getByServerId(serverId: String): LiveData<RecipeEntity?> =
         recipeDao.getByServerId(serverId)
 

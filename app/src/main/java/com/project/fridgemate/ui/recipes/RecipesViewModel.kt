@@ -96,6 +96,24 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    private val _detailLoading = MutableLiveData(false)
+    val detailLoading: LiveData<Boolean> = _detailLoading
+
+    fun getRecipeByRoomId(roomId: Long): LiveData<RecipeEntity?> = repository.getByRoomId(roomId)
+
+    fun getRecipeByServerId(serverId: String): LiveData<RecipeEntity?> = repository.getByServerId(serverId)
+
+    fun fetchRecipeDetail(serverId: String) {
+        _detailLoading.value = true
+        viewModelScope.launch {
+            val result = repository.fetchAndCacheRecipeByServerId(serverId)
+            _detailLoading.value = false
+            if (result.isFailure) {
+                _error.value = result.exceptionOrNull()?.message ?: "Could not load recipe"
+            }
+        }
+    }
+
     fun toggleFavorite(recipe: RecipeEntity) {
         val serverId = recipe.serverId ?: return
         val wasFavorite = recipe.isFavorite
