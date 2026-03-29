@@ -31,7 +31,7 @@
                     android:layout_weight="1"
                     android:layout_height="52dp"
                     android:layout_marginEnd="6dp"
-                    android:text="Map View"
+                    android:text="@string/map_view"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="@color/white"
@@ -48,7 +48,7 @@
                     android:layout_weight="1"
                     android:layout_height="52dp"
                     android:layout_marginStart="6dp"
-                    android:text="My Posts"
+                    android:text="@string/my_posts"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="@color/white"
@@ -120,7 +120,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="No posts yet"
+                    android:text="@string/no_posts_yet"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="@color/gray_text" />
@@ -131,7 +131,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
-                    android:text="Be the first one to share a post"
+                    android:text="@string/be_first_to_post"
                     android:textSize="14sp"
                     android:textColor="@color/gray_text" />
 

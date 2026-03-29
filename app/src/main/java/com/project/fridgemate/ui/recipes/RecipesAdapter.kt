@@ -95,25 +95,25 @@ class RecipeAdapter(
         }
     }
 
-    private fun updateFavoriteIcon(btn: ImageButton, isFavorite: Boolean, animate: Boolean) {
+    private fun updateFavoriteIcon(btn: com.google.android.material.floatingactionbutton.FloatingActionButton, isFavorite: Boolean, animate: Boolean) {
         if (isFavorite) {
             btn.setImageResource(R.drawable.ic_star_filled)
             btn.imageTintList = ColorStateList.valueOf(Color.parseColor("#FFD700")) // Gold
             if (animate) animateStar(btn)
         } else {
             btn.setImageResource(R.drawable.ic_star_outline)
-            btn.imageTintList = ColorStateList.valueOf(Color.parseColor("#8E8E8E")) // Gray
+            btn.imageTintList = ColorStateList.valueOf(btn.context.getColor(R.color.gray_text))
             if (animate) {
                 viewScalePop(btn, 0.9f)
             }
         }
     }
 
-    private fun animateStar(view: ImageButton) {
+    private fun animateStar(view: com.google.android.material.floatingactionbutton.FloatingActionButton) {
         viewScalePop(view, 1.2f)
     }
 
-    private fun viewScalePop(view: ImageButton, scale: Float) {
+    private fun viewScalePop(view: com.google.android.material.floatingactionbutton.FloatingActionButton, scale: Float) {
         view.animate().cancel()
         view.scaleX = 0.8f
         view.scaleY = 0.8f

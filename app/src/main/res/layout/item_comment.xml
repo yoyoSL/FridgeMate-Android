@@ -29,7 +29,7 @@
             android:id="@+id/tvCommentUserName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Alex Martinez"
+            android:text="@string/profile_name_placeholder"
             android:textSize="13sp"
             android:textStyle="bold" />
 
@@ -37,7 +37,7 @@
             android:id="@+id/tvCommentText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="This looks delicious!"
+            android:text="@string/comment_placeholder"
             android:textSize="13sp"
             android:textColor="@color/gray_text"
             android:layout_marginTop="1dp" />

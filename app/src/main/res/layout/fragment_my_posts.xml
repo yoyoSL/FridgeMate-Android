@@ -29,7 +29,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="My Posts"
+            android:text="@string/my_posts"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/gray_text"
@@ -73,7 +73,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="You haven't posted yet."
+            android:text="@string/havent_posted_yet"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/gray_text" />
@@ -83,7 +83,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:text="Share something with the community!"
+            android:text="@string/share_something"
             android:textSize="14sp"
             android:textColor="@color/gray_text" />
 

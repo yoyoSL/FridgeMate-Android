@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:paddingHorizontal="20dp"
             android:paddingVertical="10dp"
-            android:text="No posts found in this area"
+            android:text="@string/no_posts_map"
             android:textColor="@color/black"
             android:textSize="14sp"
             android:textStyle="bold" />

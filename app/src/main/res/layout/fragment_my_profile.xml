@@ -29,7 +29,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
                 android:background="@android:color/transparent"
-                android:contentDescription="Back"
+                android:contentDescription="@string/cd_back"
                 android:padding="1dp"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_arrow_back"
@@ -39,7 +39,7 @@
                 android:id="@+id/my_profile_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="My Profile"
+                android:text="@string/my_profile_title"
                 android:textStyle="bold"
                 android:textSize="20sp"
                 android:layout_marginStart="12dp"
@@ -120,7 +120,7 @@
                     android:id="@+id/personal_info_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Personal information"
+                    android:text="@string/personal_information"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:layout_marginStart="14dp"
@@ -131,7 +131,7 @@
                     android:id="@+id/full_name_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Full name"
+                    android:text="@string/full_name"
                     android:textSize="14sp"
                     android:textColor="@color/dark_teal"
                     android:layout_marginTop="16dp"
@@ -157,7 +157,7 @@
                         android:id="@+id/etFullName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Alex Johnson"
+                        android:text="@string/profile_name_placeholder"
                         android:textSize="16sp" />
                 </com.google.android.material.textfield.TextInputLayout>
                 <!-- Label: Location -->
@@ -165,7 +165,7 @@
                     android:id="@+id/location_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Location"
+                    android:text="@string/location"
                     android:textSize="14sp"
                     android:textColor="@color/dark_teal"
                     android:layout_marginTop="16dp"
@@ -191,14 +191,14 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_map_pin"
                         app:tint="@color/dark_teal"
-                        android:contentDescription="Location" />
+                        android:contentDescription="@string/cd_location" />
                     <TextView
                         android:id="@+id/tvLocation"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="10dp"
-                        android:text="Detecting location…"
+                        android:text="@string/detecting_location"
                         android:textColor="@color/black"
                         android:textSize="16sp" />
                 </LinearLayout>
@@ -247,7 +247,7 @@
                     android:id="@+id/allergies_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Allergies &amp; Restrictions"
+                    android:text="@string/allergies_restrictions"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:layout_marginStart="14dp"
@@ -263,7 +263,7 @@
             android:id="@+id/btn_save_changes"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Save changes"
+            android:text="@string/save_changes"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="24dp"
             android:layout_marginTop="16dp"
