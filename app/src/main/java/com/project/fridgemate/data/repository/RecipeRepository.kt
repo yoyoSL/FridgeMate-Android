@@ -39,13 +39,11 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
 
     suspend fun fetchRecommended(
         ingredients: List<String>,
-        allergies: List<String>? = null,
-        dietPreference: String? = null,
         count: Int = 3
     ): Result<Unit> {
         return try {
             val response = recipeApi.generateRecipes(
-                GenerateRecipesRequest(ingredients, allergies, dietPreference, count)
+                GenerateRecipesRequest(ingredients, count)
             )
             if (response.isSuccessful) {
                 val recipes = response.body()?.recipes ?: emptyList()
