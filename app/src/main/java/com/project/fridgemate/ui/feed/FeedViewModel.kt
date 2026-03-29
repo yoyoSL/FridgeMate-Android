@@ -57,7 +57,7 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
     private val _posts = MutableLiveData<List<Post>>(emptyList())
     val posts: LiveData<List<Post>> = _posts
 
-    private val _isLoading = MutableLiveData(false)
+    private val _isLoading = MutableLiveData(true)
     val isLoading: LiveData<Boolean> = _isLoading
 
     private val _error = MutableLiveData<String?>(null)
@@ -86,7 +86,10 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadPosts() {
         viewModelScope.launch {
-            _isLoading.value = true
+            // Only show main loading if we don't have posts yet
+            if (_posts.value.isNullOrEmpty()) {
+                _isLoading.value = true
+            }
             _error.value = null
             when (val result = repository.getPosts()) {
                 is FridgeResult.Success -> {
