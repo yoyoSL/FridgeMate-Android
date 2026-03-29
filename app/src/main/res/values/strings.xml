@@ -139,6 +139,7 @@
     <string name="havent_posted_yet">You haven\'t posted yet.</string>
     <string name="new_post">New Post</string>
     <string name="edit_post">Edit Post</string>
+    <string name="edit_comment">Edit Comment</string>
     <string name="post">Post</string>
     <string name="save">Save</string>
     <string name="add_photo">Add Photo</string>

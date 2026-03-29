@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.R
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.project.fridgemate.databinding.DialogCommentOptionsBinding
 import com.project.fridgemate.databinding.DialogConfirmDeleteBinding
 import com.project.fridgemate.databinding.ItemCommentBinding
 import com.squareup.picasso.Picasso
@@ -56,24 +57,22 @@ class CommentAdapter(
     }
 
     private fun showCommentOptions(anchor: View, comment: Comment) {
-        val popup = androidx.appcompat.widget.PopupMenu(anchor.context, anchor)
-        popup.menu.add(0, 1, 0, "✏️ Edit")
-        popup.menu.add(0, 2, 1, "🗑️ Delete")
+        val context = anchor.context
+        val dialog = BottomSheetDialog(context)
+        val binding = DialogCommentOptionsBinding.inflate(LayoutInflater.from(context))
+        dialog.setContentView(binding.root)
 
-        popup.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                1 -> {
-                    showEditDialog(anchor, comment)
-                    true
-                }
-                2 -> {
-                    showDeleteConfirmation(anchor.context, comment)
-                    true
-                }
-                else -> false
-            }
+        binding.btnEdit.setOnClickListener {
+            dialog.dismiss()
+            showEditDialog(anchor, comment)
         }
-        popup.show()
+
+        binding.btnDelete.setOnClickListener {
+            dialog.dismiss()
+            showDeleteConfirmation(context, comment)
+        }
+
+        dialog.show()
     }
 
     private fun showDeleteConfirmation(context: android.content.Context, comment: Comment) {
