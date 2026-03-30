@@ -46,6 +46,8 @@ class PostRepository(context: Context) {
             val response = postApi.getMyPosts()
             if (response.isSuccessful) {
                 val data = response.body()!!
+                val entities = data.items.map { it.toEntity() }
+                postDao.insertAll(entities)
                 FridgeResult.Success(data)
             } else {
                 val cached = postDao.getMyPosts()
@@ -196,7 +198,8 @@ class PostRepository(context: Context) {
     private suspend fun cachePosts(posts: List<PostDto>) {
         try {
             val entities = posts.map { it.toEntity() }
-            postDao.clearAll()
+            // Delete only non-owner posts to keep "My Shares" cached for offline
+            postDao.clearNonOwnerPosts()
             postDao.insertAll(entities)
         } catch (_: Exception) { }
     }
