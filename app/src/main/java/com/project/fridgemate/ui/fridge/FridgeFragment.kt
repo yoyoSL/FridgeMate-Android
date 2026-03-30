@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.project.fridgemate.R
-import com.project.fridgemate.data.remote.ApiClient
 import com.project.fridgemate.databinding.FragmentFridgeBinding
 
 class FridgeFragment : Fragment() {
@@ -31,11 +30,7 @@ class FridgeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.rvFridge.layoutManager = LinearLayoutManager(requireContext())
         observeViewModel()
-        if (!ApiClient.getTokenManager().isLoggedIn) {
-            showNotLoggedIn()
-        } else {
-            viewModel.loadItems()
-        }
+        viewModel.loadItems()
     }
 
     private fun observeViewModel() {
@@ -45,6 +40,7 @@ class FridgeFragment : Fragment() {
                 is FridgeViewModel.State.Items -> showItems(state.items)
                 is FridgeViewModel.State.Empty -> showEmptyState()
                 is FridgeViewModel.State.NoFridge -> showNoFridge()
+                is FridgeViewModel.State.NotLoggedIn -> showNotLoggedIn()
                 is FridgeViewModel.State.Error -> showEmptyState()
             }
         }

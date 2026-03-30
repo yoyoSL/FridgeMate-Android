@@ -227,10 +227,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun clearRecipeCache() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            val dao = AppDatabase.getInstance(requireActivity().application).recipeDao()
-            dao.deleteByType(RecipeEntity.TYPE_RECOMMENDED)
-        }
+        viewModel.clearRecipeCache()
     }
 
     override fun onDestroyView() {

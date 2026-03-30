@@ -9,19 +9,12 @@ import android.widget.PopupWindow
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.project.fridgemate.ui.dashboard.DashboardFragmentDirections
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import com.project.fridgemate.BuildConfig
 import com.project.fridgemate.MainActivity
 import com.project.fridgemate.R
 import com.squareup.picasso.Picasso
-import com.project.fridgemate.data.local.AppDatabase
-import com.project.fridgemate.data.remote.ApiClient
-import com.project.fridgemate.data.repository.AuthRepository
 import com.project.fridgemate.databinding.FragmentDashboardBinding
 import com.project.fridgemate.databinding.PopupProfileMenuBinding
 import com.project.fridgemate.ui.fridge.FridgeFragment
@@ -34,7 +27,6 @@ class DashboardFragment : Fragment() {
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
 
-    private val authRepository = AuthRepository()
     private val profileViewModel: ProfileViewModel by activityViewModels()
 
     private var currentTabId: Int = R.id.tab_feed
@@ -51,7 +43,7 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (!ApiClient.getTokenManager().isLoggedIn) {
+        if (!profileViewModel.isLoggedIn) {
             val action = DashboardFragmentDirections.actionDashboardFragmentToAuthFragment()
             findNavController().navigate(action)
             return
@@ -73,6 +65,14 @@ class DashboardFragment : Fragment() {
         setupTabListeners()
         setupProfileMenu()
         loadGreeting()
+
+        profileViewModel.loggedOut.observe(viewLifecycleOwner) { loggedOut ->
+            if (loggedOut) {
+                val intent = Intent(requireContext(), MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+            }
+        }
     }
 
     private fun isWrongFragment(fragment: Fragment, tabId: Int): Boolean {
@@ -211,15 +211,7 @@ class DashboardFragment : Fragment() {
 
         popupBinding.menuLogout.setOnClickListener {
             popupWindow.dismiss()
-            lifecycleScope.launch {
-                authRepository.logout()
-                withContext(Dispatchers.IO) {
-                    AppDatabase.getInstance(requireContext()).clearAllTables()
-                }
-                val intent = Intent(requireContext(), MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-            }
+            profileViewModel.logout()
         }
 
         popupWindow.elevation = 8f

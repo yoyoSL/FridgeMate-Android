@@ -5,11 +5,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.project.fridgemate.data.local.AppDatabase
 import com.project.fridgemate.data.remote.ApiClient
 import com.project.fridgemate.data.remote.api.NominatimApi
 import com.project.fridgemate.data.remote.dto.AddressDto
 import com.project.fridgemate.data.remote.dto.UpdateProfileRequest
 import com.project.fridgemate.data.remote.dto.UserDto
+import com.project.fridgemate.data.repository.AuthRepository
 import com.project.fridgemate.data.repository.UserRepository
 import com.project.fridgemate.R
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +21,7 @@ import kotlinx.coroutines.withContext
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
 
     private val userRepository = UserRepository(application.applicationContext)
+    private val authRepository = AuthRepository()
 
     private val _user = MutableLiveData<UserDto?>()
     val user: LiveData<UserDto?> = _user
@@ -178,5 +181,21 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     fun clearError() {
         _error.value = null
+    }
+
+    val isLoggedIn: Boolean
+        get() = ApiClient.getTokenManager().isLoggedIn
+
+    private val _loggedOut = MutableLiveData(false)
+    val loggedOut: LiveData<Boolean> = _loggedOut
+
+    fun logout() {
+        viewModelScope.launch {
+            authRepository.logout()
+            withContext(Dispatchers.IO) {
+                AppDatabase.getInstance(getApplication<Application>()).clearAllTables()
+            }
+            _loggedOut.value = true
+        }
     }
 }

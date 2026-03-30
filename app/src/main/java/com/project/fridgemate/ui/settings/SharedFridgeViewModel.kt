@@ -5,6 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.project.fridgemate.data.local.AppDatabase
+import com.project.fridgemate.data.local.entity.RecipeEntity
 import com.project.fridgemate.data.remote.dto.DetectedItemDto
 import com.project.fridgemate.data.remote.dto.FridgeMemberDetailDto
 import com.project.fridgemate.data.repository.FridgeRepository
@@ -168,6 +170,13 @@ class SharedFridgeViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun clearScanResult() { _scanResult.value = null }
+
+    fun clearRecipeCache() {
+        viewModelScope.launch {
+            val dao = AppDatabase.getInstance(getApplication<Application>()).recipeDao()
+            dao.deleteByType(RecipeEntity.TYPE_RECOMMENDED)
+        }
+    }
 
     fun clearError() { _error.value = null }
     fun clearActionSuccess() { _actionSuccess.value = null }
