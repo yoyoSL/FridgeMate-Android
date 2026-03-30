@@ -90,7 +90,7 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
             is FridgeResult.Success -> {
                 _noFridge.postValue(false)
                 val items = inventoryRepository.getItems(fridgeResult.data.id)
-                items.map { it.name }
+                items.map { "${it.name} (${it.quantity})" }
             }
             is FridgeResult.NoFridge -> {
                 _noFridge.postValue(true)
