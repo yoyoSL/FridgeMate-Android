@@ -28,11 +28,9 @@ class PostAdapter(
     private val onEditClick: (Post) -> Unit,
     private val onDeleteComment: (postId: String, commentId: String) -> Unit,
     private val onEditComment: (postId: String, commentId: String, newText: String) -> Unit,
-    private val onExpandComments: (postId: String) -> Unit,
+    private val onExpandComments: (String) -> Unit,
     private val onRecipeClick: (LinkedRecipe) -> Unit = {}
 ) : ListAdapter<Post, PostAdapter.PostViewHolder>(DIFF_CALLBACK) {
-
-    private val expandedPosts = mutableSetOf<String>()
 
     companion object {
         private const val PAYLOAD_LIKE = "PAYLOAD_LIKE"
@@ -142,29 +140,10 @@ class PostAdapter(
             }
             
             btnComment.setOnClickListener {
-                // Prepare the transition
-                val recyclerView = root.parent as? RecyclerView
-                val transitionRoot = recyclerView ?: (root as ViewGroup)
-                
-                TransitionManager.beginDelayedTransition(transitionRoot, AutoTransition().apply {
-                    duration = 200
-                    // Exclude the button itself to prevent weird button fading
-                    excludeTarget(btnComment, true)
-                })
-
-                if (layoutCommentsSection.visibility == View.GONE) {
-                    expandedPosts.add(post.id)
-                    // Setup data before showing to ensure layout is ready
-                    setupComments(holder, post)
-                    layoutCommentsSection.visibility = View.VISIBLE
-                    onExpandComments(post.id)
-                } else {
-                    expandedPosts.remove(post.id)
-                    layoutCommentsSection.visibility = View.GONE
-                }
+                onExpandComments(post.id)
             }
 
-            if (expandedPosts.contains(post.id)) {
+            if (post.isExpanded) {
                 setupComments(holder, post)
                 layoutCommentsSection.visibility = View.VISIBLE
             } else {
@@ -201,18 +180,20 @@ class PostAdapter(
 
     private fun setupComments(holder: PostViewHolder, post: Post) {
         val rv = holder.binding.rvComments
-        rv.itemAnimator = null // Prevent flickering during expansion
         
-        // Only set the adapter if it's not already set to the same data to avoid unnecessary layout passes
-        val currentAdapter = rv.adapter as? CommentAdapter
-        if (currentAdapter == null || currentAdapter.itemCount != post.comments.size) {
+        // Use the existing adapter if possible to avoid flickering and unnecessary layout passes
+        var adapter = rv.adapter as? CommentAdapter
+        if (adapter == null) {
+            rv.itemAnimator = null // No animations for nested recycler
             rv.layoutManager = LinearLayoutManager(holder.itemView.context)
-            rv.adapter = CommentAdapter(
-                comments = post.comments,
+            adapter = CommentAdapter(
                 onDeleteComment = { comment -> onDeleteComment(post.id, comment.id) },
                 onEditComment = { comment, newText -> onEditComment(post.id, comment.id, newText) }
             )
+            rv.adapter = adapter
         }
+        
+        adapter.submitList(post.comments)
     }
 
     private fun showOptionsMenu(anchor: View, post: Post) {
