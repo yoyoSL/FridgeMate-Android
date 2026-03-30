@@ -165,6 +165,13 @@ class RecipeListFragment : Fragment() {
                     iconRes = R.drawable.ic_recipes
                 )
                 binding.btnGenerate.visibility = View.GONE
+            } else if (type == TYPE_RECOMMENDED) {
+                showEmptyState(
+                    title = getString(R.string.recommended_empty_title),
+                    description = getString(R.string.recipes_no_results_desc),
+                    iconRes = R.drawable.ic_recipes
+                )
+                binding.btnGenerate.visibility = View.VISIBLE
             }
         } else {
             binding.emptyState.visibility = View.GONE
