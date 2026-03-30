@@ -38,7 +38,8 @@ data class Post(
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
     val isOwner: Boolean = false,
-    val linkedRecipe: LinkedRecipe? = null
+    val linkedRecipe: LinkedRecipe? = null,
+    val isExpanded: Boolean = false
 )
 
 data class Comment(
@@ -93,14 +94,20 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
             _error.value = null
             when (val result = repository.getPosts()) {
                 is FridgeResult.Success -> {
-                    val posts = result.data.items.map { it.toPost() }
-                    _posts.value = posts
-                    // Automatically load comments for all fetched posts
-                    posts.forEach { post ->
-                        if (post.commentsCount > 0) {
-                            loadComments(post.id)
+                    val currentPostsMap = _posts.value?.associateBy { it.id } ?: emptyMap()
+                    val posts = result.data.items.map { dto ->
+                        val post = dto.toPost()
+                        val existing = currentPostsMap[post.id]
+                        if (existing != null) {
+                            post.copy(
+                                comments = existing.comments,
+                                isExpanded = existing.isExpanded
+                            )
+                        } else {
+                            post
                         }
                     }
+                    _posts.value = posts
                 }
                 is FridgeResult.Error -> {
                     _error.value = result.message
@@ -117,14 +124,20 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
             _isMyPostsLoading.value = true
             when (val result = repository.getMyPosts()) {
                 is FridgeResult.Success -> {
-                    val posts = result.data.items.map { it.toPost() }
-                    _myPosts.value = posts
-                    // Automatically load comments for my posts
-                    posts.forEach { post ->
-                        if (post.commentsCount > 0) {
-                            loadComments(post.id)
+                    val currentPostsMap = _myPosts.value?.associateBy { it.id } ?: emptyMap()
+                    val posts = result.data.items.map { dto ->
+                        val post = dto.toPost()
+                        val existing = currentPostsMap[post.id]
+                        if (existing != null) {
+                            post.copy(
+                                comments = existing.comments,
+                                isExpanded = existing.isExpanded
+                            )
+                        } else {
+                            post
                         }
                     }
+                    _myPosts.value = posts
                 }
                 is FridgeResult.Error -> {
                     _error.value = result.message
@@ -276,6 +289,20 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
                 else -> {}
             }
         }
+    }
+
+    fun toggleExpanded(postId: String) {
+        val update: (Post) -> Post = {
+            if (it.id == postId) {
+                val newExpanded = !it.isExpanded
+                if (newExpanded && it.comments.isEmpty()) {
+                    loadComments(postId)
+                }
+                it.copy(isExpanded = newExpanded)
+            } else it
+        }
+        _posts.value = _posts.value?.map(update)
+        _myPosts.value = _myPosts.value?.map(update)
     }
 
     fun loadComments(postId: String) {
