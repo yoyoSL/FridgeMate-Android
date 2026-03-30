@@ -84,7 +84,13 @@ class AuthRepository {
     }
 
     private fun parseError(errorBody: String?): String {
-        return errorBody?.takeIf { it.isNotBlank() } ?: "Something went wrong. Please try again."
+        if (errorBody.isNullOrBlank()) return "Something went wrong. Please try again."
+        return try {
+            val json = org.json.JSONObject(errorBody)
+            json.optString("message", "Something went wrong. Please try again.")
+        } catch (_: Exception) {
+            errorBody
+        }
     }
 
     private fun networkErrorMessage(e: Exception): String {
