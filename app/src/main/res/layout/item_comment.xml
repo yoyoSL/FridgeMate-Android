@@ -6,14 +6,15 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:paddingHorizontal="12dp"
-    android:paddingVertical="4dp"
-    android:gravity="center_vertical">
+    android:paddingVertical="6dp"
+    android:gravity="top">
 
     <!--Profile pic -->
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/ivCommentUserPhoto"
         android:layout_width="32dp"
         android:layout_height="32dp"
+        android:layout_marginTop="2dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_person"
         app:shapeAppearanceOverlay="@style/CircleImage" />
@@ -23,24 +24,77 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginStart="10dp">
+        android:layout_marginStart="10dp"
+        android:background="@drawable/bg_comment_bubble"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp">
 
         <TextView
             android:id="@+id/tvCommentUserName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/profile_name_placeholder"
-            android:textSize="13sp"
-            android:textStyle="bold" />
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/dark_teal" />
 
         <TextView
             android:id="@+id/tvCommentText"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/comment_placeholder"
             android:textSize="13sp"
-            android:textColor="@color/gray_text"
-            android:layout_marginTop="1dp" />
+            android:textColor="@color/black"
+            android:layout_marginTop="2dp" />
+
+        <LinearLayout
+            android:id="@+id/layoutEditComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone"
+            android:layout_marginTop="4dp">
+
+            <EditText
+                android:id="@+id/etEditComment"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_popup_menu"
+                android:backgroundTint="@color/input_background"
+                android:textSize="13sp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:inputType="textMultiLine"
+                android:hint="@string/edit_comment" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelEdit"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:minWidth="0dp"
+                android:paddingHorizontal="8dp"
+                android:text="@string/cancel"
+                android:textAllCaps="false"
+                android:textColor="@color/gray_text"
+                android:textSize="12sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveEdit"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:paddingHorizontal="8dp"
+                android:text="@string/save"
+                android:textAllCaps="false"
+                android:textColor="@color/teal_primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
     </LinearLayout>
 
