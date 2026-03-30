@@ -112,6 +112,7 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
     fun getRecipeByServerId(serverId: String): LiveData<RecipeEntity?> = repository.getByServerId(serverId)
 
     fun fetchRecipeDetail(serverId: String) {
+        _error.value = null
         _detailLoading.value = true
         viewModelScope.launch {
             val result = repository.fetchAndCacheRecipeByServerId(serverId)
