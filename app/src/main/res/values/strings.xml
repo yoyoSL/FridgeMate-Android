@@ -116,6 +116,7 @@
     <string name="favorites_empty_title">No Favorites Yet</string>
     <string name="favorites_empty_desc">Tap the star icon on any recipe to save it for later!</string>
     <string name="recommended_empty_title">No recommendations yet</string>
+    <string name="recipes_no_results_desc">We couldn\'t generate recipes with your current ingredients. Try adding more items to your fridge!</string>
 
     <string-array name="cooking_tips">
         <item>A pinch of salt can enhance sweetness in desserts</item>
