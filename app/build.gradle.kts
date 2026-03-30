@@ -79,7 +79,6 @@ dependencies {
 
     // Encrypted storage
     implementation(libs.androidx.security.crypto)
-    implementation(libs.androidx.legacy.support.v4)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.fragment)
 
