@@ -55,7 +55,10 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
                 recipeDao.insertAll(entities)
                 Result.success(Unit)
             } else {
-                val error = response.errorBody()?.string() ?: "Failed to generate recipes"
+                val rawError = response.errorBody()?.string()
+                val error = try {
+                    org.json.JSONObject(rawError ?: "").optString("message", "Failed to generate recipes")
+                } catch (_: Exception) { rawError ?: "Failed to generate recipes" }
                 Result.failure(Exception(error))
             }
         } catch (e: Exception) {
