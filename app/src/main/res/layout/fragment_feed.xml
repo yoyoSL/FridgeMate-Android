@@ -61,23 +61,15 @@
 
             </LinearLayout>
 
-            <androidx.core.widget.NestedScrollView
-                android:id="@+id/nsvContent"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPosts"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="12dp"
+                android:clipToPadding="false"
                 app:layout_constraintTop_toBottomOf="@id/llButtons"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvPosts"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="16dp"
-                    android:paddingTop="12dp"
-                    android:clipToPadding="false"
-                    android:nestedScrollingEnabled="false" />
-
-            </androidx.core.widget.NestedScrollView>
+                app:layout_constraintBottom_toBottomOf="parent" />
 
             <ProgressBar
                 android:id="@+id/progressBar"

@@ -80,7 +80,7 @@ class FeedFragment : Fragment() {
             },
             onDeleteComment = { postId, commentId -> viewModel.deleteComment(postId, commentId) },
             onEditComment = { postId, commentId, newText -> viewModel.editComment(postId, commentId, newText) },
-            onExpandComments = { postId -> viewModel.loadComments(postId) },
+            onExpandComments = { postId -> viewModel.toggleExpanded(postId) },
             onRecipeClick = { recipe ->
                 val action = DashboardFragmentDirections
                     .actionDashboardFragmentToRecipeDetailFragment(

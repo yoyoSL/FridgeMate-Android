@@ -13,12 +13,18 @@ import com.project.fridgemate.databinding.ItemCommentBinding
 import com.squareup.picasso.Picasso
 
 class CommentAdapter(
-    private val comments: List<Comment>,
     private val onDeleteComment: (Comment) -> Unit = {},
     private val onEditComment: (Comment, String) -> Unit = { _, _ -> }
 ) : RecyclerView.Adapter<CommentAdapter.CommentViewHolder>() {
 
+    private var comments: List<Comment> = emptyList()
     private var editingCommentId: String? = null
+
+    fun submitList(newList: List<Comment>) {
+        if (this.comments == newList) return
+        this.comments = newList
+        notifyDataSetChanged()
+    }
 
     inner class CommentViewHolder(val binding: ItemCommentBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -77,6 +83,7 @@ class CommentAdapter(
                     .load(url)
                     .placeholder(R.drawable.ic_person)
                     .error(R.drawable.ic_person)
+                    .noFade()
                     .into(ivCommentUserPhoto)
             } else {
                 ivCommentUserPhoto.setImageResource(R.drawable.ic_person)
@@ -93,7 +100,8 @@ class CommentAdapter(
         binding.btnEdit.setOnClickListener {
             dialog.dismiss()
             editingCommentId = comment.id
-            notifyDataSetChanged()
+            val pos = comments.indexOfFirst { it.id == comment.id }
+            if (pos != -1) notifyItemChanged(pos)
         }
 
         binding.btnDelete.setOnClickListener {
