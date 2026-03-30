@@ -111,7 +111,7 @@ class FeedFragment : Fragment() {
     private fun observeLoading() {
         viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
             binding.swipeRefresh.isRefreshing = false
-            if (loading) {
+            if (loading && (postAdapter?.itemCount ?: 0) == 0) {
                 binding.progressBar.visibility = View.VISIBLE
                 binding.emptyStateFeed.visibility = View.GONE
             } else {

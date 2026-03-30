@@ -26,7 +26,7 @@ class FridgeViewModel(application: Application) : AndroidViewModel(application) 
         data class Error(val message: String) : State()
     }
 
-    private val _state = MutableLiveData<State>()
+    private val _state = MutableLiveData<State>(State.Loading)
     val state: LiveData<State> = _state
 
     fun loadItems() {
