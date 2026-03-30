@@ -188,7 +188,6 @@ class AddPostFragment : Fragment() {
             try {
                 val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
                 
-                // Request a fresh high-accuracy location
                 val priority = if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
                     Priority.PRIORITY_HIGH_ACCURACY
                 else
@@ -205,7 +204,7 @@ class AddPostFragment : Fragment() {
                     shortAddress = getShortAddress(location.latitude, location.longitude)
                 }
             } catch (e: Exception) {
-                // Ignore location errors
+                // Silently continue without location
             }
 
             val recipeId = args.prefillRecipeId.ifEmpty { null }

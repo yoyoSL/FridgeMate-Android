@@ -87,31 +87,27 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadPosts() {
         viewModelScope.launch {
-            // Only show main loading if we don't have posts yet
             if (_posts.value.isNullOrEmpty()) {
                 _isLoading.value = true
             }
             _error.value = null
+            
             when (val result = repository.getPosts()) {
                 is FridgeResult.Success -> {
                     val currentPostsMap = _posts.value?.associateBy { it.id } ?: emptyMap()
                     val posts = result.data.items.map { dto ->
                         val post = dto.toPost()
-                        val existing = currentPostsMap[post.id]
-                        if (existing != null) {
+                        currentPostsMap[post.id]?.let { existing ->
                             post.copy(
                                 comments = existing.comments,
                                 isExpanded = existing.isExpanded
                             )
-                        } else {
-                            post
-                        }
+                        } ?: post
                     }
                     _posts.value = posts
                 }
                 is FridgeResult.Error -> {
                     _error.value = result.message
-                    Log.e("FeedViewModel", "loadPosts error: ${result.message}")
                 }
                 else -> {}
             }
@@ -306,7 +302,6 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadComments(postId: String) {
-        // Skip if we already have the comments (unless they've changed)
         val currentPost = _posts.value?.find { it.id == postId } ?: _myPosts.value?.find { it.id == postId }
         if (currentPost != null && currentPost.comments.isNotEmpty() && currentPost.comments.size == currentPost.commentsCount) {
             return
@@ -321,9 +316,6 @@ class FeedViewModel(application: Application) : AndroidViewModel(application) {
                     }
                     _posts.value = _posts.value?.map(update)
                     _myPosts.value = _myPosts.value?.map(update)
-                }
-                is FridgeResult.Error -> {
-                    Log.e("FeedViewModel", "loadComments error: ${result.message}")
                 }
                 else -> {}
             }

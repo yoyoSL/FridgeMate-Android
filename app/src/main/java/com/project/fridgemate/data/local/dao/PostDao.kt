@@ -24,6 +24,9 @@ interface PostDao {
     @Query("DELETE FROM posts")
     suspend fun clearAll()
 
+    @Query("DELETE FROM posts WHERE isOwner = 0")
+    suspend fun clearNonOwnerPosts()
+
     @Query("DELETE FROM posts WHERE id = :postId")
     suspend fun deleteById(postId: String)
 }
